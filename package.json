@@ -1,5 +1,5 @@
 {
-  "name": "vbee_operation_management_system_backend",
+  "name": "rule_based_bot_backend",
   "version": "1.0.0",
   "scripts": {
     "start": "node src/index.js",

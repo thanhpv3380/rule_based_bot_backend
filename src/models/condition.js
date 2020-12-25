@@ -1,17 +1,21 @@
 const mongoose = require('mongoose');
 
-var ObjectId = mongoose.Types.ObjectId;
-const condidtionSchema = new mongoose.Schema(
+const { ObjectId } = mongoose.Types;
+
+const conditionSchema = new mongoose.Schema(
   {
     conditions: [
-        {
-              parameter: String,
-              intentId: objectId,
-              operator: String,
-              value : String
-         }
+      {
+        parameter: String,
+        intent: {
+          type: ObjectId,
+          ref: 'Intent',
+        },
+        operator: String,
+        value: String,
+      },
     ],
-    operator: String
+    operator: String,
   },
   {
     timestamps: true,
@@ -19,4 +23,4 @@ const condidtionSchema = new mongoose.Schema(
   },
 );
 
-module.exports = mongoose.model('condition', condidtionSchema);
+module.exports = mongoose.model('Condition', conditionSchema);

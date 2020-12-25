@@ -1,10 +1,21 @@
 const mongoose = require('mongoose');
 
+const { ObjectId } = mongoose.Types;
+
 const userSchema = new mongoose.Schema(
   {
-    name: String,
+    fullName: String,
+    avatar: String,
     email: String,
     password: String,
+    dob: Date,
+    phone: String,
+    bots: [
+      {
+        type: ObjectId,
+        ref: 'Bot',
+      },
+    ],
   },
   {
     timestamps: true,

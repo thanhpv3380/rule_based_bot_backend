@@ -1,16 +1,17 @@
 const mongoose = require('mongoose');
 
-var ObjectId = mongoose.Types.ObjectId;
+const { ObjectId } = mongoose.Types;
+
 const groupIntentSchema = new mongoose.Schema(
   {
     name: String,
-    nodes : [
+    nodes: [
       {
         nodeId: ObjectId,
         type: String,
         refDataId: ObjectId,
         parentId: [ObjectId],
-      }
+      },
     ],
   },
   {

@@ -1,11 +1,15 @@
 const mongoose = require('mongoose');
 
-var ObjectId = mongoose.Types.ObjectId;
+const { ObjectId } = mongoose.Types;
+
 const dictionarySchema = new mongoose.Schema(
   {
     synonym: String,
     original: String,
-    bot: ObjectId
+    bot: {
+      type: ObjectId,
+      ref: 'Bot',
+    },
   },
   {
     timestamps: true,

@@ -5,14 +5,17 @@ const { ObjectId } = mongoose.Types;
 const groupIntentSchema = new mongoose.Schema(
   {
     name: String,
-    nodes: [
+    intents: [
       {
-        nodeId: ObjectId,
-        type: String,
-        refDataId: ObjectId,
-        parentId: [ObjectId],
+        type: ObjectId,
+        ref: 'Intent',
       },
     ],
+    isGroup: Boolean,
+    bot: {
+      type: ObjectId,
+      ref: 'Bot',
+    },
   },
   {
     timestamps: true,

@@ -23,6 +23,10 @@ const entitySchema = new mongoose.Schema(
         },
       ],
     ],
+    createBy: {
+      type: ObjectId,
+      ref: 'User',
+    },
   },
   {
     timestamps: true,

@@ -10,6 +10,7 @@ mongoose.connect(MONGO_URI_CLOUD, {
 });
 
 mongoose.connection.on('error', (err) => {
+  console.log(MONGO_URI_CLOUD);
   console.error('MongoDB connection error.');
   console.error(err);
   process.exit();

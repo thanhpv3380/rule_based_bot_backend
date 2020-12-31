@@ -8,4 +8,6 @@ module.exports = {
 
   USER_NOT_FOUND: 1001,
   WRONG_PASSWORD: 1002,
+
+  BOT_NOT_FOUND: 1003,
 };

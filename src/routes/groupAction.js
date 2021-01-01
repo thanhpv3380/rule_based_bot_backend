@@ -9,6 +9,11 @@ router.get(
   asyncMiddleware(groupActionController.getAllGroupAction),
 );
 
+router.post(
+  '/groupActions/getGroupAndItems',
+  asyncMiddleware(groupActionController.getAllGroupActionAndItem),
+);
+
 router.get(
   '/actions/:id',
   asyncMiddleware(groupActionController.getGroupActionById),

@@ -1,13 +1,11 @@
-/* eslint-disable no-unused-vars */
 const router = require('express').Router();
 const asyncMiddleware = require('../middlewares/async');
-const { auth } = require('../middlewares/auth');
-const actionController = require('../controllers/auth');
+const actionController = require('../controllers/action');
 
-router.get('/actions', asyncMiddleware(actionController.register));
-router.get('/actions/:id', asyncMiddleware(actionController.register));
-router.post('/actions', asyncMiddleware(actionController.register));
-router.put('/actions/:id', asyncMiddleware(actionController.register));
-router.delete('/actions/Lid', asyncMiddleware(actionController.register));
+router.get('/actions', asyncMiddleware(actionController.getAllAction));
+router.get('/actions/:id', asyncMiddleware(actionController.getActionById));
+router.post('/actions', asyncMiddleware(actionController.createAction));
+router.put('/actions/:id', asyncMiddleware(actionController.updateAction));
+router.delete('/actions/:id', asyncMiddleware(actionController.deleteAction));
 
 module.exports = router;

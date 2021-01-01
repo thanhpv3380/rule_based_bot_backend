@@ -1,26 +1,42 @@
 const Action = require('../models/action');
 
-const findAllAction = async () => {
-  const actions = await Action.find();
-  return actions;
-};
-
-const findActionById = async ({ id }) => {
-  const action = await Action.findById({ id });
+const findActionById = async (id) => {
+  const action = await Action.findById({ _id: id });
   return action;
 };
 
-const createAction = async ({}) => {};
+const findActionByName = async ({ name }) => {
+  const action = await Action.findOne({ name });
+  return action;
+};
 
-const updateAction = async ({}) => {};
+const createAction = async ({ name, actions, userId }) => {
+  const action = await Action.create({
+    name,
+    actions,
+    createBy: userId,
+  });
+  return action;
+};
 
-const deleteAction = async ({ id }) => {
+const updateAction = async ({ id, name, actions }) => {
+  const action = await Action.updateOne(
+    { _id: id },
+    {
+      name,
+      actions,
+    },
+  );
+  return action;
+};
+
+const deleteAction = async (id) => {
   await Action.deleteOne({ _id: id });
 };
 
 module.exports = {
-  findAllAction,
   findActionById,
+  findActionByName,
   createAction,
   updateAction,
   deleteAction,

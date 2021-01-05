@@ -1,8 +1,6 @@
-/* eslint-disable spaced-comment */
 const mongoose = require('mongoose');
 
-const { ObjectId } = mongoose.Types;
-
+var ObjectId = mongoose.Types.ObjectId;
 const actionSchema = new mongoose.Schema(
   {
     name: String,
@@ -74,6 +72,10 @@ const actionSchema = new mongoose.Schema(
         },
       },
     ],
+    createBy: {
+      type: ObjectId,
+      ref: 'User',
+    },
   },
   {
     timestamps: true,

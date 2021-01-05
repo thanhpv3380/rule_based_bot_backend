@@ -1,21 +1,12 @@
 const mongoose = require('mongoose');
 
-const { ObjectId } = mongoose.Types;
-
+var ObjectId = mongoose.Types.ObjectId;
 const groupEntitySchema = new mongoose.Schema(
   {
     name: String,
-    entities: [
-      {
-        type: ObjectId,
-        ref: 'Entity',
-      },
-    ],
+    entities : [ObjectId],
     isGroup: Boolean,
-    bot: {
-      type: ObjectId,
-      ref: 'Bot',
-    },
+    botId: ObjectId,
   },
   {
     timestamps: true,

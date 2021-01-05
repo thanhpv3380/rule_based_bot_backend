@@ -1,8 +1,9 @@
 const botService = require('../services/bot');
 
 const create = async (req, res) => {
-  const { name, userId } = req.body;
-  const bot = await botService.createBot({ name, userId });
+  console.log("Controller");
+  const { name } = req.body;
+  const bot = await botService.createBot({ name });
   return res.send({ status: 1, result: bot });
 };
 

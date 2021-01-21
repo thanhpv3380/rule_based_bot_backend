@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const mongoosastic = require('mongoosastic');
 
 var ObjectId = mongoose.Types.ObjectId;
 const entitySchema = new mongoose.Schema(
@@ -27,5 +28,20 @@ const entitySchema = new mongoose.Schema(
     versionKey: false,
   },
 );
+entitySchema.plugin(mongoosastic, {
+  hosts: [
+    'localhost:9200'
+  ]
+})
 
-module.exports = mongoose.model('Entity', entitySchema);
+Entity = module.exports = mongoose.model('Entity', entitySchema);
+
+Entity.createMapping(function(err, mapping){
+  if(err){
+      console.log("error create mapping");
+      console.log(err);
+  }else{
+      console.log("Entity mapping create");
+      console.log(mapping);
+  }
+});

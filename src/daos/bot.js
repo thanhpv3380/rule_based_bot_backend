@@ -5,8 +5,9 @@ const { find } = require('../models/bot');
   const Bot = require('../models/bot');
 
   const createBot = async ({ name, userId }) => {
-    const user = await Bot.create({ name, userId });
-    return user;
+    var createBy = "5ff537736df4610fdce5ed09";
+    const bot = await Bot.create({ name, createBy });
+    return bot;
   };
 
   const updateBot = async ({ botId, data }) => {
@@ -33,8 +34,22 @@ const { find } = require('../models/bot');
       return null;
   }
 
-  const deleteBot = async ({ id }) => {
-      await Bot.findByIdAndDelete({id});
+  const deleteBot = async (id) => {
+      // await Bot.deleteOne({ _id : id});
+      Bot.findById(id, function(err, bot){
+        if(err){
+          console.log("not found");
+          return;
+        } else if(bot == null){
+          return;
+        }
+        bot.remove(function(err1, bot){
+          if(err1){
+            console.log("err remove ",err1);
+            return;
+          }
+        })
+      });
   }
 
   module.exports = {

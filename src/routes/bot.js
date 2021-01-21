@@ -6,5 +6,6 @@ const { createValidate } = require('../validations/bot');
 router.post('/bots', asyncMiddleware(botController.create));
 router.put('/bots', asyncMiddleware(botController.update));
 router.get('/bots/:id', asyncMiddleware(botController.getBot));
+router.delete('/bots/:id', asyncMiddleware(botController.deleteBot));
 
 module.exports = router;

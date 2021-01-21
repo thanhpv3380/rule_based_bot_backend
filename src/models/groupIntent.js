@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const mongoosastic = require('mongoosastic');
 const { ObjectId } = mongoose.Types;
 const groupIntentSchema = new mongoose.Schema(
   {
@@ -22,4 +22,20 @@ const groupIntentSchema = new mongoose.Schema(
   },
 );
 
-module.exports = mongoose.model('GroupIntent', groupIntentSchema);
+groupIntentSchema.plugin(mongoosastic, {
+  hosts: [
+    'localhost:9200'
+  ]
+})
+
+GroupIntent = module.exports = mongoose.model('GroupIntent', groupIntentSchema);
+
+GroupIntent.createMapping(function(err, mapping){
+  if(err){
+      console.log("error create mapping");
+      console.log(err);
+  }else{
+      console.log("GroupIntent mapping create");
+      console.log(mapping);
+  }
+});

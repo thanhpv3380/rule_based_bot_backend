@@ -1,8 +1,9 @@
 const botService = require('../services/bot');
 
 const create = async (req, res) => {
-  console.log("Controller");
+
   const { name } = req.body;
+  console.log("name controller: ", name);
   const bot = await botService.createBot({ name });
   return res.send({ status: 1, result: bot });
 };
@@ -20,7 +21,8 @@ const update = async (req, res) => {
 
 const getBot = async (req, res) => {
   // const { accessToken } = req;
-  const { id } = req.param;
+  const { id } = req.params;
+  console.log(id);
   const bot = await botService.findBotById(id);
   res.send({ status: 1, result: bot });
 };
@@ -32,4 +34,10 @@ const getBots = async (req, res) => {
   res.send({ status: 1, result: bot });
 }
 
-module.exports = { create, update, getBot, getBots };
+const deleteBot = async(req, res) => {
+  const { id } = req.params;
+  console.log(id, "   id ");
+  await botService.deleteBotById(id);
+  res.send({ status: 1 });
+}
+module.exports = { create, update, getBot, getBots, deleteBot };

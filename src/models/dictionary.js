@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const mongoosastic = require('mongoosastic');
 
 const { ObjectId } = mongoose.Types;
 
@@ -6,9 +7,9 @@ const dictionarySchema = new mongoose.Schema(
   {
     synonym: String,
     original: String,
-    bot: {
+    Dictionary: {
       type: ObjectId,
-      ref: 'Bot',
+      ref: 'Dictionary',
     },
   },
   {
@@ -17,4 +18,21 @@ const dictionarySchema = new mongoose.Schema(
   },
 );
 
-module.exports = mongoose.model('Dictionary', dictionarySchema);
+dictionarySchema.plugin(mongoosastic, {
+  hosts: [
+    'localhost:9200'
+  ]
+})
+
+Dictionary = module.exports = mongoose.model('Dictionary', dictionarySchema);
+
+
+Dictionary.createMapping(function(err, mapping){
+  if(err){
+      console.log("error create mapping");
+      console.log(err);
+  }else{
+      console.log("Dictionary mapping create");
+      console.log(mapping);
+  }
+});

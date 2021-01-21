@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const mongoosastic = require('mongoosastic');
 
 var ObjectId = mongoose.Types.ObjectId;
 const groupEntitySchema = new mongoose.Schema(
@@ -6,7 +7,7 @@ const groupEntitySchema = new mongoose.Schema(
     name: String,
     entities : [ObjectId],
     isGroup: Boolean,
-    botId: ObjectId,
+    GroupEntityId: ObjectId,
   },
   {
     timestamps: true,
@@ -14,4 +15,20 @@ const groupEntitySchema = new mongoose.Schema(
   },
 );
 
-module.exports = mongoose.model('GroupEntity', groupEntitySchema);
+groupEntitySchema.plugin(mongoosastic, {
+  hosts: [
+    'localhost:9200'
+  ]
+})
+
+GroupEntity = module.exports = mongoose.model('GroupEntity', groupEntitySchema);
+
+GroupEntity.createMapping(function(err, mapping){
+  if(err){
+      console.log("error create mapping");
+      console.log(err);
+  }else{
+      console.log("GroupEntity mapping create");
+      console.log(mapping);
+  }
+});

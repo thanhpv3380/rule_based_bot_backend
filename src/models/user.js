@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const mongoosastic = require('mongoosastic');
 const { ObjectId } = mongoose.Types;
 
 const userSchema = new mongoose.Schema(
@@ -22,5 +22,19 @@ const userSchema = new mongoose.Schema(
     versionKey: false,
   },
 );
+userSchema.plugin(mongoosastic, {
+  hosts: [
+    'localhost:9200'
+  ]
+})
+User = module.exports = mongoose.model('User', userSchema);
 
-module.exports = mongoose.model('User', userSchema);
+User.createMapping(function(err, mapping){
+  if(err){
+      console.log("error create mapping");
+      console.log(err);
+  }else{
+      console.log("User mapping create");
+      console.log(mapping);
+  }
+});

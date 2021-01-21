@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const mongoosastic = require('mongoosastic');
 
 var ObjectId = mongoose.Types.ObjectId;
 const groupFlowSchema = new mongoose.Schema(
@@ -6,7 +7,7 @@ const groupFlowSchema = new mongoose.Schema(
     name: String,
     workFlows : [ObjectId],
     isGroup: Boolean,
-    botId: ObjectId,
+    GroupFlowId: ObjectId,
   },
   {
     timestamps: true,
@@ -14,4 +15,30 @@ const groupFlowSchema = new mongoose.Schema(
   },
 );
 
-module.exports = mongoose.model('GroupFlow', groupFlowSchema);
+groupFlowSchema.plugin(mongoosastic, {
+  hosts: [
+    'localhost:9200'
+  ]
+})
+
+GroupFlow = module.exports = mongoose.model('GroupFlow', groupFlowSchema);
+
+GroupFlow.createMapping(function(err, mapping){
+  if(err){
+      console.log("error create mapping");
+      console.log(err);
+  }else{
+      console.log("GroupFlow mapping create");
+      console.log(mapping);
+  }
+});
+
+var stream = GroupFlow.synchronize();
+var count = 0;
+stream.on('data', function(){
+  count++;
+})
+
+stream.on('close', function(){
+  console.log("indexed " + count + " documents");
+})

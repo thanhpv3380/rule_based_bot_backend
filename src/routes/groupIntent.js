@@ -10,7 +10,7 @@ router.get(
 );
 
 router.get(
-  '/actions/:id',
+  '/groupIntents/:id',
   asyncMiddleware(groupIntentController.getGroupIntentById),
 );
 

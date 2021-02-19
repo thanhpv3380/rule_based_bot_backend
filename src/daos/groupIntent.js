@@ -1,16 +1,11 @@
 const GroupIntent = require('../models/groupIntent');
 
 const findAllGroupIntent = async (id) => {
-  const groupIntents = await GroupIntent.find({
-    bot: id,
-    function(err, groupIntent) {
-      groupIntent.awesome = true;
-      groupIntent.index(function (err, res) {
-        return res;
-      });
-    },
+  await GroupIntent.search({ match_all: {} }, async function(err, result) {
+    let groupIntents = await result.hits.hits.map((data) => data);
+      // console.log(groupIntents, ' test Dao groupIntents  ', groupIntents.length);
+      return groupIntents;
   });
-  return groupIntents;
 };
 
 const findGroupIntentById = async ({ id }) => {
@@ -39,11 +34,12 @@ const findGroupIntentByName = async ({ name }) => {
   return groupIntents;
 };
 
-const createGroupIntent = async ({ name, botId, isGroup }) => {
+const createGroupIntent = async ({ name, botId, isGroup, intentId }) => {
   const groupIntent = await GroupIntent.create({
     name,
     bot: botId,
     isGroup,
+    intents : intentId
   });
   return groupIntent;
 };

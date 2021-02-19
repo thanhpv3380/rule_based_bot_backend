@@ -5,13 +5,14 @@ const getAllGroupIntent = async (req, res) => {
   const {
     groupIntents,
     metadata,
-  } = await groupIntentService.findAllGroupIntent(bot.id);
+  } = //await groupIntentService.findAllGroupIntent(bot.id);
+  await groupIntentService.findAllGroupIntent("12");
   return res.send({ status: 1, results: { groupIntents, metadata } });
 };
 
 const getGroupIntentById = async (req, res) => {
   const { id } = req.params;
-  const groupIntent = await groupIntentService.findById(id);
+  const groupIntent = await groupIntentService.findGroupIntentById(id);
   return res.send({ status: 1, results: groupIntent });
 };
 

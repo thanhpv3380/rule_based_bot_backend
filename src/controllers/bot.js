@@ -3,7 +3,6 @@ const botService = require('../services/bot');
 const create = async (req, res) => {
 
   const { name } = req.body;
-  console.log("name controller: ", name);
   const bot = await botService.createBot({ name });
   return res.send({ status: 1, result: bot });
 };

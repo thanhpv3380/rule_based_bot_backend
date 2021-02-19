@@ -2,10 +2,39 @@ const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
 
 const groupIntentDao = require('../daos/groupIntent');
+const intentDao = require('../daos/intent');
 
 const findAllGroupIntent = async (id) => {
-  const groupIntents = await groupIntentDao.findAllGroupIntent(id);
-  return { groupIntents, metadata: { total: groupIntents.length } };
+  // const groupIntents = await groupIntentDao.findAllGroupIntent());
+  // const response = groupIntents.map(item => {
+  //   const intents = intentDao.findAllIntentOfGroup(item.intents);
+  //   return {
+  //     name: item.name,
+  //     intents: intents,
+  //     isGroup: item.isGroup,
+  //     updatedAt: item.updatedAt,
+  //     createdAt: item.createdAt
+  //   };
+  // })
+  const response = {};
+  const getGroupIntents = new Promise(async (resolve, reject) => {
+    const groupIntents = await groupIntentDao.findAllGroupIntent();
+    resolve(groupIntents);
+  });
+  await getGroupIntents.then((groupIntents) => {
+    console.log(groupIntents, "result");
+    // response = groupIntents.map((item) => {
+    //   const intents = intentDao.findAllIntentOfGroup(item.intents);
+    //   return {
+    //     name: item.name,
+    //     intents: intents,
+    //     isGroup: item.isGroup,
+    //     updatedAt: item.updatedAt,
+    //     createdAt: item.createdAt,
+    //   };
+    // });
+  });
+  return { groupIntents: response, metadata: { total: response.length } };
 };
 
 const findAllGroupIntentAndItem = async ({ keyword, botId }) => {

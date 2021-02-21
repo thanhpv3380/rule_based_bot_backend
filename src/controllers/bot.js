@@ -26,10 +26,9 @@ const getBot = async (req, res) => {
 };
 
 const getBots = async (req, res) => {
-  // const { accessToken } = req;
-  const { userId } = req.param;
-  const bot = await botService.findBotByUserId(userId);
-  res.send({ status: 1, result: bot });
+  const { name } = req.query;
+  const { bots, metadata } = await botService.findAllBot(name);
+  res.send({ status: 1, result: { bots, metadata } });
 }
 
 module.exports = { create, update, getBot, getBots };

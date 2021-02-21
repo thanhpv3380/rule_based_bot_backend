@@ -21,6 +21,10 @@ const intentSchema = new mongoose.Schema(
         },
       },
     ],
+    createBy: {
+      type: ObjectId,
+      ref: 'User',
+    },
   },
   {
     timestamps: true,

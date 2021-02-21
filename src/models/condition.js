@@ -16,6 +16,10 @@ const conditionSchema = new mongoose.Schema(
       },
     ],
     operator: String,
+    createBy: {
+      type: ObjectId,
+      ref: 'User',
+    },
   },
   {
     timestamps: true,

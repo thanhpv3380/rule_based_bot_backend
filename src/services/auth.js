@@ -24,7 +24,7 @@ const login = async (email, password) => {
 
   const userId = user._id;
   const accessToken = await generateAccessToken(userId);
-  return accessToken;
+  return { accessToken, user };
 };
 
 const verifyAccessToken = async (accessToken) => {

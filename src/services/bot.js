@@ -1,11 +1,9 @@
 const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
-
 const botDao = require('../daos/bot');
 
-const createBot = async ({ name }) => {
-  var userId = ' ';
-  const bot = await botDao.createBot({ name, userId });
+const createBot = async ({ name, createBy }) => {
+  const bot = await botDao.createBot({ name, createBy });
   return bot;
 };
 
@@ -29,7 +27,7 @@ const findBotById = async (id) => {
 const findAllBot = async (name) => {
   console.log(name);
   if (!name) {
-    name = "";
+    name = '';
   }
   const bots = await botDao.findAllBot(name);
   return { bots, metadata: { total: bots.length } };

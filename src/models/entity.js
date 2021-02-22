@@ -1,25 +1,26 @@
 const mongoose = require('mongoose');
 
-var ObjectId = mongoose.Types.ObjectId;
+const { ObjectId } = mongoose.Types;
+
 const entitySchema = new mongoose.Schema(
   {
     type: String,
     pattern: String,
     synonym: [
-        {
-            input:[String],
-            output: String
-        }
+      {
+        input: [String],
+        output: String,
+      },
     ],
     patterns: [
-        [
-            {
-                text: String
-            },
-            {
-                entity: ObjectId
-            }
-        ]
+      [
+        {
+          text: String,
+        },
+        {
+          entity: ObjectId,
+        },
+      ],
     ],
     createBy: {
       type: ObjectId,

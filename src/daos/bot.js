@@ -1,11 +1,10 @@
 const {
   Types: { ObjectId },
 } = require('mongoose');
-const { find } = require('../models/bot');
 const Bot = require('../models/bot');
 
-const createBot = async ({ name, userId }) => {
-  const user = await Bot.create({ name, userId });
+const createBot = async ({ name, createBy }) => {
+  const user = await Bot.create({ name, createBy });
   return user;
 };
 
@@ -15,7 +14,7 @@ const updateBot = async ({ botId, data }) => {
 };
 
 const findBotByUserId = async ({ userId }) => {
-  const bot = await Bot.find({ userId: userId });
+  const bot = await Bot.find({ userId });
   return bot;
 };
 
@@ -34,11 +33,7 @@ const findBot = async (condition) => {
 };
 
 const findAllBot = async (name) => {
-  // if (!name && name === '') {
-  //   const bot = await Bot.find();
-  //   return bot;
-  // }
-  const bot = await Bot.find({ name: {'$regex': name} });
+  const bot = await Bot.find({ name: { $regex: name } });
   return bot;
 };
 

@@ -4,7 +4,7 @@ const { ObjectId } = mongoose.Types;
 
 const entitySchema = new mongoose.Schema(
   {
-    type: String, // REGEX, SYNONYM, COMPLEX
+    type: String,
     pattern: String,
     synonym: [
       {
@@ -16,10 +16,9 @@ const entitySchema = new mongoose.Schema(
       [
         {
           text: String,
-          entity: {
-            type: ObjectId,
-            ref: 'Entity',
-          },
+        },
+        {
+          entity: ObjectId,
         },
       ],
     ],

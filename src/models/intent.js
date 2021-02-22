@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 
-const { ObjectId } = mongoose.Types;
-
+var ObjectId = mongoose.Types.ObjectId;
 const intentSchema = new mongoose.Schema(
   {
     name: String,

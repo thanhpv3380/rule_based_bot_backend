@@ -1,8 +1,6 @@
-/* eslint-disable spaced-comment */
 const mongoose = require('mongoose');
 
-const { ObjectId } = mongoose.Types;
-
+var ObjectId = mongoose.Types.ObjectId;
 const userSaySchema = new mongoose.Schema(
   {
     input: [String],
@@ -25,4 +23,4 @@ const userSaySchema = new mongoose.Schema(
   },
 );
 
-module.exports = mongoose.model('UserSay', userSaySchema);
+module.exports = mongoose.model('UserSay', userSaysSchema);

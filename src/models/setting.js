@@ -15,6 +15,10 @@ const settingSchema = new mongoose.Schema(
       type: String,
       enum: ['Action', 'Entity', 'Intent'],
     },
+    createBy: {
+      type: ObjectId,
+      ref: 'User',
+    },
   },
   {
     timestamps: true,

@@ -4,7 +4,7 @@ const { ObjectId } = mongoose.Types;
 
 const userSchema = new mongoose.Schema(
   {
-    fullName: String,
+    name: String,
     avatar: String,
     email: String,
     password: String,

@@ -11,6 +11,10 @@ const dictionarySchema = new mongoose.Schema(
       type: ObjectId,
       ref: 'Dictionary',
     },
+    createBy: {
+      type: ObjectId,
+      ref: 'User',
+    },
   },
   {
     timestamps: true,

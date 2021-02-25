@@ -1,18 +1,43 @@
 const Dictionary = require('../models/dictionary');
+const { findAll, findByCondition } = require('../utils/db');
 
-const findAllDictionary = async (id) => {
-  const dictionaries = await Dictionary.findById({ bot: id });
-  return dictionaries;
+const findAllDictionary = async ({
+  key,
+  searchFields,
+  query,
+  queryCommon,
+  offset,
+  limit,
+  fields,
+  sort,
+  populate,
+}) => {
+  const { data, metadata } = await findAll({
+    model: Dictionary,
+    key,
+    searchFields,
+    query,
+    queryCommon,
+    offset,
+    limit,
+    fields,
+    sort,
+    populate,
+  });
+  return {
+    data,
+    metadata,
+  };
 };
 
-const findDictionaryBySynonym = async ({ synonym }) => {
-  const dictionary = await Dictionary.findOne({ synonym });
+const findDictionary = async (condition, fields) => {
+  const dictionary = await findByCondition(Dictionary, condition, fields);
   return dictionary;
 };
 
-const createDictionary = async ({ synonym, original, userId, botId }) => {
+const createDictionary = async ({ acronym, original, userId, botId }) => {
   const dictionary = await Dictionary.create({
-    synonym,
+    acronym,
     original,
     createBy: userId,
     bot: botId,
@@ -20,23 +45,20 @@ const createDictionary = async ({ synonym, original, userId, botId }) => {
   return dictionary;
 };
 
-const updateDictionary = async ({ id, original }) => {
-  const dictionary = await Dictionary.updateOne(
-    { _id: id },
-    {
-      original,
-    },
-  );
+const updateDictionary = async (dictionaryId, data) => {
+  const dictionary = await Dictionary.findByIdAndUpdate(dictionaryId, data, {
+    new: true,
+  });
   return dictionary;
 };
 
-const deleteDictionary = async (id) => {
-  await Dictionary.deleteOne({ _id: id });
+const deleteDictionary = async (dictionaryId) => {
+  await Dictionary.findByIdAndDelete(dictionaryId);
 };
 
 module.exports = {
   findAllDictionary,
-  findDictionaryBySynonym,
+  findDictionary,
   createDictionary,
   updateDictionary,
   deleteDictionary,

@@ -19,6 +19,17 @@ const auth = async (req, res, next) => {
   return next();
 };
 
+const getAgentId = async (req, res, next) => {
+  const agentId = req.headers['agent-id'];
+  if (!agentId) throw new CustomError(codes.NOT_FOUND);
+  const bot = {
+    id: agentId,
+  };
+  req.bot = bot;
+  return next();
+};
+
 module.exports = {
   auth: asyncMiddleware(auth),
+  getAgentId: asyncMiddleware(getAgentId),
 };

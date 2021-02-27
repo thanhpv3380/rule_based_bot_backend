@@ -1,11 +1,15 @@
 const Dictionary = require('../models/dictionary');
 const { findAll, findByCondition } = require('../utils/db');
 
-const findAllDictionary = async ({
+const findAllDictionary = async (botId, populate) => {
+  const dictionaries = await Dictionary.find({ bot: botId }).populate(populate);
+  return dictionaries;
+};
+
+const findAllDictionaryByCondition = async ({
   key,
   searchFields,
   query,
-  queryCommon,
   offset,
   limit,
   fields,
@@ -17,7 +21,6 @@ const findAllDictionary = async ({
     key,
     searchFields,
     query,
-    queryCommon,
     offset,
     limit,
     fields,
@@ -30,8 +33,13 @@ const findAllDictionary = async ({
   };
 };
 
-const findDictionary = async (condition, fields) => {
-  const dictionary = await findByCondition(Dictionary, condition, fields);
+const findDictionary = async (condition, fields, populate) => {
+  const dictionary = await findByCondition(
+    Dictionary,
+    condition,
+    fields,
+    populate,
+  );
   return dictionary;
 };
 
@@ -58,6 +66,7 @@ const deleteDictionary = async (dictionaryId) => {
 
 module.exports = {
   findAllDictionary,
+  findAllDictionaryByCondition,
   findDictionary,
   createDictionary,
   updateDictionary,

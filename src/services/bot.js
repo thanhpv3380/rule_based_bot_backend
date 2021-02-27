@@ -1,47 +1,101 @@
+/* eslint-disable radix */
 const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
+
 const botDao = require('../daos/bot');
 
-const createBot = async ({ name, createBy }) => {
-  const bot = await botDao.createBot({ name, createBy });
-  return bot;
+const findAllBot = async (userId) => {
+  const bots = await botDao.findAllBot(userId, ['createBy', 'users']);
+  return bots;
 };
 
-const updateBot = async ({ botId, data }) => {
-  const bot = await botDao.updateBot({ botId, data });
-  return bot;
-};
+const findAllBotByCondition = async ({
+  userId,
+  key,
+  searchFields,
+  limit,
+  offset,
+  fields,
+  sort,
+  query,
+}) => {
+  const { data, metadata } = await botDao.findAllBotByCondition({
+    key,
+    searchFields,
+    query: { ...query, users: userId },
+    offset,
+    limit,
+    fields,
+    sort,
+    populate: ['createBy', 'users'],
+  });
 
-const findBotByUserId = async (userId) => {
-  const createBy = userId;
-  const bot = await botDao.findBot(createBy);
-  return bot;
+  return { bots: data, metadata };
 };
 
 const findBotById = async (id) => {
-  const bot = await botDao.findBot(id);
-  if (!bot) throw new CustomError(errorCodes.BOT_NOT_FOUND);
+  const bot = await botDao.findBot({ _id: id }, null, ['createBy', 'users']);
+  if (!bot) {
+    throw new CustomError(errorCodes.NOT_FOUND);
+  }
   return bot;
 };
 
-const findAllBot = async (name) => {
-  console.log(name);
-  if (!name) {
-    name = '';
+const createBot = async (userId, data) => {
+  const { name } = data;
+  const botExists = await botDao.findBot({
+    name,
+  });
+
+  if (botExists) {
+    throw new CustomError(errorCodes.ITEM_EXIST);
   }
-  const bots = await botDao.findAllBot(name);
-  return { bots, metadata: { total: bots.length } };
+  const Bot = await botDao.createBot(data, userId);
+  return Bot;
 };
 
-const deleteBotById = async (id) => {
+const updateBot = async (id, data) => {
+  const botExists = await botDao.findBot({
+    _id: id,
+  });
+
+  if (!botExists) {
+    throw new CustomError(errorCodes.NOT_FOUND);
+  }
+  const { name } = data;
+  const botNameExists = await botDao.findBot({
+    name,
+    _id: { $not: { $eq: id } },
+  });
+
+  if (botNameExists) {
+    throw new CustomError(errorCodes.ITEM_EXIST);
+  }
+  const bot = await botDao.updateBot(id, data);
+  return bot;
+};
+
+const deleteBot = async (id) => {
   await botDao.deleteBot(id);
 };
 
+const addUserInBot = async (botId, userId) => {
+  const bot = await botDao.addUserInBot(botId, userId);
+  return bot;
+};
+
+const removeUserInBot = async (botId, userId) => {
+  const bot = await botDao.removeUserInBot(botId, userId);
+  return bot;
+};
+
 module.exports = {
+  findAllBot,
+  findAllBotByCondition,
+  findBotById,
   createBot,
   updateBot,
-  findBotByUserId,
-  findBotById,
-  findAllBot,
-  deleteBotById,
+  deleteBot,
+  addUserInBot,
+  removeUserInBot,
 };

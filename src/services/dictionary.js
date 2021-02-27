@@ -4,21 +4,29 @@ const errorCodes = require('../errors/code');
 
 const dictionaryDao = require('../daos/dictionary');
 
-const findAllDictionary = async ({
+const findAllDictionary = async ({ botId }) => {
+  const dictionaries = await dictionaryDao.findAllDictionary(botId, [
+    'createBy',
+  ]);
+  return dictionaries;
+};
+
+const findAllDictionaryByCondition = async ({
   botId,
   key,
   searchFields,
-  pageIndex,
-  pageSize,
+  limit,
+  offset,
   fields,
   sort,
+  query,
 }) => {
-  const { data, metadata } = await dictionaryDao.findAllDictionary({
+  const { data, metadata } = await dictionaryDao.findAllDictionaryByCondition({
     key,
-    searchFields: searchFields ? searchFields.split(',') : null,
-    queryCommon: { bot: botId },
-    offset: (parseInt(pageIndex) - 1) * parseInt(pageSize),
-    limit: parseInt(pageSize),
+    searchFields,
+    query: { ...query, bot: botId },
+    offset,
+    limit,
     fields,
     sort,
     populate: ['createBy'],
@@ -28,7 +36,9 @@ const findAllDictionary = async ({
 };
 
 const findDictionaryById = async (id) => {
-  const dictionary = await dictionaryDao.findDictionary({ _id: id });
+  const dictionary = await dictionaryDao.findDictionary({ _id: id }, null, [
+    'createBy',
+  ]);
   if (!dictionary) {
     throw new CustomError(errorCodes.NOT_FOUND);
   }
@@ -71,6 +81,7 @@ const deleteDictionary = async (id) => {
 
 module.exports = {
   findAllDictionary,
+  findAllDictionaryByCondition,
   findDictionaryById,
   createDictionary,
   updateDictionary,

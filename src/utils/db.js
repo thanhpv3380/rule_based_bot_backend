@@ -3,14 +3,12 @@ const findAll = async ({
   key,
   searchFields,
   query,
-  offset, // offset = (pageIndex - 1) * pageSize
-  limit, // pageSize
-  fields, // select
-  sort,
-  populate, // ref model
-  queryCommon,
+  offset,
+  limit,
+  fields,
+  sort = ['createdAt_desc'],
+  populate,
 } = {}) => {
-  const newSort = sort ? sort.split(',') : ['createdAt_desc'];
   const s =
     searchFields &&
     searchFields
@@ -29,20 +27,18 @@ const findAll = async ({
       });
 
   const count = await model.countDocuments(
-    key ? { $or: s, ...query, ...queryCommon } : { ...query, ...queryCommon },
+    key ? { $or: s, ...query } : { ...query },
   );
-  const total = await model.estimatedDocumentCount(queryCommon);
+  const total = await model.estimatedDocumentCount();
   const documents = await model
-    .find(
-      key ? { $or: s, ...query, ...queryCommon } : { ...query, ...queryCommon },
-    )
+    .find(key ? { $or: s, ...query } : { ...query })
     .populate(populate)
     .skip(offset || 0)
     .limit(limit || null)
     .sort(
-      newSort
+      sort
         ? JSON.parse(
-            `{${newSort
+            `{${sort
               .map((element) => {
                 const field = element.substring(0, element.lastIndexOf('_'));
                 const value =
@@ -68,9 +64,10 @@ const findAll = async ({
   };
 };
 
-const findByCondition = async (model, condition, fields) => {
+const findByCondition = async (model, condition, fields, populate) => {
   const document = await model
     .findOne(condition)
+    .populate(populate)
     .select(
       fields
         ? JSON.parse(`{${fields.map((element) => `"${element}":1`).join(',')}}`)

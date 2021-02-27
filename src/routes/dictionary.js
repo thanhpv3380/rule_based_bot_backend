@@ -9,6 +9,12 @@ router.get(
   getAgentId,
   asyncMiddleware(dictionaryController.getAllDictionary),
 );
+router.post(
+  '/dictionaries/query',
+  auth,
+  getAgentId,
+  asyncMiddleware(dictionaryController.getAllDictionaryByCondition),
+);
 router.get(
   '/dictionaries/:id',
   auth,

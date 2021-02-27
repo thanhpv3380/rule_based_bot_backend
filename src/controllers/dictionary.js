@@ -1,16 +1,28 @@
 const dictionaryService = require('../services/dictionary');
 
 const getAllDictionary = async (req, res) => {
-  const { key, searchFields, pageIndex, pageSize, fields, sort } = req.query;
   const { bot } = req;
-  const { dictionaries, metadata } = await dictionaryService.findAllDictionary({
+  const dictionaries = await dictionaryService.findAllDictionary({
+    botId: bot.id,
+  });
+  return res.send({ status: 1, results: { dictionaries } });
+};
+
+const getAllDictionaryByCondition = async (req, res) => {
+  const { key, searchFields, limit, offset, fields, sort, query } = req.body;
+  const { bot } = req;
+  const {
+    dictionaries,
+    metadata,
+  } = await dictionaryService.findAllDictionaryByCondition({
     botId: bot.id,
     key,
     searchFields,
-    pageIndex,
-    pageSize,
+    limit,
+    offset,
     fields,
     sort,
+    query,
   });
   return res.send({ status: 1, results: { dictionaries, metadata } });
 };
@@ -52,6 +64,7 @@ const deleteDictionary = async (req, res) => {
 
 module.exports = {
   getAllDictionary,
+  getAllDictionaryByCondition,
   getDictionaryById,
   createDictionary,
   updateDictionary,

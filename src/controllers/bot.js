@@ -1,15 +1,9 @@
 const botService = require('../services/bot');
 
 const getAllBot = async (req, res) => {
+  const { key, searchFields, limit, offset, fields, sort } = req.query;
   const { user } = req;
-  const bots = await botService.findAllBot(user.id);
-  return res.send({ status: 1, results: { bots } });
-};
-
-const getAllBotByCondition = async (req, res) => {
-  const { key, searchFields, limit, offset, fields, sort, query } = req.body;
-  const { user } = req;
-  const { bots, metadata } = await botService.findAllBotByCondition({
+  const { bots, metadata } = await botService.findAllBot({
     userId: user.id,
     key,
     searchFields,
@@ -17,7 +11,6 @@ const getAllBotByCondition = async (req, res) => {
     offset,
     fields,
     sort,
-    query,
   });
   return res.send({ status: 1, results: { bots, metadata } });
 };
@@ -64,7 +57,6 @@ const removeUserInBot = async (req, res) => {
 
 module.exports = {
   getAllBot,
-  getAllBotByCondition,
   getBotById,
   createBot,
   updateBot,

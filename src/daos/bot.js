@@ -1,12 +1,7 @@
 const Bot = require('../models/bot');
 const { findAll, findByCondition } = require('../utils/db');
 
-const findAllBot = async (userId, populate) => {
-  const dictionaries = await Bot.find({ users: userId }).populate(populate);
-  return dictionaries;
-};
-
-const findAllBotByCondition = async ({
+const findAllBot = async ({
   key,
   searchFields,
   query,
@@ -76,7 +71,6 @@ const removeUserInBot = async (botId, userId) => {
 
 module.exports = {
   findAllBot,
-  findAllBotByCondition,
   findBot,
   createBot,
   updateBot,

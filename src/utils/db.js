@@ -1,3 +1,4 @@
+/* eslint-disable radix */
 const findAll = async ({
   model,
   key,
@@ -33,8 +34,8 @@ const findAll = async ({
   const documents = await model
     .find(key ? { $or: s, ...query } : { ...query })
     .populate(populate)
-    .skip(offset || 0)
-    .limit(limit || null)
+    .skip(parseInt(offset) || 0)
+    .limit(parseInt(limit) || null)
     .sort(
       sort
         ? JSON.parse(

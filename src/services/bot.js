@@ -4,12 +4,7 @@ const errorCodes = require('../errors/code');
 
 const botDao = require('../daos/bot');
 
-const findAllBot = async (userId) => {
-  const bots = await botDao.findAllBot(userId, ['createBy', 'users']);
-  return bots;
-};
-
-const findAllBotByCondition = async ({
+const findAllBot = async ({
   userId,
   key,
   searchFields,
@@ -17,16 +12,18 @@ const findAllBotByCondition = async ({
   offset,
   fields,
   sort,
-  query,
 }) => {
-  const { data, metadata } = await botDao.findAllBotByCondition({
+  const newSearchFields = searchFields ? searchFields.split(',') : null;
+  const newFields = fields ? fields.split(',') : null;
+  const newSort = sort ? sort.split(',') : null;
+  const { data, metadata } = await botDao.findAllBot({
     key,
-    searchFields,
-    query: { ...query, users: userId },
+    searchFields: newSearchFields,
+    query: { users: userId },
     offset,
     limit,
-    fields,
-    sort,
+    fields: newFields,
+    sort: newSort,
     populate: ['createBy', 'users'],
   });
 
@@ -91,7 +88,6 @@ const removeUserInBot = async (botId, userId) => {
 
 module.exports = {
   findAllBot,
-  findAllBotByCondition,
   findBotById,
   createBot,
   updateBot,

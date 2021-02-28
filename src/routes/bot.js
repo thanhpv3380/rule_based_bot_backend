@@ -4,11 +4,6 @@ const asyncMiddleware = require('../middlewares/async');
 const botController = require('../controllers/bot');
 
 router.get('/bots', auth, asyncMiddleware(botController.getAllBot));
-router.post(
-  '/bots/query',
-  auth,
-  asyncMiddleware(botController.getAllBotByCondition),
-);
 router.get('/bots/:id', auth, asyncMiddleware(botController.getBotById));
 router.post('/bots', auth, asyncMiddleware(botController.createBot));
 router.put('/bots/:id', auth, asyncMiddleware(botController.updateBot));

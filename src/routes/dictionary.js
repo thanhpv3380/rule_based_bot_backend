@@ -9,12 +9,6 @@ router.get(
   getBotId,
   asyncMiddleware(dictionaryController.getAllDictionary),
 );
-router.post(
-  '/dictionaries/query',
-  auth,
-  getBotId,
-  asyncMiddleware(dictionaryController.getAllDictionaryByCondition),
-);
 router.get(
   '/dictionaries/:id',
   auth,

@@ -14,7 +14,7 @@ const errorHandler = require('./middlewares/errorHandler');
 require('dotenv').config();
 require('./models');
 
-const { PORT, MONGO_URI_CLOUD } = require('./configs');
+const { PORT } = require('./configs');
 
 const app = express();
 
@@ -34,5 +34,5 @@ require('./routes')(app);
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT} ${MONGO_URI_CLOUD}`);
+  console.log(`Server is running on port ${PORT}`);
 });

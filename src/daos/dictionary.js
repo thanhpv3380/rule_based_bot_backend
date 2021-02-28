@@ -1,12 +1,7 @@
 const Dictionary = require('../models/dictionary');
 const { findAll, findByCondition } = require('../utils/db');
 
-const findAllDictionary = async (botId, populate) => {
-  const dictionaries = await Dictionary.find({ bot: botId }).populate(populate);
-  return dictionaries;
-};
-
-const findAllDictionaryByCondition = async ({
+const findAllDictionary = async ({
   key,
   searchFields,
   query,
@@ -66,7 +61,6 @@ const deleteDictionary = async (dictionaryId) => {
 
 module.exports = {
   findAllDictionary,
-  findAllDictionaryByCondition,
   findDictionary,
   createDictionary,
   updateDictionary,

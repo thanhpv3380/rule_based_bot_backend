@@ -39,17 +39,8 @@ const findBotById = async (id) => {
 };
 
 const createBot = async (userId, data) => {
-  const { name } = data;
-  const botExists = await botDao.findBot({
-    name,
-    users: userId,
-  });
-
-  if (botExists) {
-    throw new CustomError(errorCodes.ITEM_EXIST);
-  }
-  const Bot = await botDao.createBot(data, userId);
-  return Bot;
+  const bot = await botDao.createBot(data, userId);
+  return bot;
 };
 
 const updateBot = async (id, userId, data) => {
@@ -59,16 +50,6 @@ const updateBot = async (id, userId, data) => {
 
   if (!botExists) {
     throw new CustomError(errorCodes.NOT_FOUND);
-  }
-  const { name } = data;
-  const botNameExists = await botDao.findBot({
-    name,
-    _id: { $not: { $eq: id } },
-    users: userId,
-  });
-
-  if (botNameExists) {
-    throw new CustomError(errorCodes.ITEM_EXIST);
   }
   const bot = await botDao.updateBot(id, data);
   return bot;

@@ -31,7 +31,8 @@ const createBot = async (req, res) => {
 const updateBot = async (req, res) => {
   const { id } = req.params;
   const { name } = req.body;
-  const bot = await botService.updateBot(id, {
+  const { user } = req;
+  const bot = await botService.updateBot(id, user.id, {
     name,
   });
   return res.send({ status: 1, results: bot });

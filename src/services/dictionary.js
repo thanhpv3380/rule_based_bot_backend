@@ -44,6 +44,7 @@ const findDictionaryById = async (id) => {
 const createDictionary = async ({ acronym, original, userId, botId }) => {
   const dictionaryExists = await dictionaryDao.findDictionary({
     acronym,
+    bot: botId,
   });
 
   if (dictionaryExists) {

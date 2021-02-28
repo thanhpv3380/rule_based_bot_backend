@@ -42,6 +42,7 @@ const createBot = async (userId, data) => {
   const { name } = data;
   const botExists = await botDao.findBot({
     name,
+    users: userId,
   });
 
   if (botExists) {
@@ -51,7 +52,7 @@ const createBot = async (userId, data) => {
   return Bot;
 };
 
-const updateBot = async (id, data) => {
+const updateBot = async (id, userId, data) => {
   const botExists = await botDao.findBot({
     _id: id,
   });
@@ -63,6 +64,7 @@ const updateBot = async (id, data) => {
   const botNameExists = await botDao.findBot({
     name,
     _id: { $not: { $eq: id } },
+    users: userId,
   });
 
   if (botNameExists) {

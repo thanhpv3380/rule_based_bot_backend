@@ -1,12 +1,45 @@
 const GroupIntent = require('../models/groupIntent');
+const { findAll } = require('../utils/db');
 
-const findAllGroupIntent = async (id) => {
-  await GroupIntent.search({ match_all: {} }, async function(err, result) {
-    let groupIntents = await result.hits.hits.map((data) => data);
-      // console.log(groupIntents, ' test Dao groupIntents  ', groupIntents.length);
-      return groupIntents;
+const findAllGroupAndItem = async ({
+  key,
+  searchFields,
+  query,
+  offset,
+  limit,
+  fields,
+  sort,
+  populate,
+}) => {
+  const { data, metadata } = await findAll({
+    model: GroupIntent,
+    key,
+    searchFields,
+    query,
+    offset,
+    limit,
+    fields,
+    sort,
+    populate,
   });
+  return {
+    data,
+    metadata,
+  };
 };
+
+// const findAllGroupAndItem = async ({ botId, keyword }) => {
+//   const groupIntents = await GroupIntent.find({
+//     bot: botId,
+//   }).populate([
+//     {
+//       path: 'intents',
+//       match: { name: { $regex: keyword } },
+//       select: 'name id',
+//     },
+//   ]);
+//   return groupIntents;
+// };
 
 const findGroupIntentById = async ({ id }) => {
   const groupIntents = await GroupIntent.findOne({
@@ -23,7 +56,7 @@ const findGroupIntentById = async ({ id }) => {
 
 const findGroupIntentByName = async ({ name }) => {
   const groupIntents = await GroupIntent.findOne({
-    name: name,
+    name,
     function(err, groupIntent) {
       groupIntent.awesome = true;
       groupIntent.index(function (err, res) {
@@ -34,12 +67,11 @@ const findGroupIntentByName = async ({ name }) => {
   return groupIntents;
 };
 
-const createGroupIntent = async ({ name, botId, isGroup, intentId }) => {
+const createGroupIntent = async ({ name, botId, isGroup }) => {
   const groupIntent = await GroupIntent.create({
     name,
     bot: botId,
     isGroup,
-    intents : intentId
   });
   return groupIntent;
 };
@@ -63,14 +95,15 @@ const addIntentInGroup = async (groupIntentId, intentId) => {
 
 const removeIntentInGroup = async (groupIntentId, intentId) => {
   const groupIntent = await GroupIntent.updateOne(
-    { groupIntentId },
+    { _id: groupIntentId },
     { $pull: { intents: intentId } },
   );
   return groupIntent;
 };
 
 module.exports = {
-  findAllGroupIntent,
+  findAllGroupAndItem,
+  // findAllGroupAndItem,
   findGroupIntentById,
   findGroupIntentByName,
   createGroupIntent,

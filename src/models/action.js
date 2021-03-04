@@ -1,13 +1,14 @@
 const mongoose = require('mongoose');
 
-const mongoosastic = require('mongoosastic');
-var ObjectId = mongoose.Types.ObjectId;
+// const mongoosastic = require('mongoosastic');
+const { ObjectId } = mongoose.Types;
+
 const actionSchema = new mongoose.Schema(
   {
     name: String,
     actions: [
       {
-        type: String, //TEXT, MAIL, MEDIA, API, LOOP
+        type: String, // TEXT, MAIL, MEDIA, API, LOOP
         text: [String],
         email: {
           to: String,
@@ -17,7 +18,7 @@ const actionSchema = new mongoose.Schema(
         media: {
           text: String,
           attachment: {
-            type: String, ////IMAGE, AUDIO, VIDEO, FILE, OPTION
+            type: String, /// /IMAGE, AUDIO, VIDEO, FILE, OPTION
             payload: {
               url: String,
               elements: [
@@ -30,7 +31,7 @@ const actionSchema = new mongoose.Schema(
           },
         },
         api: {
-          method: String, //GET, POST
+          method: String, // GET, POST
           url: String,
           headers: [
             {
@@ -84,31 +85,30 @@ const actionSchema = new mongoose.Schema(
   },
 );
 
-actionSchema.plugin(mongoosastic, {
-  hosts: [
-    'localhost:9200'
-  ]
-})
+// actionSchema.plugin(mongoosastic, {
+//   hosts: [
+//     'localhost:9200'
+//   ]
+// })
 
+module.exports = mongoose.model('Action', actionSchema);
 
-Action = module.exports = mongoose.model('Action', actionSchema);
+// Action.createMapping(function(err, mapping){
+//   if(err){
+//       console.log("error create mapping");
+//       console.log(err);
+//   }else{
+//       console.log("Action mapping create");
+//       console.log(mapping);
+//   }
+// });
 
-Action.createMapping(function(err, mapping){
-  if(err){
-      console.log("error create mapping");
-      console.log(err);
-  }else{
-      console.log("Action mapping create");
-      console.log(mapping);
-  }
-});
+// var stream = Action.synchronize();
+// var count = 0;
+// stream.on('data', function(){
+//   count++;
+// })
 
-var stream = Action.synchronize();
-var count = 0;
-stream.on('data', function(){
-  count++;
-})
-
-stream.on('close', function() {
-  console.log("indexed " + count + " documents");
-})
+// stream.on('close', function() {
+//   console.log("indexed " + count + " documents");
+// })

@@ -9,21 +9,15 @@ const createIntent = async (data) => {
 };
 
 const updateIntent = async (id, data) => {
-  const intent = await Intent.findOneAndUpdate({ _id: id }, data);
+  const intent = await Intent.findByIdAndUpdate(id, data, {
+    new: true,
+  });
   return intent;
 };
 
 const findIntentById = async (id) => {
-  Intent.search(
-    {
-      match: { _id: id },
-    },
-    function (err, result) {
-      let intent = result.hits.hits.find((data) => data);
-      console.log(intent, ' test Dao');
-      return intent;
-    },
-  );
+  const intent = await Intent.findOne({ _id: id });
+  return intent;
 };
 
 const findAllIntentOfGroup = async (id) => {
@@ -32,7 +26,7 @@ const findAllIntentOfGroup = async (id) => {
       query: { ids: ['600b0ac07ddf963008ac6008', '600b0b177ddf963008ac600c'] },
     },
     function (err, result) {
-      let intent = result.hits.hits.find((data) => data);
+      const intent = result.hits.hits.find((data) => data);
       console.log(intent, ' all intent');
       return intent;
     },
@@ -40,13 +34,12 @@ const findAllIntentOfGroup = async (id) => {
 };
 
 const findIntentByName = async ({ name }) => {
-  Intent.search(
+  await Intent.search(
     {
       query_string: { query: name },
     },
     function (err, result) {
-      let intent = result.hits.hits.find((data) => data);
-      console.log(intent, ' test find name Dao');
+      const intent = result.hits.hits.find((data) => data);
       return intent;
     },
   );
@@ -57,13 +50,13 @@ const deleteIntent = async (id) => {
     if (err) {
       console.log('not found');
       return;
-    } else if (intent == null) {
+    }
+    if (intent == null) {
       return;
     }
     intent.remove(function (err1, intent) {
       if (err1) {
         console.log('err remove ', err1);
-        return;
       }
     });
   });

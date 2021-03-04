@@ -1,12 +1,39 @@
 const groupIntentService = require('../services/groupIntent');
 
-const getAllGroupIntent = async (req, res) => {
+const searchItem = async (req, res) => {
+  const { keyword, key, searchFields, limit, offset, fields, sort } = req.query;
   const { bot } = req;
   const {
     groupIntents,
     metadata,
-  } = //await groupIntentService.findAllGroupIntent(bot.id);
-  await groupIntentService.findAllGroupIntent("12");
+  } = await groupIntentService.findAllGroupAndItem(
+    bot.id,
+    keyword,
+    key,
+    searchFields,
+    limit,
+    offset,
+    fields,
+    sort,
+  );
+  return res.send({ status: 1, results: { groupIntents, metadata } });
+};
+
+const getAllGroupIntent = async (req, res) => {
+  const { key, searchFields, limit, offset, fields, sort } = req.query;
+  const { bot } = req;
+  const {
+    groupIntents,
+    metadata,
+  } = await groupIntentService.findAllGroupIntent(
+    bot.id,
+    key,
+    searchFields,
+    limit,
+    offset,
+    fields,
+    sort,
+  );
   return res.send({ status: 1, results: { groupIntents, metadata } });
 };
 
@@ -19,6 +46,8 @@ const getGroupIntentById = async (req, res) => {
 const createGroupIntent = async (req, res) => {
   const { bot } = req;
   const { name } = req.body;
+  console.log(name);
+  console.log(req);
   const groupIntent = await groupIntentService.createGroupIntent({
     name,
     botId: bot.id,
@@ -40,6 +69,7 @@ const deleteGroupIntent = async (req, res) => {
 };
 
 module.exports = {
+  searchItem,
   getAllGroupIntent,
   getGroupIntentById,
   createGroupIntent,

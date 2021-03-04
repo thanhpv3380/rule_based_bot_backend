@@ -1,9 +1,11 @@
 const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
 const botDao = require('../daos/bot');
+const userDao = require('../daos/user');
 
 const createBot = async ({ name, createBy }) => {
   const bot = await botDao.createBot({ name, createBy });
+  userDao.findByIdAndUpdate(createBy, bot.id);
   return bot;
 };
 

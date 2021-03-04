@@ -4,8 +4,8 @@ const {
 const Bot = require('../models/bot');
 
 const createBot = async ({ name, createBy }) => {
-  const user = await Bot.create({ name, createBy });
-  return user;
+  const bot = await Bot.create({ name, createBy });
+  return bot;
 };
 
 const updateBot = async ({ botId, data }) => {

@@ -3,10 +3,18 @@ const router = require('express').Router();
 const asyncMiddleware = require('../middlewares/async');
 const { auth } = require('../middlewares/auth');
 const groupIntentController = require('../controllers/groupIntent');
+const { getAgentId } = require('../middlewares/getAgentId');
 
 router.get(
   '/groupIntents',
+  getAgentId,
   asyncMiddleware(groupIntentController.getAllGroupIntent),
+);
+
+router.get(
+  '/groupIntents/search',
+  getAgentId,
+  asyncMiddleware(groupIntentController.searchItem),
 );
 
 router.get(
@@ -16,6 +24,7 @@ router.get(
 
 router.post(
   '/groupIntents',
+  getAgentId,
   asyncMiddleware(groupIntentController.createGroupIntent),
 );
 

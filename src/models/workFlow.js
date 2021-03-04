@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
-const mongoosastic = require('mongoosastic');
-var ObjectId = mongoose.Types.ObjectId;
+// const mongoosastic = require('mongoosastic');
+const { ObjectId } = mongoose.Types;
 const workFlowSchema = new mongoose.Schema(
   {
     name: String,
@@ -9,7 +9,7 @@ const workFlowSchema = new mongoose.Schema(
         node: {
           type: ObjectId,
         },
-        type: String, //INTENT, ACTION, CONDITION, START, END
+        type: String, // INTENT, ACTION, CONDITION, START, END
         refData: {
           type: ObjectId,
           refPath: 'refDataModel',
@@ -41,20 +41,20 @@ const workFlowSchema = new mongoose.Schema(
   },
 );
 
-workFlowSchema.plugin(mongoosastic, {
-  hosts: [
-    'localhost:9200'
-  ]
-})
+// workFlowSchema.plugin(mongoosastic, {
+//   hosts: [
+//     'localhost:9200'
+//   ]
+// })
 
-WorkFlow = module.exports = mongoose.model('WorkFlow', workFlowSchema);
+module.exports = mongoose.model('WorkFlow', workFlowSchema);
 
-WorkFlow.createMapping(function(err, mapping){
-  if(err){
-      console.log("error create mapping");
-      console.log(err);
-  }else{
-      console.log("WorkFlow mapping create");
-      console.log(mapping);
-  }
-});
+// WorkFlow.createMapping(function(err, mapping){
+//   if(err){
+//       console.log("error create mapping");
+//       console.log(err);
+//   }else{
+//       console.log("WorkFlow mapping create");
+//       console.log(mapping);
+//   }
+// });

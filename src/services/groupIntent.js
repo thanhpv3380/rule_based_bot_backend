@@ -2,47 +2,85 @@ const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
 
 const groupIntentDao = require('../daos/groupIntent');
-const intentDao = require('../daos/intent');
+const groupIntent = require('../models/groupIntent');
 
-const findAllGroupIntent = async (id) => {
-  // const groupIntents = await groupIntentDao.findAllGroupIntent());
-  // const response = groupIntents.map(item => {
-  //   const intents = intentDao.findAllIntentOfGroup(item.intents);
-  //   return {
-  //     name: item.name,
-  //     intents: intents,
-  //     isGroup: item.isGroup,
-  //     updatedAt: item.updatedAt,
-  //     createdAt: item.createdAt
-  //   };
-  // })
-  const response = {};
-  const getGroupIntents = new Promise(async (resolve, reject) => {
-    const groupIntents = await groupIntentDao.findAllGroupIntent();
-    resolve(groupIntents);
+// const findAllGroupAndItem = async ({ botId, keyword }) => {
+//   const groupIntents = await groupIntentDao.findAllGroupAndItem({
+//     botId,
+//     keyword,
+//   });
+//   const response = await groupIntents.filter(
+//     (item) => item.intents.length !== 0,
+//   );
+//   return { groupIntents: response, metadata: { total: response.length } };
+// };
+
+const findAllGroupAndItem = async (
+  botId,
+  keyword,
+  key,
+  searchFields,
+  limit,
+  offset,
+  fields,
+  sort,
+  query,
+) => {
+  const newSearchFields = searchFields ? searchFields.split(',') : null;
+  const newFields = fields ? fields.split(',') : null;
+  const { data, metadata } = await groupIntentDao.findAllGroupAndItem({
+    key,
+    searchFields: newSearchFields,
+    query: { ...query, bot: botId },
+    offset,
+    limit,
+    fields: newFields,
+    sort,
+    populate: [
+      {
+        path: 'intents',
+        match: { name: { $regex: keyword } },
+        select: 'name id',
+      },
+    ],
   });
-  await getGroupIntents.then((groupIntents) => {
-    console.log(groupIntents, "result");
-    // response = groupIntents.map((item) => {
-    //   const intents = intentDao.findAllIntentOfGroup(item.intents);
-    //   return {
-    //     name: item.name,
-    //     intents: intents,
-    //     isGroup: item.isGroup,
-    //     updatedAt: item.updatedAt,
-    //     createdAt: item.createdAt,
-    //   };
-    // });
-  });
-  return { groupIntents: response, metadata: { total: response.length } };
+  const groupIntents = data.filter((item) => item.intents.length !== 0);
+
+  return { groupIntents, metadata };
 };
 
-const findAllGroupIntentAndItem = async ({ keyword, botId }) => {
-  const data = await groupIntentDao.findAllGroupIntentAndItem({
-    keyword,
-    botId,
+// const findAllGroupIntent = async (botId) => {
+//   const groupIntents = await groupIntentDao.findAllGroupAndItem({
+//     botId,
+//     keyword: '',
+//   });
+//   return { groupIntents, metadata: { total: groupIntents.length } };
+// };
+
+const findAllGroupIntent = async (
+  bot,
+  key,
+  searchFields,
+  limit,
+  offset,
+  fields,
+  sort,
+  query,
+) => {
+  const newSearchFields = searchFields ? searchFields.split(',') : null;
+  const newFields = fields ? fields.split(',') : null;
+  const { data, metadata } = await groupIntentDao.findAllGroupAndItem({
+    key,
+    searchFields: newSearchFields,
+    query: { ...query, bot },
+    offset,
+    limit,
+    fields: newFields,
+    sort,
+    populate: ['intents'],
   });
-  return data;
+
+  return { groupIntents: data, metadata };
 };
 
 const findGroupIntentById = async ({ id, fields }) => {
@@ -85,7 +123,7 @@ const deleteGroupIntent = async (id) => {
 
 module.exports = {
   findAllGroupIntent,
-  findAllGroupIntentAndItem,
+  findAllGroupAndItem,
   findGroupIntentById,
   createGroupIntent,
   updateGroupIntent,

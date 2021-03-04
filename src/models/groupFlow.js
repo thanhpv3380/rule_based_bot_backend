@@ -1,11 +1,12 @@
 const mongoose = require('mongoose');
-const mongoosastic = require('mongoosastic');
+// const mongoosastic = require('mongoosastic');
 
-var ObjectId = mongoose.Types.ObjectId;
+const { ObjectId } = mongoose.Types;
+
 const groupFlowSchema = new mongoose.Schema(
   {
     name: String,
-    workFlows : [ObjectId],
+    workFlows: [ObjectId],
     isGroup: Boolean,
     GroupFlowId: ObjectId,
   },
@@ -15,30 +16,30 @@ const groupFlowSchema = new mongoose.Schema(
   },
 );
 
-groupFlowSchema.plugin(mongoosastic, {
-  hosts: [
-    'localhost:9200'
-  ]
-})
+// groupFlowSchema.plugin(mongoosastic, {
+//   hosts: [
+//     'localhost:9200'
+//   ]
+// })
 
-GroupFlow = module.exports = mongoose.model('GroupFlow', groupFlowSchema);
+module.exports = mongoose.model('GroupFlow', groupFlowSchema);
 
-GroupFlow.createMapping(function(err, mapping){
-  if(err){
-      console.log("error create mapping");
-      console.log(err);
-  }else{
-      console.log("GroupFlow mapping create");
-      console.log(mapping);
-  }
-});
+// GroupFlow.createMapping(function(err, mapping){
+//   if(err){
+//       console.log("error create mapping");
+//       console.log(err);
+//   }else{
+//       console.log("GroupFlow mapping create");
+//       console.log(mapping);
+//   }
+// });
 
-var stream = GroupFlow.synchronize();
-var count = 0;
-stream.on('data', function(){
-  count++;
-})
+// var stream = GroupFlow.synchronize();
+// var count = 0;
+// stream.on('data', function(){
+//   count++;
+// })
 
-stream.on('close', function(){
-  console.log("indexed " + count + " documents");
-})
+// stream.on('close', function(){
+//   console.log("indexed " + count + " documents");
+// })

@@ -1,51 +1,80 @@
-const {
-  Types: { ObjectId },
-} = require('mongoose');
 const Bot = require('../models/bot');
+const { findAll, findByCondition } = require('../utils/db');
 
-const createBot = async ({ name, createBy }) => {
-  const user = await Bot.create({ name, createBy });
-  return user;
+const findAllBot = async ({
+  key,
+  searchFields,
+  query,
+  offset,
+  limit,
+  fields,
+  sort,
+  populate,
+}) => {
+  const { data, metadata } = await findAll({
+    model: Bot,
+    key,
+    searchFields,
+    query,
+    offset,
+    limit,
+    fields,
+    sort,
+    populate,
+  });
+  return {
+    data,
+    metadata,
+  };
 };
 
-const updateBot = async ({ botId, data }) => {
+const findBot = async (condition, fields, populate) => {
+  const bot = await findByCondition(Bot, condition, fields, populate);
+  return bot;
+};
+
+const createBot = async (data, userId) => {
+  const bot = await Bot.create({
+    ...data,
+    createBy: userId,
+    users: [userId],
+  });
+  return bot;
+};
+
+const updateBot = async (botId, data) => {
   const bot = await Bot.findByIdAndUpdate(botId, data);
   return bot;
 };
 
-const findBotByUserId = async ({ userId }) => {
-  const bot = await Bot.find({ userId });
+const deleteBot = async (botId) => {
+  await Bot.findByIdAndDelete(botId);
+};
+
+const addUserInBot = async (botId, userId) => {
+  const bot = await Bot.findByIdAndUpdate(botId, {
+    $push: {
+      users: userId,
+    },
+  });
   return bot;
 };
 
-const findBot = async (condition) => {
-  if (ObjectId.isValid(condition)) {
-    const bot = await Bot.findById(condition);
-    return bot;
-  }
-
-  if (typeof condition === 'object' && condition !== null) {
-    const bot = await Bot.findOne(condition);
-    return bot;
-  }
-
-  return null;
-};
-
-const findAllBot = async (name) => {
-  const bot = await Bot.find({ name: { $regex: name } });
+const removeUserInBot = async (botId, userId) => {
+  const bot = await Bot.findByIdAndUpdate(botId, {
+    $pull: {
+      users: userId,
+    },
+  });
   return bot;
-};
-
-const deleteBot = async ({ id }) => {
-  await Bot.findByIdAndDelete({ id });
 };
 
 module.exports = {
+  findAllBot,
+  findBot,
   createBot,
   updateBot,
-  findBotByUserId,
-  findBot,
   deleteBot,
-  findAllBot,
+  addUserInBot,
+  removeUserInBot,
 };

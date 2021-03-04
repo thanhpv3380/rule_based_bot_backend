@@ -19,6 +19,17 @@ const auth = async (req, res, next) => {
   return next();
 };
 
+const getBotId = async (req, res, next) => {
+  const botId = req.headers['bot-id'];
+  if (!botId) throw new CustomError(codes.NOT_FOUND);
+  const bot = {
+    id: botId,
+  };
+  req.bot = bot;
+  return next();
+};
+
 module.exports = {
   auth: asyncMiddleware(auth),
+  getBotId: asyncMiddleware(getBotId),
 };

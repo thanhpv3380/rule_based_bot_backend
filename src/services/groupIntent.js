@@ -2,7 +2,6 @@ const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
 
 const groupIntentDao = require('../daos/groupIntent');
-const groupIntent = require('../models/groupIntent');
 
 // const findAllGroupAndItem = async ({ botId, keyword }) => {
 //   const groupIntents = await groupIntentDao.findAllGroupAndItem({

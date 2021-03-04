@@ -1,6 +1,8 @@
+/* eslint-disable spaced-comment */
 const mongoose = require('mongoose');
 
-var ObjectId = mongoose.Types.ObjectId;
+const { ObjectId } = mongoose.Types;
+
 const actionSchema = new mongoose.Schema(
   {
     name: String,
@@ -16,7 +18,7 @@ const actionSchema = new mongoose.Schema(
         media: {
           text: String,
           attachment: {
-            type: String, ////IMAGE, AUDIO, VIDEO, FILE, OPTION
+            type: String, //IMAGE, AUDIO, VIDEO, FILE, OPTION
             payload: {
               url: String,
               elements: [

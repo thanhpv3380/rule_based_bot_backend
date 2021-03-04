@@ -4,7 +4,7 @@ const { ObjectId } = mongoose.Types;
 
 const dictionarySchema = new mongoose.Schema(
   {
-    synonym: String,
+    acronym: String,
     original: String,
     bot: {
       type: ObjectId,

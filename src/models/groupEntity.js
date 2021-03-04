@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
 
-var ObjectId = mongoose.Types.ObjectId;
+const { ObjectId } = mongoose.Types;
+
 const groupEntitySchema = new mongoose.Schema(
   {
     name: String,
-    entities : [ObjectId],
+    entities: [ObjectId],
     isGroup: Boolean,
     botId: ObjectId,
   },

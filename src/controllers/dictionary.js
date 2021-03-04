@@ -1,25 +1,32 @@
 const dictionaryService = require('../services/dictionary');
 
 const getAllDictionary = async (req, res) => {
+  const { key, searchFields, limit, offset, fields, sort } = req.query;
   const { bot } = req;
-  const { dictionaries, metadata } = await dictionaryService.findAllDictionary(
-    bot.id,
-  );
+  const { dictionaries, metadata } = await dictionaryService.findAllDictionary({
+    botId: bot.id,
+    key,
+    searchFields,
+    limit,
+    offset,
+    fields,
+    sort,
+  });
   return res.send({ status: 1, results: { dictionaries, metadata } });
 };
 
 const getDictionaryById = async (req, res) => {
   const { id } = req.params;
   const dictionary = await dictionaryService.findDictionaryById(id);
-  return res.send({ status: 1, results: dictionary });
+  return res.send({ status: 1, results: { dictionary } });
 };
 
 const createDictionary = async (req, res) => {
   const { bot, user } = req;
 
-  const { synonym, original } = req.body;
+  const { acronym, original } = req.body;
   const dictionary = await dictionaryService.createDictionary({
-    synonym,
+    acronym,
     original,
     botId: bot.id,
     userId: user.id,
@@ -29,10 +36,9 @@ const createDictionary = async (req, res) => {
 
 const updateDictionary = async (req, res) => {
   const { id } = req.params;
-  const { synonym, original } = req.body;
-  const dictionary = await dictionaryService.updateDictionary({
-    id,
-    synonym,
+  const { acronym, original } = req.body;
+  const dictionary = await dictionaryService.updateDictionary(id, {
+    acronym,
     original,
   });
   return res.send({ status: 1, results: dictionary });

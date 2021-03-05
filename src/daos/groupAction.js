@@ -1,69 +1,64 @@
 const GroupAction = require('../models/groupAction');
+const { findAll, findByCondition } = require('../utils/db');
 
-const findAllGroupAction = async (id) => {
-  const groupActions = await GroupAction.find({ bot: id });
-  return groupActions;
+const findAllGroupActionAndItem = async ({
+  key,
+  searchFields,
+  query,
+  offset,
+  limit,
+  fields,
+  sort,
+  populate,
+}) => {
+  const { data, metadata } = await findAll({
+    model: GroupAction,
+    key,
+    searchFields,
+    query,
+    offset,
+    limit,
+    fields,
+    sort,
+    populate,
+  });
+  return { data, metadata };
 };
 
-const findAllGroupActionAndItem = async ({ keyword, botId }) => {
-  const groupActions = await GroupAction.find({ bot: botId }).populate([
-    'Action',
-  ]);
-  return groupActions;
-};
-
-const findGroupActionById = async ({ id, fields }) => {
-  const groupAction = await GroupAction.findById({ id });
+const findGroupActionByCondition = async (condition, fields, populate) => {
+  const groupAction = await findByCondition(
+    GroupAction,
+    condition,
+    fields,
+    populate,
+  );
   return groupAction;
 };
 
-const findGroupActionByName = async ({ name }) => {
-  const groupAction = await GroupAction.findOne({ name });
-  return groupAction;
-};
-
-const createGroupAction = async ({ name, botId, isGroup }) => {
+const createGroupAction = async ({ name, botId, groupType }) => {
   const groupAction = await GroupAction.create({
     name,
     bot: botId,
-    isGroup,
+    groupType,
   });
   return groupAction;
 };
 
-const updateGroupAction = async ({ id, name }) => {
-  const groupAction = await GroupAction.updateOne({ _id: id }, { name });
+const updateGroupAction = async (id, data) => {
+  const groupAction = await GroupAction.findByIdAndUpdate(id, data, {
+    new: true,
+  });
   return groupAction;
 };
 
 const deleteGroupAction = async (id) => {
-  await GroupAction.deleteOne({ _id: id });
-};
-
-const addActionInGroup = async (groupActionId, actionId) => {
-  const groupAction = await GroupAction.updateOne(
-    { _id: groupActionId },
-    { $push: { actions: actionId } },
-  );
-  return groupAction;
-};
-
-const removeActionInGroup = async (groupActionId, actionId) => {
-  const groupAction = await GroupAction.updateOne(
-    {},
-    { $pull: { actions: actionId } },
-  );
-  return groupAction;
+  await GroupAction.findByIdAndDelete(id);
 };
 
 module.exports = {
-  findAllGroupAction,
   findAllGroupActionAndItem,
-  findGroupActionById,
-  findGroupActionByName,
+  findGroupActionByCondition,
   createGroupAction,
   updateGroupAction,
   deleteGroupAction,
-  addActionInGroup,
-  removeActionInGroup,
 };

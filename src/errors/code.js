@@ -9,4 +9,5 @@ module.exports = {
   USER_NOT_FOUND: 1001,
   WRONG_PASSWORD: 1002,
   ITEM_EXIST: 1003,
+  ITEM_NOT_CHANGE: 1004,
 };

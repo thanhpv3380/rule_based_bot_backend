@@ -12,20 +12,20 @@ const getAllBot = async (req, res) => {
     fields,
     sort,
   });
-  return res.send({ status: 1, results: { bots, metadata } });
+  return res.send({ status: 1, result: { bots, metadata } });
 };
 
 const getBotById = async (req, res) => {
   const { id } = req.params;
   const bot = await botService.findBotById(id);
-  return res.send({ status: 1, results: { bot } });
+  return res.send({ status: 1, result: { bot } });
 };
 
 const createBot = async (req, res) => {
   const { user } = req;
   const { name } = req.body;
   const bot = await botService.createBot(user.id, { name });
-  return res.send({ status: 1, results: bot });
+  return res.send({ status: 1, result: bot });
 };
 
 const updateBot = async (req, res) => {
@@ -35,7 +35,7 @@ const updateBot = async (req, res) => {
   const bot = await botService.updateBot(id, user.id, {
     name,
   });
-  return res.send({ status: 1, results: bot });
+  return res.send({ status: 1, result: bot });
 };
 
 const deleteBot = async (req, res) => {
@@ -47,13 +47,13 @@ const deleteBot = async (req, res) => {
 const addUserInBot = async (req, res) => {
   const { id, userId } = req.params;
   const bot = await botService.addUserInBot(id, userId);
-  return res.send({ status: 1, results: bot });
+  return res.send({ status: 1, result: bot });
 };
 
 const removeUserInBot = async (req, res) => {
   const { id, userId } = req.params;
   const bot = await botService.addUserInBot(id, userId);
-  return res.send({ status: 1, results: bot });
+  return res.send({ status: 1, result: bot });
 };
 
 module.exports = {

@@ -8,6 +8,8 @@ const getErrorMessage = (code) => {
       return 'Wrong password';
     case codes.ITEM_EXIST:
       return 'Item existed';
+    case codes.ITEM_NOT_CHANGE:
+      return 'Item not change';
     default:
       return null;
   }

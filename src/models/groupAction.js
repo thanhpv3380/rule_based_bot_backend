@@ -1,3 +1,4 @@
+/* eslint-disable spaced-comment */
 const mongoose = require('mongoose');
 
 const { ObjectId } = mongoose.Types;
@@ -5,13 +6,7 @@ const { ObjectId } = mongoose.Types;
 const groupActionSchema = new mongoose.Schema(
   {
     name: String,
-    actions: [
-      {
-        type: ObjectId,
-        ref: 'Action',
-      },
-    ],
-    isGroup: Boolean,
+    groupType: Number, //1: DEFAULT, 2: GROUP, 3: NOT_GROUP,
     bot: {
       type: ObjectId,
       ref: 'Bot',

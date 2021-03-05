@@ -43,7 +43,9 @@ const createBot = async (data, userId) => {
 };
 
 const updateBot = async (botId, data) => {
-  const bot = await Bot.findByIdAndUpdate(botId, data);
+  const bot = await Bot.findByIdAndUpdate(botId, data, {
+    new: true,
+  });
   return bot;
 };
 
@@ -52,20 +54,32 @@ const deleteBot = async (botId) => {
 };
 
 const addUserInBot = async (botId, userId) => {
-  const bot = await Bot.findByIdAndUpdate(botId, {
-    $push: {
-      users: userId,
+  const bot = await Bot.findByIdAndUpdate(
+    botId,
+    {
+      $push: {
+        users: userId,
+      },
     },
-  });
+    {
+      new: true,
+    },
+  );
   return bot;
 };
 
 const removeUserInBot = async (botId, userId) => {
-  const bot = await Bot.findByIdAndUpdate(botId, {
-    $pull: {
-      users: userId,
+  const bot = await Bot.findByIdAndUpdate(
+    botId,
+    {
+      $pull: {
+        users: userId,
+      },
     },
-  });
+    {
+      new: true,
+    },
+  );
   return bot;
 };
 

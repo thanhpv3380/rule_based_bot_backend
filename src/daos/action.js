@@ -1,42 +1,64 @@
 const Action = require('../models/action');
+const { findAll, findByCondition } = require('../utils/db');
 
-const findActionById = async (id) => {
-  const action = await Action.findById({ _id: id });
+const findAllActionByGroupActionId = async ({
+  key,
+  searchFields,
+  query,
+  offset,
+  limit,
+  fields,
+  sort,
+  populate,
+}) => {
+  const { data, metadata } = await findAll({
+    model: Action,
+    key,
+    searchFields,
+    query,
+    offset,
+    limit,
+    fields,
+    sort,
+    populate,
+  });
+  return { data, metadata };
+};
+
+const findActionByCondition = async (condition, fields, populate) => {
+  const action = await findByCondition(Action, condition, fields, populate);
   return action;
 };
 
-const findActionByName = async ({ name }) => {
-  const action = await Action.findOne({ name });
-  return action;
-};
-
-const createAction = async ({ name, actions, userId }) => {
+const createAction = async ({
+  name,
+  actions,
+  userId,
+  groupActionId,
+  botId,
+}) => {
   const action = await Action.create({
     name,
     actions,
     createBy: userId,
+    groupAction: groupActionId,
+    bot: botId,
   });
   return action;
 };
 
-const updateAction = async ({ id, name, actions }) => {
-  const action = await Action.updateOne(
-    { _id: id },
-    {
-      name,
-      actions,
-    },
-  );
+const updateAction = async (id, data) => {
+  const action = await Action.findByIdAndUpdate(id, data, { new: true });
   return action;
 };
 
 const deleteAction = async (id) => {
-  await Action.deleteOne({ _id: id });
+  await Action.findByIdAndDelete(id);
 };
 
 module.exports = {
-  findActionById,
-  findActionByName,
+  findAllActionByGroupActionId,
+  findActionByCondition,
   createAction,
   updateAction,
   deleteAction,

@@ -31,7 +31,7 @@ const createDictionary = async (req, res) => {
     botId: bot.id,
     userId: user.id,
   });
-  return res.send({ status: 1, result: dictionary });
+  return res.send({ status: 1, result: { dictionary } });
 };
 
 const updateDictionary = async (req, res) => {
@@ -41,7 +41,7 @@ const updateDictionary = async (req, res) => {
     acronym,
     original,
   });
-  return res.send({ status: 1, result: dictionary });
+  return res.send({ status: 1, result: { dictionary } });
 };
 
 const deleteDictionary = async (req, res) => {

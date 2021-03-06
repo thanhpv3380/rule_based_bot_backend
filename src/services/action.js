@@ -3,20 +3,21 @@ const errorCodes = require('../errors/code');
 const actionDao = require('../daos/action');
 
 const findAllActionByBotId = async ({ botId, keyword }) => {
-  const { data } = actionDao.findAllActionByGroupActionId({
+  const { data } = await actionDao.findAllActionByGroupActionId({
     key: keyword,
     searchFields: ['name'],
     query: {
       bot: botId,
     },
   });
+
   return data;
 };
 
 const findActionById = async (id) => {
   const action = await actionDao.findActionByCondition({ _id: id });
   if (!action) {
-    throw new CustomError(errorCodes.ITEM_EXIST);
+    throw new CustomError(errorCodes.NOT_FOUND);
   }
   return action;
 };

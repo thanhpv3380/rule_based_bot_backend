@@ -1,10 +1,9 @@
 const router = require('express').Router();
 const asyncMiddleware = require('../middlewares/async');
 const intentController = require('../controllers/intent');
-const { getAgentId } = require('../middlewares/getAgentId');
-const { auth } = require('../middlewares/auth');
+const { auth, getBotId } = require('../middlewares/auth');
 
-router.post('/intents', getAgentId, asyncMiddleware(intentController.create));
+router.post('/intents', getBotId, asyncMiddleware(intentController.create));
 router.put('/intents/:id', auth, asyncMiddleware(intentController.update));
 router.get('/intents/:id', asyncMiddleware(intentController.getIntent));
 router.delete('/intents/:id', asyncMiddleware(intentController.deleteIntent));

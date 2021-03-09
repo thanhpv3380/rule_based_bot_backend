@@ -31,14 +31,4 @@ const deleteUser = async (userId) => {
   await User.findByIdAndDelete(userId);
 };
 
-const findByIdAndUpdate = async (userId, id) => {
-  await User.findByIdAndUpdate(userId, { $push: { bots: id } });
-};
-
-module.exports = {
-  createUser,
-  findUser,
-  updateUser,
-  deleteUser,
-  findByIdAndUpdate,
-};
+module.exports = { createUser, findUser, updateUser, deleteUser };

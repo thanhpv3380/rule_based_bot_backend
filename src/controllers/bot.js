@@ -23,7 +23,6 @@ const getBotById = async (req, res) => {
 
 const createBot = async (req, res) => {
   const { user } = req;
-
   const { name } = req.body;
   const bot = await botService.createBot(user.id, { name });
   return res.send({ status: 1, results: bot });

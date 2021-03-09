@@ -1,40 +1,68 @@
 const botService = require('../services/bot');
 
-const create = async (req, res) => {
+const getAllBot = async (req, res) => {
+  const { key, searchFields, limit, offset, fields, sort } = req.query;
+  const { user } = req;
+  const { bots, metadata } = await botService.findAllBot({
+    userId: user.id,
+    key,
+    searchFields,
+    limit,
+    offset,
+    fields,
+    sort,
+  });
+  return res.send({ status: 1, results: { bots, metadata } });
+};
+
+const getBotById = async (req, res) => {
+  const { id } = req.params;
+  const bot = await botService.findBotById(id);
+  return res.send({ status: 1, results: { bot } });
+};
+
+const createBot = async (req, res) => {
   const { user } = req;
 
   const { name } = req.body;
-  const bot = await botService.createBot({ name, createBy: user.id });
-  return res.send({ status: 1, result: bot });
+  const bot = await botService.createBot(user.id, { name });
+  return res.send({ status: 1, results: bot });
 };
 
-const update = async (req, res) => {
-  const { name, userId } = req.body;
-  const { botId } = req.param;
-  const data = {
-    name,
-    userId,
-  };
-  const bot = await botService.updateBot({ botId, data });
-  return res.send({ status: 1, result: bot });
-};
-
-const getBot = async (req, res) => {
-  // const { accessToken } = req;
+const updateBot = async (req, res) => {
   const { id } = req.params;
-  const bot = await botService.findBotById(id);
-  res.send({ status: 1, result: bot });
-};
-
-const getBots = async (req, res) => {
-  const { name } = req.query;
-  const { bots, metadata } = await botService.findAllBot(name);
-  res.send({ status: 1, result: { bots, metadata } });
+  const { name } = req.body;
+  const { user } = req;
+  const bot = await botService.updateBot(id, user.id, {
+    name,
+  });
+  return res.send({ status: 1, results: bot });
 };
 
 const deleteBot = async (req, res) => {
   const { id } = req.params;
-  await botService.deleteBotById(id);
-  res.send({ status: 1 });
+  await botService.deleteBot(id);
+  return res.send({ status: 1 });
 };
-module.exports = { create, update, getBot, getBots, deleteBot };
+
+const addUserInBot = async (req, res) => {
+  const { id, userId } = req.params;
+  const bot = await botService.addUserInBot(id, userId);
+  return res.send({ status: 1, results: bot });
+};
+
+const removeUserInBot = async (req, res) => {
+  const { id, userId } = req.params;
+  const bot = await botService.addUserInBot(id, userId);
+  return res.send({ status: 1, results: bot });
+};
+
+module.exports = {
+  getAllBot,
+  getBotById,
+  createBot,
+  updateBot,
+  deleteBot,
+  addUserInBot,
+  removeUserInBot,
+};

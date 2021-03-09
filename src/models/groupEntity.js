@@ -3,6 +3,11 @@ const mongoose = require('mongoose');
 
 const { ObjectId } = mongoose.Types;
 
+<<<<<<< HEAD
+=======
+const { ObjectId } = mongoose.Types;
+
+>>>>>>> develop
 const groupEntitySchema = new mongoose.Schema(
   {
     name: String,

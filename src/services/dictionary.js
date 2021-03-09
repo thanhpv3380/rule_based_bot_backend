@@ -1,30 +1,57 @@
+/* eslint-disable radix */
 const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
 
 const dictionaryDao = require('../daos/dictionary');
 
-const findAllDictionary = async (id) => {
-  const dictionaries = await dictionaryDao.findAllDictionary(id);
-  return { dictionaries, metadata: { total: dictionaries.length } };
+const findAllDictionary = async ({
+  botId,
+  key,
+  searchFields,
+  limit,
+  offset,
+  fields,
+  sort,
+  query,
+}) => {
+  const newSearchFields = searchFields ? searchFields.split(',') : null;
+  const newFields = fields ? fields.split(',') : null;
+  const newSort = sort ? sort.split(',') : null;
+  const { data, metadata } = await dictionaryDao.findAllDictionary({
+    key,
+    searchFields: newSearchFields,
+    query: { ...query, bot: botId },
+    offset,
+    limit,
+    fields: newFields,
+    sort: newSort,
+    populate: ['createBy'],
+  });
+
+  return { dictionaries: data, metadata };
 };
 
 const findDictionaryById = async (id) => {
-  const dictionary = await dictionaryDao.findGroupActionById({ id });
+  const dictionary = await dictionaryDao.findDictionary({ _id: id }, null, [
+    'createBy',
+  ]);
   if (!dictionary) {
-    throw new CustomError(errorCodes.DICTIONARY_NOT_EXIST);
+    throw new CustomError(errorCodes.NOT_FOUND);
   }
   return dictionary;
 };
 
-const createDictionary = async ({ synonym, original, userId, botId }) => {
-  const dictionaryExists = await dictionaryDao.findDictionaryBySynonym({
-    synonym,
+const createDictionary = async ({ acronym, original, userId, botId }) => {
+  const dictionaryExists = await dictionaryDao.findDictionary({
+    acronym,
+    bot: botId,
   });
+
   if (dictionaryExists) {
-    throw new CustomError(errorCodes.DICTIONARY_EXIST);
+    throw new CustomError(errorCodes.ITEM_EXIST);
   }
   const dictionary = await dictionaryDao.createDictionary({
-    synonym,
+    acronym,
     original,
     userId,
     botId,
@@ -32,14 +59,16 @@ const createDictionary = async ({ synonym, original, userId, botId }) => {
   return dictionary;
 };
 
-const updateDictionary = async ({ id, synonym, original }) => {
-  const dictionaryExists = await dictionaryDao.findDictionaryBySynonym({
-    synonym,
+const updateDictionary = async (id, data) => {
+  const dictionaryExists = await dictionaryDao.findDictionary({
+    _id: id,
   });
-  if (dictionaryExists) {
-    throw new CustomError(errorCodes.DICTIONARY_EXIST);
+
+  if (!dictionaryExists) {
+    throw new CustomError(errorCodes.NOT_FOUND);
   }
-  const dictionary = await dictionaryDao.updateDictionary({ id, original });
+
+  const dictionary = await dictionaryDao.updateDictionary(id, data);
   return dictionary;
 };
 

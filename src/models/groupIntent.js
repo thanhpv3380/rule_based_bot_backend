@@ -4,7 +4,6 @@ const { ObjectId } = mongoose.Types;
 const groupIntentSchema = new mongoose.Schema(
   {
     name: String,
-
     isGroup: Boolean,
     bot: {
       type: ObjectId,

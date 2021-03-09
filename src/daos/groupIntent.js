@@ -28,19 +28,6 @@ const findAllGroupAndItem = async ({
   };
 };
 
-// const findAllGroupAndItem = async ({ botId, keyword }) => {
-//   const groupIntents = await GroupIntent.find({
-//     bot: botId,
-//   }).populate([
-//     {
-//       path: 'intents',
-//       match: { name: { $regex: keyword } },
-//       select: 'name id',
-//     },
-//   ]);
-//   return groupIntents;
-// };
-
 const findGroupIntentById = async ({ id }) => {
   const groupIntents = await GroupIntent.findOne({
     _id: id,
@@ -67,17 +54,24 @@ const findGroupIntentByName = async ({ name }) => {
   return groupIntents;
 };
 
-const createGroupIntent = async ({ name, botId, isGroup }) => {
+const createGroupIntent = async ({ name, botId, isGroup, intentId }) => {
   const groupIntent = await GroupIntent.create({
     name,
     bot: botId,
     isGroup,
+    intents: intentId,
   });
   return groupIntent;
 };
 
 const updateGroupIntent = async ({ id, name }) => {
-  const groupIntent = await GroupIntent.updateOne({ _id: id }, { name });
+  const groupIntent = await GroupIntent.findByIdAndUpdate(
+    { _id: id },
+    { name },
+    {
+      new: true,
+    },
+  );
   return groupIntent;
 };
 
@@ -95,7 +89,7 @@ const addIntentInGroup = async (groupIntentId, intentId) => {
 
 const removeIntentInGroup = async (groupIntentId, intentId) => {
   const groupIntent = await GroupIntent.updateOne(
-    { _id: groupIntentId },
+    {},
     { $pull: { intents: intentId } },
   );
   return groupIntent;

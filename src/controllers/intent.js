@@ -18,8 +18,8 @@ const create = async (req, res) => {
     isMappingAction,
     mappingAction,
     parameters,
+    groupIntentId,
   };
-  console.log("create controller");
   const intent = await intentService.createIntent({
     data,
     groupIntentId,
@@ -46,8 +46,9 @@ const update = async (req, res) => {
     isMappingAction,
     mappingAction,
     parameters,
+    groupIntentId,
   };
-  const intent = await intentService.updateIntent(id, data, groupIntentId);
+  const intent = await intentService.updateIntent(id, data);
   return res.send({ status: 1, result: intent });
 };
 

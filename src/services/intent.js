@@ -2,28 +2,17 @@ const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
 
 const intentDao = require('../daos/intent');
-const groupIntentDao = require('../daos/groupIntent');
-const Intent = require('../models/intent');
 
-const createIntent = async ({ data, groupIntentId, botId }) => {
+const createIntent = async ({ data }) => {
   const intentExist = await intentDao.findIntentByName({ name: data.name });
   if (intentExist) {
     throw new CustomError(errorCodes.INTENT_NAME_EXIST);
   }
   const intent = await intentDao.createIntent(data);
-  if (!groupIntentId) {
-    await groupIntentDao.createGroupIntent({
-      botId,
-      isGroup: false,
-      intentId: [intent.id],
-    });
-  } else {
-    await groupIntentDao.addIntentInGroup(groupIntentId, intent.id);
-  }
   return intent;
 };
 
-const updateIntent = async (id, data, groupIntentId) => {
+const updateIntent = async (id, data) => {
   const intentNameExist = await intentDao.findIntentByName({
     name: data.name,
   });
@@ -31,10 +20,6 @@ const updateIntent = async (id, data, groupIntentId) => {
     throw new CustomError(errorCodes.INTENT_NAME_EXIST);
   }
   const intent = await intentDao.updateIntent(id, data);
-  if (groupIntentId !== null) {
-    await groupIntentDao.removeIntentInGroup(groupIntentId, id);
-    await groupIntentDao.addIntentInGroup(groupIntentId, id);
-  }
   return intent;
 };
 

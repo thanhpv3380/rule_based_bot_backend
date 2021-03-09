@@ -1,7 +1,9 @@
+/* eslint-disable guard-for-in */
 const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
 
 const groupIntentDao = require('../daos/groupIntent');
+const intentDao = require('../daos/intent');
 
 // const findAllGroupAndItem = async ({ botId, keyword }) => {
 //   const groupIntents = await groupIntentDao.findAllGroupAndItem({
@@ -14,47 +16,36 @@ const groupIntentDao = require('../daos/groupIntent');
 //   return { groupIntents: response, metadata: { total: response.length } };
 // };
 
-const findAllGroupAndItem = async (
-  botId,
-  keyword,
-  key,
-  searchFields,
-  limit,
-  offset,
-  fields,
-  sort,
-  query,
-) => {
-  const newSearchFields = searchFields ? searchFields.split(',') : null;
-  const newFields = fields ? fields.split(',') : null;
-  const { data, metadata } = await groupIntentDao.findAllGroupAndItem({
-    key,
-    searchFields: newSearchFields,
-    query: { ...query, bot: botId },
-    offset,
-    limit,
-    fields: newFields,
-    sort,
-    populate: [
-      {
-        path: 'intents',
-        match: { name: { $regex: keyword } },
-        select: 'name id',
-      },
-    ],
+const findAllGroupAndItem = async (keyword, botId) => {
+  const { data } = await groupIntentDao.findAllGroupAndItem({
+    query: {
+      bot: botId,
+    },
   });
-  const groupIntents = data.filter((item) => item.intents.length !== 0);
+  const groupIntents = [];
+  for (const el in data) {
+    const result = await intentDao.findAllIntentByGroupIntentId({
+      key: keyword,
+      searchFields: ['name'],
+      query: {
+        groupIntent: data[el]._id,
+      },
+      fields: ['id', 'name', 'createBy', 'groupIntent'],
+    });
 
-  return { groupIntents, metadata };
+    groupIntents.push({
+      ...data[el],
+      intents: result.data,
+    });
+  }
+  if (keyword === '' || !keyword || keyword === null) {
+    return groupIntents;
+  }
+  const filterGroupIntents = groupIntents.filter(
+    (item) => item.intents.length !== 0,
+  );
+  return filterGroupIntents;
 };
-
-// const findAllGroupIntent = async (botId) => {
-//   const groupIntents = await groupIntentDao.findAllGroupAndItem({
-//     botId,
-//     keyword: '',
-//   });
-//   return { groupIntents, metadata: { total: groupIntents.length } };
-// };
 
 const findAllGroupIntent = async (
   bot,
@@ -76,7 +67,6 @@ const findAllGroupIntent = async (
     limit,
     fields: newFields,
     sort,
-    populate: ['intents'],
   });
 
   return { groupIntents: data, metadata };
@@ -109,7 +99,7 @@ const updateGroupIntent = async ({ id, name }) => {
   const groupIntentExists = await groupIntentDao.findGroupIntentByName({
     name,
   });
-  if (groupIntentExists.id !== id) {
+  if (groupIntentExists && groupIntentExists.id !== id) {
     throw new CustomError(errorCodes.GROUP_INTENT_EXIST);
   }
   const groupIntent = await groupIntentDao.updateGroupIntent({ id, name });
@@ -117,6 +107,7 @@ const updateGroupIntent = async ({ id, name }) => {
 };
 
 const deleteGroupIntent = async (id) => {
+  await intentDao.deleteIntentByGroupId(id);
   await groupIntentDao.deleteGroupIntent(id);
 };
 

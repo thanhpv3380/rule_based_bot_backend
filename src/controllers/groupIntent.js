@@ -20,21 +20,16 @@ const searchItem = async (req, res) => {
 };
 
 const getAllGroupIntent = async (req, res) => {
-  const { key, searchFields, limit, offset, fields, sort } = req.query;
+  const { keyword } = req.query;
   const { bot } = req;
-  const {
-    groupIntents,
-    metadata,
-  } = await groupIntentService.findAllGroupIntent(
+  const groupIntents = await groupIntentService.findAllGroupAndItem(
+    keyword,
     bot.id,
-    key,
-    searchFields,
-    limit,
-    offset,
-    fields,
-    sort,
   );
-  return res.send({ status: 1, results: { groupIntents, metadata } });
+  return res.send({
+    status: 1,
+    results: { groupIntents, metadata: groupIntents.length },
+  });
 };
 
 const getGroupIntentById = async (req, res) => {
@@ -46,8 +41,6 @@ const getGroupIntentById = async (req, res) => {
 const createGroupIntent = async (req, res) => {
   const { bot } = req;
   const { name } = req.body;
-  console.log(name);
-  console.log(req);
   const groupIntent = await groupIntentService.createGroupIntent({
     name,
     botId: bot.id,
@@ -59,7 +52,7 @@ const updateGroupIntent = async (req, res) => {
   const { id } = req.params;
   const { name } = req.body;
   const groupIntent = await groupIntentService.updateGroupIntent({ id, name });
-  return res.send({ status: 1, results: groupIntent });
+  return res.send({ status: 1, result: groupIntent });
 };
 
 const deleteGroupIntent = async (req, res) => {

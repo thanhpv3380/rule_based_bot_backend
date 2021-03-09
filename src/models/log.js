@@ -1,6 +1,6 @@
 /* eslint-disable spaced-comment */
 const mongoose = require('mongoose');
-
+// const mongoosastic = require('mongoosastic');
 const { ObjectId } = mongoose.Types;
 
 const logSchema = new mongoose.Schema(
@@ -40,4 +40,20 @@ const logSchema = new mongoose.Schema(
   },
 );
 
+// logSchema.plugin(mongoosastic, {
+//   hosts: [
+//     'localhost:9200'
+//   ]
+// })
+
 module.exports = mongoose.model('Log', logSchema);
+
+// Log.createMapping(function(err, mapping){
+//   if(err){
+//       console.log("error create mapping");
+//       console.log(err);
+//   }else{
+//       console.log("Log mapping create");
+//       console.log(mapping);
+//   }
+// });

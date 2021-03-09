@@ -6,9 +6,9 @@ const dictionarySchema = new mongoose.Schema(
   {
     acronym: String,
     original: String,
-    bot: {
+    Dictionary: {
       type: ObjectId,
-      ref: 'Bot',
+      ref: 'Dictionary',
     },
     createBy: {
       type: ObjectId,

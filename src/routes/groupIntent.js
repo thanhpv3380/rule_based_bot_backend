@@ -1,19 +1,18 @@
 /* eslint-disable no-unused-vars */
 const router = require('express').Router();
 const asyncMiddleware = require('../middlewares/async');
-const { auth } = require('../middlewares/auth');
+const { auth, getBotId } = require('../middlewares/auth');
 const groupIntentController = require('../controllers/groupIntent');
-const { getAgentId } = require('../middlewares/getAgentId');
 
 router.get(
   '/groupIntents',
-  getAgentId,
+  getBotId,
   asyncMiddleware(groupIntentController.getAllGroupIntent),
 );
 
 router.get(
   '/groupIntents/search',
-  getAgentId,
+  getBotId,
   asyncMiddleware(groupIntentController.searchItem),
 );
 
@@ -24,7 +23,7 @@ router.get(
 
 router.post(
   '/groupIntents',
-  getAgentId,
+  getBotId,
   asyncMiddleware(groupIntentController.createGroupIntent),
 );
 

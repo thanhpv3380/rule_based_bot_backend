@@ -1,6 +1,7 @@
 const {
   Types: { ObjectId },
 } = require('mongoose');
+const { populate } = require('../models/intent');
 const Intent = require('../models/intent');
 const { findAll, findByCondition } = require('../utils/db');
 

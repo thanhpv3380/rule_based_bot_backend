@@ -5,7 +5,9 @@ const actionDao = require('../daos/action');
 const groupActionDao = require('../daos/groupAction');
 
 const findAllAction = async (id) => {
-  const groupActions = groupActionDao.findAllGroupActionAndItem({ botId: id });
+  const groupActions = await groupActionDao.findAllGroupActionAndItem({
+    botId: id,
+  });
   const actions = [];
   actions.push(...groupActions.map((el) => el.actions));
 

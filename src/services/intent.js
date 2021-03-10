@@ -55,7 +55,6 @@ const deleteIntentById = async (id) => {
 };
 
 const removeUsersayOfIntent = async (id, pattern) => {
-  console.log(pattern);
   const intent = await intentDao.findIntentById(id);
   if (!intent) {
     throw new CustomError(errorCodes.INTENT_NOT_EXIST);

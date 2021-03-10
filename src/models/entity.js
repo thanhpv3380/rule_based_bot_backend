@@ -5,6 +5,7 @@ const { ObjectId } = mongoose.Types;
 const entitySchema = new mongoose.Schema(
   {
     type: String,
+    name: String,
     pattern: String,
     synonym: [
       {

@@ -1,7 +1,7 @@
 const Intent = require('../models/intent');
 const { findAll, findByCondition } = require('../utils/db');
 
-const findAllIntentByGroupIntentId = async ({
+const findAllIntentByCondition = async ({
   key,
   searchFields,
   query,
@@ -98,7 +98,7 @@ module.exports = {
   updateIntent,
   findIntentById,
   findIntentByCondition,
-  findAllIntentByGroupIntentId,
+  findAllIntentByCondition,
   findIntentByName,
   deleteIntent,
   deleteIntentByGroupId,

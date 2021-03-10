@@ -1,3 +1,4 @@
+/* eslint-disable spaced-comment */
 const mongoose = require('mongoose');
 
 const { ObjectId } = mongoose.Types;
@@ -73,6 +74,14 @@ const actionSchema = new mongoose.Schema(
         },
       },
     ],
+    groupAction: {
+      type: ObjectId,
+      ref: 'GroupAction',
+    },
+    bot: {
+      type: ObjectId,
+      ref: 'Bot',
+    },
     createBy: {
       type: ObjectId,
       ref: 'User',

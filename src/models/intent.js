@@ -25,9 +25,13 @@ const intentSchema = new mongoose.Schema(
         },
       },
     ],
-    group: {
+    groupIntent: {
       type: ObjectId,
       ref: 'GroupIntent',
+    },
+    bot: {
+      type: ObjectId,
+      ref: 'Bot',
     },
     createBy: {
       type: ObjectId,

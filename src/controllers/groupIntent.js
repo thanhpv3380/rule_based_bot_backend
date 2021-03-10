@@ -1,41 +1,19 @@
 const groupIntentService = require('../services/groupIntent');
 
-const searchItem = async (req, res) => {
-  const { keyword, key, searchFields, limit, offset, fields, sort } = req.query;
+const getAllGroupIntentAndItem = async (req, res) => {
+  const { keyword } = req.body;
   const { bot } = req;
-  const {
-    groupIntents,
-    metadata,
-  } = await groupIntentService.findAllGroupAndItem(
-    bot.id,
+  const groupIntents = await groupIntentService.findAllGroupIntentAndItem({
     keyword,
-    key,
-    searchFields,
-    limit,
-    offset,
-    fields,
-    sort,
-  );
-  return res.send({ status: 1, results: { groupIntents, metadata } });
-};
-
-const getAllGroupIntent = async (req, res) => {
-  const { keyword } = req.query;
-  const { bot } = req;
-  const groupIntents = await groupIntentService.findAllGroupAndItem(
-    keyword,
-    bot.id,
-  );
-  return res.send({
-    status: 1,
-    results: { groupIntents, metadata: groupIntents.length },
+    botId: bot.id,
   });
+  return res.send({ status: 1, result: { groupIntents } });
 };
 
 const getGroupIntentById = async (req, res) => {
   const { id } = req.params;
   const groupIntent = await groupIntentService.findGroupIntentById(id);
-  return res.send({ status: 1, results: groupIntent });
+  return res.send({ status: 1, result: { groupIntent } });
 };
 
 const createGroupIntent = async (req, res) => {
@@ -45,14 +23,19 @@ const createGroupIntent = async (req, res) => {
     name,
     botId: bot.id,
   });
-  return res.send({ status: 1, results: groupIntent });
+  return res.send({ status: 1, result: { groupIntent } });
 };
 
 const updateGroupIntent = async (req, res) => {
   const { id } = req.params;
   const { name } = req.body;
-  const groupIntent = await groupIntentService.updateGroupIntent({ id, name });
-  return res.send({ status: 1, result: groupIntent });
+  const { bot } = req;
+  const groupIntent = await groupIntentService.updateGroupIntent({
+    id,
+    name,
+    botId: bot.id,
+  });
+  return res.send({ status: 1, result: { groupIntent } });
 };
 
 const deleteGroupIntent = async (req, res) => {
@@ -62,8 +45,7 @@ const deleteGroupIntent = async (req, res) => {
 };
 
 module.exports = {
-  searchItem,
-  getAllGroupIntent,
+  getAllGroupIntentAndItem,
   getGroupIntentById,
   createGroupIntent,
   updateGroupIntent,

@@ -12,13 +12,13 @@ const getAllDictionary = async (req, res) => {
     fields,
     sort,
   });
-  return res.send({ status: 1, results: { dictionaries, metadata } });
+  return res.send({ status: 1, result: { dictionaries, metadata } });
 };
 
 const getDictionaryById = async (req, res) => {
   const { id } = req.params;
   const dictionary = await dictionaryService.findDictionaryById(id);
-  return res.send({ status: 1, results: { dictionary } });
+  return res.send({ status: 1, result: { dictionary } });
 };
 
 const createDictionary = async (req, res) => {
@@ -31,7 +31,7 @@ const createDictionary = async (req, res) => {
     botId: bot.id,
     userId: user.id,
   });
-  return res.send({ status: 1, results: dictionary });
+  return res.send({ status: 1, result: { dictionary } });
 };
 
 const updateDictionary = async (req, res) => {
@@ -41,7 +41,7 @@ const updateDictionary = async (req, res) => {
     acronym,
     original,
   });
-  return res.send({ status: 1, results: dictionary });
+  return res.send({ status: 1, result: { dictionary } });
 };
 
 const deleteDictionary = async (req, res) => {

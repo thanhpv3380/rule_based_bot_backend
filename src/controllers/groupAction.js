@@ -1,28 +1,19 @@
 const groupActionService = require('../services/groupAction');
 
-const getAllGroupAction = async (req, res) => {
-  const { bot } = req;
-  const {
-    groupActions,
-    metadata,
-  } = await groupActionService.findAllGroupAction(bot.id);
-  return res.send({ status: 1, results: { groupActions, metadata } });
-};
-
 const getAllGroupActionAndItem = async (req, res) => {
   const { keyword } = req.body;
   const { bot } = req;
-  const data = await groupActionService.findAllGroupActionAndItem({
+  const groupActions = await groupActionService.findAllGroupActionAndItem({
     keyword,
-    botId: bot.Id,
+    botId: bot.id,
   });
-  return res.send({ status: 1, results: { data } });
+  return res.send({ status: 1, result: { groupActions } });
 };
 
 const getGroupActionById = async (req, res) => {
   const { id } = req.params;
-  const groupAction = await groupActionService.findById(id);
-  return res.send({ status: 1, results: groupAction });
+  const groupAction = await groupActionService.findGroupActionById(id);
+  return res.send({ status: 1, result: { groupAction } });
 };
 
 const createGroupAction = async (req, res) => {
@@ -32,14 +23,19 @@ const createGroupAction = async (req, res) => {
     name,
     botId: bot.id,
   });
-  return res.send({ status: 1, results: groupAction });
+  return res.send({ status: 1, result: { groupAction } });
 };
 
 const updateGroupAction = async (req, res) => {
   const { id } = req.params;
   const { name } = req.body;
-  const groupAction = await groupActionService.updateGroupAction({ id, name });
-  return res.send({ status: 1, results: groupAction });
+  const { bot } = req;
+  const groupAction = await groupActionService.updateGroupAction({
+    id,
+    name,
+    botId: bot.id,
+  });
+  return res.send({ status: 1, result: { groupAction } });
 };
 
 const deleteGroupAction = async (req, res) => {
@@ -49,7 +45,6 @@ const deleteGroupAction = async (req, res) => {
 };
 
 module.exports = {
-  getAllGroupAction,
   getAllGroupActionAndItem,
   getGroupActionById,
   createGroupAction,

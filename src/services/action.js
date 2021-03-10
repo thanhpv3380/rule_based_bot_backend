@@ -1,21 +1,23 @@
 const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
-
 const actionDao = require('../daos/action');
-const groupActionDao = require('../daos/groupAction');
 
-const findAllAction = async (id) => {
-  const groupActions = groupActionDao.findAllGroupActionAndItem({ botId: id });
-  const actions = [];
-  actions.push(...groupActions.map((el) => el.actions));
+const findAllActionByBotId = async ({ botId, keyword }) => {
+  const { data } = await actionDao.findAllActionByCondition({
+    key: keyword,
+    searchFields: ['name'],
+    query: {
+      bot: botId,
+    },
+  });
 
-  return { actions, metadata: { total: actions.length } };
+  return data;
 };
 
 const findActionById = async (id) => {
-  const action = await actionDao.findActionById(id);
+  const action = await actionDao.findActionByCondition({ _id: id });
   if (!action) {
-    throw new CustomError(errorCodes.ACTION_NOT_EXIST);
+    throw new CustomError(errorCodes.NOT_FOUND);
   }
   return action;
 };
@@ -27,41 +29,52 @@ const createAction = async ({
   groupActionId,
   botId,
 }) => {
-  const actionExist = await actionDao.findActionByName({ name });
+  const actionExist = await actionDao.findActionByCondition({
+    name,
+    bot: botId,
+  });
   if (actionExist) {
-    throw new CustomError(errorCodes.ACTION_EXIST);
+    throw new CustomError(errorCodes.ITEM_EXIST);
   }
-  const action = await actionDao.createAction({ name, actions, userId });
-  if (!groupActionId) {
-    await groupActionDao.createGroupAction({ botId, isGroup: false });
-  } else {
-    await groupActionDao.addActionInGroup(groupActionId, action.id);
-  }
-  return action;
-};
-
-const updateAction = async ({ id, name, actions, groupActionId }) => {
-  const actionExist = await actionDao.findActionByName({ name });
-  if (actionExist.id !== id) {
-    throw new CustomError(errorCodes.ACTION_EXIST);
-  }
-  const action = await actionDao.updateAction({ id, name, actions });
-
-  await groupActionDao.removeActionInGroup(groupActionId, id);
-
-  await groupActionDao.addActionInGroup(groupActionId, id);
+  const action = await actionDao.createAction({
+    name,
+    actions,
+    userId,
+    groupActionId,
+    botId,
+  });
 
   return action;
 };
 
-const deleteActionById = async (id) => {
-  await actionDao.deleteActionById(id);
+const updateAction = async ({ id, name, actions, groupActionId, botId }) => {
+  const actionExist = await actionDao.findActionByCondition({
+    name,
+    bot: botId,
+  });
+  if (actionExist) {
+    if (actionExist.id !== id) {
+      throw new CustomError(errorCodes.ITEM_EXIST);
+    }
+  }
+
+  const action = await actionDao.updateAction(id, {
+    name,
+    actions,
+    groupAction: groupActionId,
+  });
+
+  return action;
+};
+
+const deleteAction = async (id) => {
+  await actionDao.deleteAction(id);
 };
 
 module.exports = {
-  findAllAction,
+  findAllActionByBotId,
   findActionById,
   createAction,
   updateAction,
-  deleteActionById,
+  deleteAction,
 };

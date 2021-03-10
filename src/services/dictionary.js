@@ -42,12 +42,12 @@ const findDictionaryById = async (id) => {
 };
 
 const createDictionary = async ({ acronym, original, userId, botId }) => {
-  const dictionaryExists = await dictionaryDao.findDictionary({
+  const dictionaryExist = await dictionaryDao.findDictionary({
     acronym,
     bot: botId,
   });
 
-  if (dictionaryExists) {
+  if (dictionaryExist) {
     throw new CustomError(errorCodes.ITEM_EXIST);
   }
   const dictionary = await dictionaryDao.createDictionary({
@@ -60,11 +60,11 @@ const createDictionary = async ({ acronym, original, userId, botId }) => {
 };
 
 const updateDictionary = async (id, data) => {
-  const dictionaryExists = await dictionaryDao.findDictionary({
+  const dictionaryExist = await dictionaryDao.findDictionary({
     _id: id,
   });
 
-  if (!dictionaryExists) {
+  if (!dictionaryExist) {
     throw new CustomError(errorCodes.NOT_FOUND);
   }
 

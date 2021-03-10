@@ -4,36 +4,34 @@ const asyncMiddleware = require('../middlewares/async');
 const { auth, getBotId } = require('../middlewares/auth');
 const groupIntentController = require('../controllers/groupIntent');
 
-router.get(
-  '/groupIntents',
+router.post(
+  '/groupIntents/getGroupAndItems',
+  auth,
   getBotId,
-  asyncMiddleware(groupIntentController.getAllGroupIntent),
+  asyncMiddleware(groupIntentController.getAllGroupIntentAndItem),
 );
-
-router.get(
-  '/groupIntents/search',
-  getBotId,
-  asyncMiddleware(groupIntentController.searchItem),
-);
-
 router.get(
   '/groupIntents/:id',
+  auth,
+  getBotId,
   asyncMiddleware(groupIntentController.getGroupIntentById),
 );
-
 router.post(
   '/groupIntents',
+  auth,
   getBotId,
   asyncMiddleware(groupIntentController.createGroupIntent),
 );
-
 router.put(
   '/groupIntents/:id',
+  auth,
+  getBotId,
   asyncMiddleware(groupIntentController.updateGroupIntent),
 );
-
 router.delete(
   '/groupIntents/:id',
+  auth,
+  getBotId,
   asyncMiddleware(groupIntentController.deleteGroupIntent),
 );
 

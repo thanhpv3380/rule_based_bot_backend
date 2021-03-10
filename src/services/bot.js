@@ -1,8 +1,10 @@
 /* eslint-disable radix */
 const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
-
+const { GROUP_SINGLE, GROUP_SINGLE_NAME } = require('../constants/index');
 const botDao = require('../daos/bot');
+const groupActionDao = require('../daos/groupAction');
+const groupIntentDao = require('../daos/groupIntent');
 
 const findAllBot = async ({
   userId,
@@ -40,15 +42,25 @@ const findBotById = async (id) => {
 
 const createBot = async (userId, data) => {
   const bot = await botDao.createBot(data, userId);
+  await groupActionDao.createGroupAction({
+    name: GROUP_SINGLE_NAME,
+    botId: bot.id,
+    groupType: GROUP_SINGLE,
+  });
+  await groupActionDao.createGroupAction({
+    name: GROUP_SINGLE_NAME,
+    botId: bot.id,
+    groupType: GROUP_SINGLE,
+  });
   return bot;
 };
 
 const updateBot = async (id, userId, data) => {
-  const botExists = await botDao.findBot({
+  const botExist = await botDao.findBot({
     _id: id,
   });
 
-  if (!botExists) {
+  if (!botExist) {
     throw new CustomError(errorCodes.NOT_FOUND);
   }
   const bot = await botDao.updateBot(id, data);

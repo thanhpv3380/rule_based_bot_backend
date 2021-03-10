@@ -20,6 +20,7 @@
     "express-validation": "^3.0.6",
     "helmet": "^3.23.3",
     "jsonwebtoken": "^8.5.1",
+    "mongoosastic": "^4.6.0",
     "mongoose": "^5.9.25",
     "morgan": "^1.10.0",
     "snakecase-keys": "^3.2.0"

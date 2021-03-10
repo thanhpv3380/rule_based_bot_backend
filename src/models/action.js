@@ -8,7 +8,7 @@ const actionSchema = new mongoose.Schema(
     name: String,
     actions: [
       {
-        type: String, //TEXT, MAIL, MEDIA, API, LOOP
+        type: String, // TEXT, MAIL, MEDIA, API, LOOP
         text: [String],
         email: {
           to: String,
@@ -18,7 +18,7 @@ const actionSchema = new mongoose.Schema(
         media: {
           text: String,
           attachment: {
-            type: String, //IMAGE, AUDIO, VIDEO, FILE, OPTION
+            type: String, // IMAGE, AUDIO, VIDEO, FILE, OPTION
             payload: {
               url: String,
               elements: [
@@ -31,7 +31,7 @@ const actionSchema = new mongoose.Schema(
           },
         },
         api: {
-          method: String, //GET, POST
+          method: String, // GET, POST
           url: String,
           headers: [
             {

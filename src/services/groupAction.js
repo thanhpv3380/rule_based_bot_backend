@@ -13,7 +13,7 @@ const findAllGroupActionAndItem = async ({ keyword, botId }) => {
   });
   const groupActions = [];
   for (const el in data) {
-    const result = await actionDao.findAllActionByGroupActionId({
+    const result = await actionDao.findAllActionByCondition({
       key: keyword,
       searchFields: ['name'],
       query: {

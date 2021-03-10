@@ -3,7 +3,7 @@ const errorCodes = require('../errors/code');
 const actionDao = require('../daos/action');
 
 const findAllActionByBotId = async ({ botId, keyword }) => {
-  const { data } = await actionDao.findAllActionByGroupActionId({
+  const { data } = await actionDao.findAllActionByCondition({
     key: keyword,
     searchFields: ['name'],
     query: {

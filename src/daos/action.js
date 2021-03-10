@@ -1,7 +1,7 @@
 const Action = require('../models/action');
 const { findAll, findByCondition } = require('../utils/db');
 
-const findAllActionByGroupActionId = async ({
+const findAllActionByCondition = async ({
   key,
   searchFields,
   query,
@@ -57,7 +57,7 @@ const deleteAction = async (id) => {
 };
 
 module.exports = {
-  findAllActionByGroupActionId,
+  findAllActionByCondition,
   findActionByCondition,
   createAction,
   updateAction,

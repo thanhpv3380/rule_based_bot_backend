@@ -15,10 +15,6 @@ const botSchema = new mongoose.Schema(
         ref: 'User',
       },
     ],
-    groupActionSingle: {
-      type: ObjectId,
-      ref: 'groupAction',
-    },
   },
   {
     timestamps: true,

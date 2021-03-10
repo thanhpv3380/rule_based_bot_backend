@@ -1,6 +1,5 @@
 const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
-
 const intentDao = require('../daos/intent');
 
 const createIntent = async ({ data }) => {
@@ -36,16 +35,10 @@ const updatePatternOfIntent = async ({ id, pattern }) => {
   return intent;
 };
 
-// const findIntentByUserId = async (userId) => {
-//   const createBy = userId;
-//   const intent = await intentnDao.findIntent(createBy);
-//   return intent;
-// };
-
 const findIntentById = async (id) => {
-  const intent = await intentDao.findIntentById(id);
+  const intent = await intentDao.findIntentByCondition({ _id: id });
   if (!intent) {
-    throw new CustomError(errorCodes.INTENT_NOT_EXIST);
+    throw new CustomError(errorCodes.ITEM_EXIST);
   }
   return intent;
 };
@@ -55,7 +48,6 @@ const deleteIntentById = async (id) => {
 };
 
 const removeUsersayOfIntent = async (id, pattern) => {
-  console.log(pattern);
   const intent = await intentDao.findIntentById(id);
   if (!intent) {
     throw new CustomError(errorCodes.INTENT_NOT_EXIST);
@@ -86,11 +78,14 @@ const addParameterOfIntent = async (id, parameter) => {
   if (!intent) {
     throw new CustomError(errorCodes.INTENT_NOT_EXIST);
   }
-  intent.parameters.map((item) => {
-    if (item.name === parameter.name) {
-      throw new CustomError(errorCodes.PARAMETER_EXISTED);
-    }
-  });
+  // eslint-disable-next-line array-callback-return
+  const intentExist = intent.parameters.find(
+    (item) => item.name === parameter.name,
+  );
+  if (intentExist) {
+    throw new CustomError(errorCodes.PARAMETER_EXISTED);
+  }
+
   intent.parameters.push(parameter);
   await intentDao.updateIntent(id, intent);
   return intent;
@@ -116,7 +111,6 @@ module.exports = {
   createIntent,
   updateIntent,
   updatePatternOfIntent,
-  //  findIntentByUserId,
   findIntentById,
   deleteIntentById,
   addUsersayOfIntent,

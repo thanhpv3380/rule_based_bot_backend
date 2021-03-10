@@ -4,6 +4,7 @@ const errorCodes = require('../errors/code');
 const { GROUP_SINGLE, GROUP_SINGLE_NAME } = require('../constants/index');
 const botDao = require('../daos/bot');
 const groupActionDao = require('../daos/groupAction');
+const groupIntentDao = require('../daos/groupIntent');
 
 const findAllBot = async ({
   userId,
@@ -41,6 +42,11 @@ const findBotById = async (id) => {
 
 const createBot = async (userId, data) => {
   const bot = await botDao.createBot(data, userId);
+  await groupActionDao.createGroupAction({
+    name: GROUP_SINGLE_NAME,
+    botId: bot.id,
+    groupType: GROUP_SINGLE,
+  });
   await groupActionDao.createGroupAction({
     name: GROUP_SINGLE_NAME,
     botId: bot.id,

@@ -17,7 +17,7 @@ const findAllGroupActionAndItem = async ({ keyword, botId }) => {
       key: keyword,
       searchFields: ['name'],
       query: {
-        groupAction: data[el].id,
+        groupAction: data[el]._id,
       },
       fields: ['id', 'name', 'createBy', 'groupAction'],
     });

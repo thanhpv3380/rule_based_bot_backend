@@ -17,7 +17,7 @@ const findAllGroupIntentAndItem = async ({ keyword, botId }) => {
       key: keyword,
       searchFields: ['name'],
       query: {
-        groupIntent: data[el].id,
+        groupIntent: data[el]._id,
       },
       fields: ['id', 'name', 'createBy', 'groupIntent'],
     });

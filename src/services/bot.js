@@ -47,7 +47,7 @@ const createBot = async (userId, data) => {
     botId: bot.id,
     groupType: GROUP_SINGLE,
   });
-  await groupActionDao.createGroupAction({
+  await groupIntentDao.createGroupIntent({
     name: GROUP_SINGLE_NAME,
     botId: bot.id,
     groupType: GROUP_SINGLE,

@@ -63,11 +63,23 @@ const getGroupIntents = async (botId, keyword) => {
     {
       $match: { bot: ObjectId(botId) },
     },
+
     {
       $lookup: {
         from: 'intents',
-        localField: '_id',
-        foreignField: 'groupIntent',
+        let: { id: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $eq: ['$groupIntent', '$$id'],
+              },
+            },
+          },
+          {
+            $match: { name: { $regex: keyword, $options: 'g' } },
+          },
+        ],
         as: 'children',
       },
     },

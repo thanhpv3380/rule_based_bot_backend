@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 
-var ObjectId = mongoose.Types.ObjectId;
+const { ObjectId } = mongoose.Types;
 const groupFlowSchema = new mongoose.Schema(
   {
     name: String,
-    workFlows : [ObjectId],
+    workFlows: [ObjectId],
     isGroup: Boolean,
     botId: ObjectId,
   },

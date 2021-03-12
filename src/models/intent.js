@@ -48,7 +48,7 @@ intentSchema.plugin(mongoosastic, {
   hosts: ['localhost:9200'],
 });
 
-Intent = module.exports = mongoose.model('Intent', intentSchema);
+Intent = module.exports = mongoose.model('Intents', intentSchema);
 
 Intent.createMapping(function (err, mapping) {
   if (err) {

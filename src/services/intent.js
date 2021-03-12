@@ -2,7 +2,7 @@ const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
 const intentDao = require('../daos/intent');
 
-const createIntent = async ({ data }) => {
+const createIntent = async (data) => {
   const intentExist = await intentDao.findIntentByName({ name: data.name });
   if (intentExist) {
     throw new CustomError(errorCodes.INTENT_NAME_EXIST);
@@ -107,6 +107,12 @@ const removeParameterOfIntent = async (id, parameter) => {
   return intent;
 };
 
+const findUserSay = async (usersay) => {
+  console.log(usersay);
+  const intent = await intentDao.findUserSay(usersay);
+  return intent;
+};
+
 module.exports = {
   createIntent,
   updateIntent,
@@ -117,4 +123,5 @@ module.exports = {
   removeUsersayOfIntent,
   addParameterOfIntent,
   removeParameterOfIntent,
+  findUserSay,
 };

@@ -18,13 +18,10 @@ const create = async (req, res) => {
     isMappingAction,
     mappingAction,
     parameters,
-    groupIntentId,
+    groupIntent: groupIntentId,
+    bot: bot.id,
   };
-  const intent = await intentService.createIntent({
-    data,
-    groupIntentId,
-    botId: bot.id,
-  });
+  const intent = await intentService.createIntent(data);
   return res.send({ status: 1, result: intent });
 };
 
@@ -99,6 +96,13 @@ const removeParameter = async (req, res) => {
   res.send({ status: 1 });
 };
 
+const getUsersay = async (req, res) => {
+  const { usersay } = req.query;
+  console.log(usersay, "controller");
+  const intent = await intentService.findUserSay(usersay);
+  res.send({ status: 1, result: intent });
+};
+
 module.exports = {
   create,
   update,
@@ -109,4 +113,5 @@ module.exports = {
   addUsersay,
   addParameter,
   removeParameter,
+  getUsersay,
 };

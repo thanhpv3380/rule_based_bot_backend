@@ -1,5 +1,8 @@
 const GroupIntent = require('../models/groupIntent');
 const { findAll, findByCondition } = require('../utils/db');
+const {
+  Types: { ObjectId },
+} = require('mongoose');
 
 const findAllGroupIntentAndItem = async ({
   key,
@@ -55,10 +58,41 @@ const deleteGroupIntent = async (id) => {
   await GroupIntent.findByIdAndDelete(id);
 };
 
+const getGroupIntents = async (botId, keyword) => {
+  const groupIntents = await GroupIntent.aggregate([
+    {
+      $match: { bot: ObjectId(botId) },
+    },
+    {
+      $lookup: {
+        from: 'intents',
+        localField: '_id',
+        foreignField: 'groupIntent',
+        as: 'children',
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        name: 1,
+        bot: 1,
+        createdAt: 1,
+        updatedAt: 1,
+        groupType: 1,
+        'children._id': 1,
+        'children.name': 1,
+        'children.groupIntent': 1,
+      },
+    },
+  ]);
+  return groupIntents;
+};
+
 module.exports = {
   findAllGroupIntentAndItem,
   findGroupIntentByCondition,
   createGroupIntent,
   updateGroupIntent,
   deleteGroupIntent,
+  getGroupIntents,
 };

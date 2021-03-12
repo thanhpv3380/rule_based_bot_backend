@@ -31,7 +31,7 @@ const findIntentByCondition = async (condition, fields, populate) => {
 };
 
 const createIntent = async (data) => {
-  const intent = await Intent.create(data);
+  const intent = await Intent.save(data);
   return intent;
 };
 
@@ -90,8 +90,23 @@ const deleteIntent = async (id) => {
 };
 
 const deleteIntentByGroupId = (groupId) => {
-  Intent.remove({ groupIntent: groupId });
+  Intent.remove({ groupIntent: groupId }); // Todo không nhận groupID là object
 };
+
+const findUserSay = async (usersay) => {
+  const intent = await Intent
+    .search
+    // {
+
+    // },
+    // function (err, result) {
+    //   console.log(result, ' result', err);
+    //   return err;
+    // },
+    ();
+  return intent;
+};
+
 
 module.exports = {
   createIntent,
@@ -102,4 +117,5 @@ module.exports = {
   findIntentByName,
   deleteIntent,
   deleteIntentByGroupId,
+  findUserSay,
 };

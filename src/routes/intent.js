@@ -27,5 +27,9 @@ router.put(
   '/intents/:id/removeParameter',
   asyncMiddleware(intentController.removeParameter),
 );
+router.get(
+  '/intents/pattern/getUsersay',
+  asyncMiddleware(intentController.getUsersay),
+);
 
 module.exports = router;

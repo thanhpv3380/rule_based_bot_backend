@@ -3,30 +3,12 @@ const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
 const { GROUP } = require('../constants/index');
 const groupActionDao = require('../daos/groupAction');
-const actionDao = require('../daos/action');
 
 const findAllGroupActionAndItem = async ({ keyword, botId }) => {
-  const { data } = await groupActionDao.findAllGroupActionAndItem({
-    query: {
-      bot: botId,
-    },
+  const groupActions = await groupActionDao.findAllGroupActionAndItem({
+    keyword,
+    botId,
   });
-  const groupActions = [];
-  for (const el in data) {
-    const result = await actionDao.findAllActionByCondition({
-      key: keyword,
-      searchFields: ['name'],
-      query: {
-        groupAction: data[el].id,
-      },
-      fields: ['id', 'name', 'createBy', 'groupAction'],
-    });
-
-    groupActions.push({
-      ...data[el],
-      children: result.data,
-    });
-  }
 
   return groupActions;
 };

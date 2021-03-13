@@ -6,9 +6,10 @@ const { ObjectId } = mongoose.Types;
 const actionSchema = new mongoose.Schema(
   {
     name: String,
+    displayName: String,
     actions: [
       {
-        type: String, // TEXT, MAIL, MEDIA, API, LOOP
+        typeAction: String, // TEXT, MAIL, MEDIA, API, LOOP
         text: [String],
         email: {
           to: String,
@@ -18,7 +19,7 @@ const actionSchema = new mongoose.Schema(
         media: {
           text: String,
           attachment: {
-            type: String, // IMAGE, AUDIO, VIDEO, FILE, OPTION
+            typeMedia: String, // IMAGE, AUDIO, VIDEO, FILE, OPTION
             payload: {
               url: String,
               elements: [

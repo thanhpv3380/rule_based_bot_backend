@@ -49,13 +49,12 @@ const createAction = async ({
 
 const updateAction = async ({ id, name, actions, groupActionId, botId }) => {
   const actionExist = await actionDao.findActionByCondition({
+    _id: { $ne: id },
     name,
     bot: botId,
   });
   if (actionExist) {
-    if (actionExist.id !== id) {
-      throw new CustomError(errorCodes.ITEM_EXIST);
-    }
+    throw new CustomError(errorCodes.ITEM_EXIST);
   }
 
   const action = await actionDao.updateAction(id, {

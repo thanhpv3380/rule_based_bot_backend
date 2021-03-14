@@ -47,15 +47,12 @@ const updateGroupAction = async ({ id, botId, name }) => {
   }
 
   groupActionExist = await groupActionDao.findGroupActionByCondition({
+    _id: { $ne: id },
     name,
     bot: botId,
   });
   if (groupActionExist) {
-    if (groupActionExist.id !== id) {
-      throw new CustomError(errorCodes.ITEM_EXIST);
-    } else {
-      throw new CustomError(errorCodes.ITEM_NOT_CHANGE);
-    }
+    throw new CustomError(errorCodes.ITEM_EXIST);
   }
 
   const groupAction = await groupActionDao.updateGroupAction(id, { name });

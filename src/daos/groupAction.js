@@ -29,6 +29,7 @@ const findAllGroupActionAndItem = async ({ keyword, botId }) => {
         as: 'children',
       },
     },
+    { $sort: { groupType: -1 } },
     {
       $project: {
         _id: 1,

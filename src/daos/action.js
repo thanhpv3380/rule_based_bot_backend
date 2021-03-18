@@ -25,7 +25,7 @@ const findAllActionByCondition = async ({
   return { data, metadata };
 };
 
-const findActionByCondition = async (condition, fields, populate) => {
+const findActionByCondition = async ({ condition, fields, populate }) => {
   const action = await findByCondition(Action, condition, fields, populate);
   return action;
 };

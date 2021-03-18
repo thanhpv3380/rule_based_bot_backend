@@ -21,6 +21,7 @@ const create = async (req, res) => {
     groupIntent: groupIntentId,
     bot: bot.id,
   };
+  console.log(data);
   const intent = await intentService.createIntent(data);
   return res.send({ status: 1, result: intent });
 };
@@ -45,6 +46,7 @@ const update = async (req, res) => {
     parameters,
     groupIntentId,
   };
+
   const intent = await intentService.updateIntent(id, data);
   return res.send({ status: 1, result: intent });
 };
@@ -98,8 +100,7 @@ const removeParameter = async (req, res) => {
 
 const getUsersay = async (req, res) => {
   const { usersay } = req.query;
-  console.log(usersay, "controller");
-  const intent = await intentService.findUserSay(usersay);
+  const intent = await intentService.findUsersay(usersay);
   res.send({ status: 1, result: intent });
 };
 

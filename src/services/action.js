@@ -15,7 +15,10 @@ const findAllActionByBotId = async ({ botId, keyword }) => {
 };
 
 const findActionById = async (id) => {
-  const action = await actionDao.findActionByCondition({ _id: id });
+  const action = await actionDao.findActionByCondition({
+    _id: id,
+    populate: 'Action',
+  });
   if (!action) {
     throw new CustomError(errorCodes.NOT_FOUND);
   }

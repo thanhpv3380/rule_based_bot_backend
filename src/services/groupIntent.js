@@ -6,46 +6,7 @@ const groupIntentDao = require('../daos/groupIntent');
 const intentDao = require('../daos/intent');
 
 const findAllGroupIntentAndItem = async ({ keyword, botId }) => {
-  console.time();
-  // const { data } = await groupIntentDao.findAllGroupIntentAndItem({
-  //   query: {
-  //     bot: botId,
-  //   },
-  // });
-
   const groupIntents = await groupIntentDao.getGroupIntents(botId, keyword);
-  console.timeEnd();
-  // const groupIntents = [];
-  // for (const el in data) {
-  //   const result = await intentDao.findAllIntentByCondition({
-  //     key: keyword,
-  //     searchFields: ['name'],
-  //     query: {
-  //       groupIntent: data[el]._id,
-  //     },
-  //     fields: ['id', 'name', 'createBy', 'groupIntent'],
-  //   });
-
-  //   groupIntents.push({
-  //     ...data[el],
-  //     children: result.data,
-  //   });
-  // }
-
-  // const groupIntents = await Promise.all(
-  //   data.map(async (item) => {
-  //     const result = await intentDao.findAllIntentByCondition({
-  //       key: keyword,
-  //       searchFields: ['name'],
-  //       query: {
-  //         groupIntent: item._id,
-  //       },
-  //       fields: ['id', 'name', 'createBy', 'groupIntent'],
-  //     });
-  //     return { ...item, children: result.data };
-  //   }),
-  // );
-
   return groupIntents;
 };
 

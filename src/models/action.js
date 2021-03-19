@@ -9,8 +9,12 @@ const actionSchema = new mongoose.Schema(
     displayName: String,
     actions: [
       {
-        typeAction: String, // TEXT, MAIL, MEDIA, API, LOOP
+        typeAction: String, // TEXT, IMAGE, MAIL, MEDIA, API, LOOP
         text: [String],
+        image: {
+          url: String,
+          description: String,
+        },
         email: {
           to: String,
           title: String,

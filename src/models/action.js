@@ -9,31 +9,21 @@ const actionSchema = new mongoose.Schema(
     displayName: String,
     actions: [
       {
-        typeAction: String, // TEXT, IMAGE, MAIL, MEDIA, API, LOOP
+        typeAction: String, // TEXT, MEDIA, OPTION, API, LOOP
         text: [String],
-        image: {
+        media: {
+          typeMedia: String, //IMAGE, VIDEO, AUDIO
           url: String,
           description: String,
         },
-        email: {
-          to: String,
-          title: String,
-          body: String,
-        },
-        media: {
-          text: String,
-          attachment: {
-            typeMedia: String, // IMAGE, AUDIO, VIDEO, FILE, OPTION
-            payload: {
-              url: String,
-              elements: [
-                {
-                  label: String,
-                  value: String,
-                },
-              ],
+        option: {
+          description: String,
+          elements: [
+            {
+              label: String,
+              value: String,
             },
-          },
+          ],
         },
         api: {
           method: String, // GET, POST

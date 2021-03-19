@@ -7,9 +7,11 @@ const { findByCondition } = require('../utils/db');
 const findAllGroupActionAndItem = async ({ keyword, botId }) => {
   const groupActions = await GroupAction.aggregate([
     {
-      $match: { bot: ObjectId(botId) },
+      $match: {
+        bot: ObjectId(botId),
+        name: { $regex: keyword, $options: 'g' },
+      },
     },
-
     {
       $lookup: {
         from: 'actions',

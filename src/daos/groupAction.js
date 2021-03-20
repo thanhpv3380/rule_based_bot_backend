@@ -1,28 +1,52 @@
+const {
+  Types: { ObjectId },
+} = require('mongoose');
 const GroupAction = require('../models/groupAction');
-const { findAll, findByCondition } = require('../utils/db');
+const { findByCondition } = require('../utils/db');
 
-const findAllGroupActionAndItem = async ({
-  key,
-  searchFields,
-  query,
-  offset,
-  limit,
-  fields,
-  sort,
-  populate,
-}) => {
-  const { data, metadata } = await findAll({
-    model: GroupAction,
-    key,
-    searchFields,
-    query,
-    offset,
-    limit,
-    fields,
-    sort,
-    populate,
-  });
-  return { data, metadata };
+const findAllGroupActionAndItem = async ({ keyword, botId }) => {
+  const groupActions = await GroupAction.aggregate([
+    {
+      $match: {
+        bot: ObjectId(botId),
+        name: { $regex: keyword, $options: 'g' },
+      },
+    },
+    {
+      $lookup: {
+        from: 'actions',
+        let: { id: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $eq: ['$groupAction', '$$id'],
+              },
+            },
+          },
+          {
+            $match: { name: { $regex: keyword, $options: 'g' } },
+          },
+        ],
+        as: 'children',
+      },
+    },
+    { $sort: { groupType: -1 } },
+    {
+      $project: {
+        _id: 1,
+        name: 1,
+        bot: 1,
+        createdAt: 1,
+        updatedAt: 1,
+        groupType: 1,
+        'children._id': 1,
+        'children.name': 1,
+        'children.groupAction': 1,
+      },
+    },
+  ]);
+  return groupActions;
 };
 
 const findGroupActionByCondition = async (condition, fields, populate) => {

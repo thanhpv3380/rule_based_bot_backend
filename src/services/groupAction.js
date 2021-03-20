@@ -3,31 +3,12 @@ const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
 const { GROUP } = require('../constants/index');
 const groupActionDao = require('../daos/groupAction');
-const actionDao = require('../daos/action');
 
 const findAllGroupActionAndItem = async ({ keyword, botId }) => {
-  const { data } = await groupActionDao.findAllGroupActionAndItem({
-    query: {
-      bot: botId,
-    },
+  const groupActions = await groupActionDao.findAllGroupActionAndItem({
+    keyword,
+    botId,
   });
-  const groupActions = [];
-  for (const el in data) {
-    const result = await actionDao.findAllActionByCondition({
-      key: keyword,
-      searchFields: ['name'],
-      query: {
-        groupAction: data[el]._id,
-      },
-      fields: ['id', 'name', 'createBy', 'groupAction'],
-    });
-
-    groupActions.push({
-      ...data[el],
-      children: result.data,
-    });
-  }
-
   return groupActions;
 };
 
@@ -66,15 +47,12 @@ const updateGroupAction = async ({ id, botId, name }) => {
   }
 
   groupActionExist = await groupActionDao.findGroupActionByCondition({
+    _id: { $ne: id },
     name,
     bot: botId,
   });
   if (groupActionExist) {
-    if (groupActionExist.id !== id) {
-      throw new CustomError(errorCodes.ITEM_EXIST);
-    } else {
-      throw new CustomError(errorCodes.ITEM_NOT_CHANGE);
-    }
+    throw new CustomError(errorCodes.ITEM_EXIST);
   }
 
   const groupAction = await groupActionDao.updateGroupAction(id, { name });

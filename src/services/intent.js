@@ -2,6 +2,7 @@ const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
 const intentDao = require('../daos/intent');
 const intentES = require('../elasticsearch/intent');
+const actionDao = require('../daos/action');
 
 const createIntent = async (data) => {
   const intentExist = await intentDao.findIntentByCondition({
@@ -13,7 +14,9 @@ const createIntent = async (data) => {
     throw new CustomError(errorCodes.ITEM_NAME_EXIST);
   }
   const intent = await intentDao.createIntent(data);
-  intentES.updateMutiUsersay(intent);
+  intent.patterns.array.forEach(async (element) => {
+    await intentES.createUsersay(intent._id, element, intent.mappingAction);
+  });
   return intent;
 };
 
@@ -53,7 +56,23 @@ const updatePatternOfIntent = async ({ id, pattern }) => {
 const findIntentById = async (id) => {
   const intent = await intentDao.findIntentByCondition({
     condition: { _id: id },
-    populate: ['mappingAction'],
+    populate: [
+      {
+        path: 'mappingAction',
+        select: 'name _id',
+      },
+      {
+        path: 'patterns',
+        populate: {
+          path: 'parameters',
+          populate: {
+            path: 'entity',
+            model: 'Entity',
+            select: 'name _id',
+          },
+        },
+      },
+    ],
   });
   if (!intent) {
     throw new CustomError(errorCodes.ITEM_EXIST);
@@ -63,7 +82,7 @@ const findIntentById = async (id) => {
 
 const deleteIntentById = async (id) => {
   await intentDao.deleteIntent(id);
-  intentES.deleteIntent(id);
+  intentES.deleteUsersays(id);
 };
 
 const removeUsersayOfIntent = async (id, pattern) => {
@@ -90,57 +109,85 @@ const addUsersayOfIntent = async (id, pattern) => {
     condition: { _id: id },
   });
   if (!intent) {
-    throw new CustomError(errorCodes.INTENT_NOT_EXIST);
+    throw new CustomError(errorCodes.ITEM_NOT_CHANGE);
+  }
+  const pos = intent.patterns.findIndex((el) => el.usersay === pattern.usersay);
+  if (pos >= 0) {
+    throw new CustomError(errorCodes.USERSAY_EXISTED);
   }
   intent.patterns.push(pattern);
   await intentDao.updateIntent(id, intent);
-  intentES.addOrUpdateIntent(intent);
-  return intent;
-};
-
-const addParameterOfIntent = async (id, parameter) => {
-  const intent = await intentDao.findIntentByCondition({
-    condition: { _id: id },
-  });
-  if (!intent) {
-    throw new CustomError(errorCodes.INTENT_NOT_EXIST);
-  }
-  // eslint-disable-next-line array-callback-return
-  const intentExist = intent.parameters.find(
-    (item) => item.name === parameter.name,
+  const newPattern = intent.patterns.find(
+    (el) => el.usersay === pattern.usersay,
   );
-  if (intentExist) {
-    throw new CustomError(errorCodes.PARAMETER_EXISTED);
-  }
-
-  intent.parameters.push(parameter);
-  await intentDao.updateIntent(id, intent);
-  intentES.addOrUpdateIntent(intent);
-  return intent;
+  intentES.createUsersay(intent.id, newPattern, intent.mappingAction);
+  return newPattern;
 };
 
-const removeParameterOfIntent = async (id, parameter) => {
-  const intent = await intentDao.findIntentByCondition({
-    condition: { _id: id },
-  });
-  if (!intent) {
-    throw new CustomError(errorCodes.INTENT_NOT_EXIST);
-  }
-  const { length } = intent.parameters;
-  intent.parameters = intent.parameters.filter(
-    (item) => item.name !== parameter.name,
-  );
-  if (length === intent.parameters.length) {
-    throw new CustomError(errorCodes.PARAMETER_NOT_EXIST);
-  }
-  await intentDao.updateIntent(id, intent);
-  intentES.addOrUpdateIntent(intent);
-  return intent;
-};
+// const addParameterOfIntent = async (id, parameter) => {
+//   const intent = await intentDao.findIntentByCondition({
+//     condition: { _id: id },
+//   });
+//   if (!intent) {
+//     throw new CustomError(errorCodes.INTENT_NOT_EXIST);
+//   }
+//   // eslint-disable-next-line array-callback-return
+//   const intentExist = intent.parameters.find(
+//     (item) => item.name === parameter.name,
+//   );
+//   if (intentExist) {
+//     throw new CustomError(errorCodes.PARAMETER_EXISTED);
+//   }
+
+//   intent.parameters.push(parameter);
+//   await intentDao.updateIntent(id, intent);
+//   intentES.addOrUpdateIntent(intent);
+//   return intent;
+// };
+
+// const removeParameterOfIntent = async (id, parameter) => {
+//   const intent = await intentDao.findIntentByCondition({
+//     condition: { _id: id },
+//   });
+//   if (!intent) {
+//     throw new CustomError(errorCodes.INTENT_NOT_EXIST);
+//   }
+//   const { length } = intent.parameters;
+//   intent.parameters = intent.parameters.filter(
+//     (item) => item.name !== parameter.name,
+//   );
+//   if (length === intent.parameters.length) {
+//     throw new CustomError(errorCodes.PARAMETER_NOT_EXIST);
+//   }
+//   await intentDao.updateIntent(id, intent);
+//   intentES.addOrUpdateIntent(intent);
+//   return intent;
+// };
 
 const findUsersay = async (usersay) => {
-  const intent = await intentES.findUsersay(usersay);
-  return intent;
+  const { hits } = await intentES.findUsersay(usersay);
+  // console.log(hits);
+  const intent = hits.hits.find((el) => el._score === hits.max_score)._source;
+  const action = await actionDao.findActionByCondition({
+    condition: { _id: intent.action },
+  });
+  // if (intent.parameter.length !== 0) {
+  //   const parameter = intent.parameter.map((el) => {
+  //     const posParameterPattern = intent.usersay.indexOf(el.value);
+  //     if (intent.usersay.indexOf(usersay.slice(0, posParameterPattern)) >= 0) {
+  //       // sai intent
+  //     } else {
+  //       // iii
+  //     }
+  //   });
+  // }
+  const response = action.actions.map((item) => {
+    if (item.typeAction === 'TEXT') {
+      return item.text;
+    }
+    return item;
+  });
+  return response;
 };
 
 module.exports = {
@@ -151,7 +198,7 @@ module.exports = {
   deleteIntentById,
   addUsersayOfIntent,
   removeUsersayOfIntent,
-  addParameterOfIntent,
-  removeParameterOfIntent,
+  // addParameterOfIntent,
+  // removeParameterOfIntent,
   findUsersay,
 };

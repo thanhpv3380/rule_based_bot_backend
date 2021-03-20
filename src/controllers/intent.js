@@ -1,3 +1,4 @@
+const { ObjectId } = require('mongoose').Types;
 const intentService = require('../services/intent');
 
 const create = async (req, res) => {
@@ -8,7 +9,6 @@ const create = async (req, res) => {
     isMappingAction,
     mappingAction,
     isActive,
-    parameters,
     groupIntentId,
   } = req.body;
   const data = {
@@ -17,7 +17,6 @@ const create = async (req, res) => {
     patterns,
     isMappingAction,
     mappingAction,
-    parameters,
     groupIntent: groupIntentId,
     bot: bot.id,
   };
@@ -33,30 +32,32 @@ const update = async (req, res) => {
     patterns,
     isMappingAction,
     mappingAction,
-    parameters,
     groupIntentId,
   } = req.body;
   const { id } = req.params;
-  const data = {
+
+  const intent = await intentService.updateIntent(id, {
     name,
     isActive,
-    patterns,
+    patterns: patterns.map((el) => {
+      return {
+        ...el,
+        _id: ObjectId(el.id),
+      };
+    }),
     isMappingAction,
     mappingAction,
-    parameters,
     groupIntentId,
-  };
-
-  const intent = await intentService.updateIntent(id, data);
+  });
   return res.send({ status: 1, result: intent });
 };
 
-const updatePatternOfIntent = async (req, res) => {
-  const { id } = req.params;
-  const { pattern } = req.body;
-  const intent = await intentService.updatePatternOfIntent({ id, pattern });
-  return res.send({ status: 1, result: intent });
-};
+// const updatePatternOfIntent = async (req, res) => {
+//   const { id } = req.params;
+//   const { pattern } = req.body;
+//   const intent = await intentService.updatePatternOfIntent({ id, pattern });
+//   return res.send({ status: 1, result: intent });
+// };
 
 const getIntent = async (req, res) => {
   const { id } = req.params;
@@ -80,8 +81,8 @@ const removeUsersay = async (req, res) => {
 const addUsersay = async (req, res) => {
   const { id } = req.params;
   const { pattern } = req.body;
-  await intentService.addUsersayOfIntent(id, pattern);
-  res.send({ status: 1 });
+  const newPattern = await intentService.addUsersayOfIntent(id, pattern);
+  res.send({ status: 1, result: { pattern: newPattern } });
 };
 
 const addParameter = async (req, res) => {
@@ -100,6 +101,7 @@ const removeParameter = async (req, res) => {
 
 const getUsersay = async (req, res) => {
   const { usersay } = req.query;
+  console.log(usersay);
   const intent = await intentService.findUsersay(usersay);
   res.send({ status: 1, result: intent });
 };
@@ -107,7 +109,7 @@ const getUsersay = async (req, res) => {
 module.exports = {
   create,
   update,
-  updatePatternOfIntent,
+  // updatePatternOfIntent,
   removeUsersay,
   getIntent,
   deleteIntent,

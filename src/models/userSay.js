@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 
-var ObjectId = mongoose.Types.ObjectId;
+const { ObjectId } = mongoose.Types;
 const userSaySchema = new mongoose.Schema(
   {
     input: [String],
     output: {
-      type: String, //TEXT, FLOW
+      type: String, // TEXT, FLOW
       text: String,
       flow: {
         type: ObjectId,
@@ -23,4 +23,4 @@ const userSaySchema = new mongoose.Schema(
   },
 );
 
-module.exports = mongoose.model('UserSay', userSaysSchema);
+module.exports = mongoose.model('UserSay', userSaySchema);

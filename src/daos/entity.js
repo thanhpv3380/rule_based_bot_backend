@@ -1,49 +1,71 @@
-const {
-  Types: { ObjectId },
-} = require('mongoose');
 const Entity = require('../models/entity');
+const { findAll, findByCondition } = require('../utils/db');
 
-const createEntity = async ({ name, createBy }) => {
-  const entity = await Entity.create({ name, createBy });
+const findAllEntityByCondition = async ({
+  key,
+  searchFields,
+  query,
+  offset,
+  limit,
+  fields,
+  sort,
+  populate,
+}) => {
+  const { data, metadata } = await findAll({
+    model: Entity,
+    key,
+    searchFields,
+    query,
+    offset,
+    limit,
+    fields,
+    sort,
+    populate,
+  });
+  return { data, metadata };
+};
+
+const findEntityByCondition = async (condition, fields, populate) => {
+  const entity = await findByCondition(Entity, condition, fields, populate);
   return entity;
 };
 
-const updateEntity = async ({ entityId, data }) => {
-  const entity = await Entity.findByIdAndUpdate(entityId, data);
+const createEntity = async ({
+  name,
+  type,
+  pattern,
+  synonyms,
+  patterns,
+  userId,
+  groupEntityId,
+  botId,
+}) => {
+  const entity = await Entity.create({
+    name,
+    type,
+    pattern,
+    synonyms,
+    patterns,
+    createBy: userId,
+    groupEntity: groupEntityId,
+    bot: botId,
+  });
   return entity;
 };
 
-const findEntityByUserId = async ({ userId }) => {
-  const entity = await Entity.find({ userId });
+const updateEntity = async (id, data) => {
+  const entity = await Entity.findByIdAndUpdate(id, data, { new: true });
   return entity;
 };
 
-const findEntity = async (condition) => {
-  if (ObjectId.isValid(condition)) {
-    const entity = await Entity.findById(condition);
-    return entity;
-  }
-  if (typeof condition === 'object' && condition !== null) {
-    const entity = await Entity.findOne(condition);
-    return entity;
-  }
-  return null;
-};
-
-const findAllEntity = async (name) => {
-  const entity = await Entity.find({ name: { $regex: name } });
-  return entity;
-};
-
-const deleteEntity = async ({ id }) => {
-  await Entity.findByIdAndDelete({ id });
+const deleteEntity = async (id) => {
+  await Entity.findByIdAndDelete(id);
 };
 
 module.exports = {
+  findAllEntityByCondition,
+  findEntityByCondition,
   createEntity,
   updateEntity,
-  findEntityByUserId,
-  findEntity,
   deleteEntity,
-  findAllEntity,
 };

@@ -8,7 +8,7 @@ const entitySchema = new mongoose.Schema(
     displayName: String,
     type: String,
     pattern: String,
-    synonym: [
+    synonyms: [
       {
         input: [String],
         output: String,
@@ -20,7 +20,10 @@ const entitySchema = new mongoose.Schema(
           text: String,
         },
         {
-          entity: ObjectId,
+          entity: {
+            type: ObjectId,
+            ref: 'GroupEntity',
+          },
         },
       ],
     ],

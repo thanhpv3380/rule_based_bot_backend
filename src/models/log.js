@@ -19,7 +19,7 @@ const logSchema = new mongoose.Schema(
         message: {
           text: String,
           attachment: {
-            type: String, //IMAGE, AUDIO, VIDEO, FILE, OPTION
+            type: String, //IMAGE, AUDIO, VIDEO, FILE, CATEGORY
             payload: {
               url: String,
               elements: [

@@ -9,22 +9,19 @@ const actionSchema = new mongoose.Schema(
     displayName: String,
     actions: [
       {
-        typeAction: String, // TEXT, MEDIA, OPTION, API, LOOP
+        typeAction: String, // TEXT, MEDIA, CATEGORY, API, LOOP
         text: [String],
         media: {
           typeMedia: String, //IMAGE, VIDEO, AUDIO
           url: String,
           description: String,
         },
-        option: {
-          description: String,
-          elements: [
-            {
-              label: String,
-              value: String,
-            },
-          ],
-        },
+        options: [
+          {
+            name: String,
+            value: String,
+          },
+        ],
         api: {
           method: String, // GET, POST
           url: String,

@@ -5,6 +5,7 @@ const { GROUP_SINGLE, GROUP_SINGLE_NAME } = require('../constants/index');
 const botDao = require('../daos/bot');
 const groupActionDao = require('../daos/groupAction');
 const groupIntentDao = require('../daos/groupIntent');
+const groupEntityDao = require('../daos/groupEntity');
 
 const findAllBot = async ({
   userId,
@@ -48,6 +49,11 @@ const createBot = async (userId, data) => {
     groupType: GROUP_SINGLE,
   });
   await groupIntentDao.createGroupIntent({
+    name: GROUP_SINGLE_NAME,
+    botId: bot.id,
+    groupType: GROUP_SINGLE,
+  });
+  await groupEntityDao.createGroupEntity({
     name: GROUP_SINGLE_NAME,
     botId: bot.id,
     groupType: GROUP_SINGLE,

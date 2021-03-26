@@ -4,9 +4,11 @@ const { ObjectId } = mongoose.Types;
 
 const entitySchema = new mongoose.Schema(
   {
+    name: String,
+    displayName: String,
     type: String,
     pattern: String,
-    synonym: [
+    synonyms: [
       {
         input: [String],
         output: String,
@@ -18,10 +20,21 @@ const entitySchema = new mongoose.Schema(
           text: String,
         },
         {
-          entity: ObjectId,
+          entity: {
+            type: ObjectId,
+            ref: 'GroupEntity',
+          },
         },
       ],
     ],
+    groupEntity: {
+      type: ObjectId,
+      ref: 'GroupEntity',
+    },
+    bot: {
+      type: ObjectId,
+      ref: 'Bot',
+    },
     createBy: {
       type: ObjectId,
       ref: 'User',

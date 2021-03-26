@@ -97,3 +97,6 @@ typings/
 
 # Except
 !docker/.env
+
+#public 
+public/

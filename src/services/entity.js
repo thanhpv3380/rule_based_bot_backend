@@ -1,31 +1,97 @@
-/* eslint-disable radix */
 const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
-
 const entityDao = require('../daos/entity');
 
-const findAllEntity = async () => {
-  const entities = await entityDao.findAllIntentByCondition({
-    fields: ['id', 'name'],
+const findAllEntityByBotId = async ({ botId, keyword }) => {
+  const { data } = await entityDao.findAllEntityByCondition({
+    key: keyword,
+    searchFields: ['name'],
+    query: {
+      bot: botId,
+    },
   });
-  return entities;
+
+  return data;
 };
 
-const createEntity = async ({ name, pattern, createBy }) => {
-  const entityExists = await entityDao.findEntity(name);
+const findEntityById = async (id) => {
+  const entity = await entityDao.findEntityByCondition({ _id: id });
+  if (!entity) {
+    throw new CustomError(errorCodes.NOT_FOUND);
+  }
+  return entity;
+};
 
-  if (entityExists) {
+const createEntity = async ({
+  name,
+  type,
+  pattern,
+  synonyms,
+  patterns,
+  userId,
+  groupEntityId,
+  botId,
+}) => {
+  const entityExist = await entityDao.findEntityByCondition({
+    name,
+    bot: botId,
+  });
+  if (entityExist) {
     throw new CustomError(errorCodes.ITEM_EXIST);
   }
-  const entities = await entityDao.createEntity({
+  const entity = await entityDao.createEntity({
     name,
+    type,
     pattern,
-    createBy,
+    synonyms,
+    patterns,
+    userId,
+    groupEntityId,
+    botId,
   });
-  return entities;
+
+  return entity;
+};
+
+const updateEntity = async ({
+  id,
+  name,
+  type,
+  pattern,
+  synonyms,
+  patterns,
+  groupEntityId,
+  botId,
+}) => {
+  const entityExist = await entityDao.findEntityByCondition({
+    _id: { $ne: id },
+    name,
+    bot: botId,
+  });
+  if (entityExist) {
+    throw new CustomError(errorCodes.ITEM_EXIST);
+  }
+
+  const entity = await entityDao.updateEntity(id, {
+    name,
+    type,
+    pattern,
+    synonyms,
+    patterns,
+    groupEntity: groupEntityId,
+  });
+
+  return entity;
+};
+
+const deleteEntity = async (id) => {
+  await entityDao.deleteEntity(id);
 };
 
 module.exports = {
-  findAllEntity,
+  findAllEntityByBotId,
+  findEntityById,
   createEntity,
+  updateEntity,
+  deleteEntity,
 };

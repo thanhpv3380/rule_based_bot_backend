@@ -1,8 +1,4 @@
-/* eslint-disable no-console */
-/* eslint-disable no-undef */
-/* eslint-disable no-multi-assign */
 const mongoose = require('mongoose');
-const mongoosastic = require('mongoosastic');
 
 const { ObjectId } = mongoose.Types;
 
@@ -44,18 +40,4 @@ const intentSchema = new mongoose.Schema(
   },
 );
 
-intentSchema.plugin(mongoosastic, {
-  hosts: ['localhost:9200'],
-});
-
-Intent = module.exports = mongoose.model('Intent', intentSchema);
-
-Intent.createMapping(function (err, mapping) {
-  if (err) {
-    console.log('error create mapping');
-    console.log(err);
-  } else {
-    console.log('Intent mapping create');
-    console.log(mapping);
-  }
-});
+module.exports = mongoose.model('Intent', intentSchema);

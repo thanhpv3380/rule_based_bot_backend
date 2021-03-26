@@ -14,10 +14,22 @@ const intentSchema = new mongoose.Schema(
     },
     parameters: [
       {
-        name: String,
+        parameterName: String,
+        required: Boolean,
         entity: {
           type: ObjectId,
           ref: 'Entity',
+        },
+        response: {
+          actionAskAgain: {
+            type: ObjectId,
+            ref: 'Entity',
+          },
+          numberOfLoop: Number,
+          actionBreak: {
+            type: ObjectId,
+            ref: 'Entity',
+          },
         },
       },
     ],

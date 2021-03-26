@@ -1,42 +1,77 @@
 const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
 const intentDao = require('../daos/intent');
+const intentES = require('../elasticsearch/intent');
 
 const createIntent = async ({ data }) => {
-  const intentExist = await intentDao.findIntentByName({ name: data.name });
+  const intentExist = await intentDao.findIntentByCondition({
+    condition: { name: data.name },
+  });
   if (intentExist) {
-    throw new CustomError(errorCodes.INTENT_NAME_EXIST);
+    throw new CustomError(errorCodes.ITEM_NAME_EXIST);
   }
   const intent = await intentDao.createIntent(data);
+  await intentES.createIntent(intent);
   return intent;
 };
 
-const updateIntent = async (id, data) => {
-  const intentNameExist = await intentDao.findIntentByName({
-    name: data.name,
+const updateIntent = async (id, botId, data) => {
+  const intentNameExist = await intentDao.findIntentByCondition({
+    condition: { name: data.name, bot: botId },
   });
-  if (intentNameExist && intentNameExist.id !== id) {
-    throw new CustomError(errorCodes.INTENT_NAME_EXIST);
+  if (intentNameExist && intentNameExist._id.toString() !== id) {
+    throw new CustomError(errorCodes.ITEM_NAME_EXIST);
   }
   const intent = await intentDao.updateIntent(id, data);
+  await intentES.updateIntent(intent);
   return intent;
 };
 
 const updatePatternOfIntent = async ({ id, pattern }) => {
-  const intent = await intentDao.findIntentById(id);
+  const intent = await intentDao.findIntentByCondition({
+    condition: { _id: id },
+  });
   if (!intent) {
-    throw new CustomError(errorCodes.INTENT_NOT_EXIST);
+    throw new CustomError(errorCodes.ITEM_NOT_EXIST);
   }
   if (intent.patterns.includes(pattern)) {
     throw new CustomError(errorCodes.PATTERN_EXIST);
   }
   intent.patterns.push(pattern);
   await intentDao.updateIntent(id, intent);
+  await intentES.updateIntent(intent);
   return intent;
 };
 
 const findIntentById = async (id) => {
-  const intent = await intentDao.findIntentByCondition({ _id: id });
+  const intent = await intentDao.findIntentByCondition({
+    condition: { _id: id },
+    populate: [
+      {
+        path: 'mappingAction',
+        select: 'name _id',
+      },
+      {
+        path: 'parameters',
+        populate: [
+          {
+            path: 'entity',
+            select: 'name _id',
+          },
+          {
+            path: 'response.actionAskAgain',
+            model: 'Action',
+            select: 'name _id',
+          },
+          {
+            path: 'response.actionBreak',
+            model: 'Action',
+            select: 'name _id',
+          },
+        ],
+      },
+    ],
+  });
   if (!intent) {
     throw new CustomError(errorCodes.ITEM_EXIST);
   }
@@ -48,33 +83,41 @@ const deleteIntentById = async (id) => {
 };
 
 const removeUsersayOfIntent = async (id, pattern) => {
-  const intent = await intentDao.findIntentById(id);
+  const intent = await intentDao.findIntentByCondition({
+    condition: { _id: id },
+  });
   if (!intent) {
-    throw new CustomError(errorCodes.INTENT_NOT_EXIST);
+    throw new CustomError(errorCodes.ITEM_NOT_EXIST);
   }
   const { patterns } = intent;
   const index = patterns.indexOf(pattern);
-  if (index < 1) {
-    throw new CustomError(errorCodes.PATTERN_NOT_FOUND);
+  if (index < 0) {
+    throw new CustomError(errorCodes.NOT_FOUND);
   }
   const newPatterns = patterns.filter((item) => item !== pattern);
   intent.patterns = newPatterns;
   await intentDao.updateIntent(id, intent);
+  await intentES.updateIntent(intent);
   return intent;
 };
 
 const addUsersayOfIntent = async (id, pattern) => {
-  const intent = await intentDao.findIntentById(id);
+  const intent = await intentDao.findIntentByCondition({
+    condition: { _id: id },
+  });
   if (!intent) {
     throw new CustomError(errorCodes.INTENT_NOT_EXIST);
   }
   intent.patterns.push(pattern);
   await intentDao.updateIntent(id, intent);
+  await intentES.updateIntent(intent);
   return intent;
 };
 
 const addParameterOfIntent = async (id, parameter) => {
-  const intent = await intentDao.findIntentById(id);
+  const intent = await intentDao.findIntentByCondition({
+    condition: { _id: id },
+  });
   if (!intent) {
     throw new CustomError(errorCodes.INTENT_NOT_EXIST);
   }
@@ -92,7 +135,9 @@ const addParameterOfIntent = async (id, parameter) => {
 };
 
 const removeParameterOfIntent = async (id, parameter) => {
-  const intent = await intentDao.findIntentById(id);
+  const intent = await intentDao.findIntentByCondition({
+    condition: { _id: id },
+  });
   if (!intent) {
     throw new CustomError(errorCodes.INTENT_NOT_EXIST);
   }

@@ -1,7 +1,7 @@
 const intentService = require('../services/intent');
 
 const create = async (req, res) => {
-  const { bot } = req;
+  const { bot, user } = req;
   const {
     name,
     patterns,
@@ -9,7 +9,7 @@ const create = async (req, res) => {
     mappingAction,
     isActive,
     parameters,
-    groupIntentId,
+    groupIntent,
   } = req.body;
   const data = {
     name,
@@ -18,17 +18,16 @@ const create = async (req, res) => {
     isMappingAction,
     mappingAction,
     parameters,
-    groupIntentId,
+    groupIntent,
+    bot: bot.id,
+    createBy: user.id,
   };
-  const intent = await intentService.createIntent({
-    data,
-    groupIntentId,
-    botId: bot.id,
-  });
+  const intent = await intentService.createIntent({ data });
   return res.send({ status: 1, result: intent });
 };
 
 const update = async (req, res) => {
+  const { bot } = req;
   const {
     name,
     isActive,
@@ -36,7 +35,7 @@ const update = async (req, res) => {
     isMappingAction,
     mappingAction,
     parameters,
-    groupIntentId,
+    groupIntent,
   } = req.body;
   const { id } = req.params;
   const data = {
@@ -46,9 +45,9 @@ const update = async (req, res) => {
     isMappingAction,
     mappingAction,
     parameters,
-    groupIntentId,
+    groupIntent,
   };
-  const intent = await intentService.updateIntent(id, data);
+  const intent = await intentService.updateIntent(id, bot.id, data);
   return res.send({ status: 1, result: intent });
 };
 

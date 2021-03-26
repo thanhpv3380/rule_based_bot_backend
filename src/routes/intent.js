@@ -3,8 +3,18 @@ const asyncMiddleware = require('../middlewares/async');
 const intentController = require('../controllers/intent');
 const { auth, getBotId } = require('../middlewares/auth');
 
-router.post('/intents', getBotId, asyncMiddleware(intentController.create));
-router.put('/intents/:id', auth, asyncMiddleware(intentController.update));
+router.post(
+  '/intents',
+  auth,
+  getBotId,
+  asyncMiddleware(intentController.create),
+);
+router.put(
+  '/intents/:id',
+  auth,
+  getBotId,
+  asyncMiddleware(intentController.update),
+);
 router.get('/intents/:id', asyncMiddleware(intentController.getIntent));
 router.delete('/intents/:id', asyncMiddleware(intentController.deleteIntent));
 router.put(

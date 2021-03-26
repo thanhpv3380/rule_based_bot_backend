@@ -1,6 +1,3 @@
-const {
-  Types: { ObjectId },
-} = require('mongoose');
 const Entity = require('../models/entity');
 const { findAll, findByCondition } = require('../utils/db');
 
@@ -19,16 +16,9 @@ const updateEntity = async (entityId, data) => {
   return entity;
 };
 
-const findEntity = async (condition) => {
-  if (ObjectId.isValid(condition)) {
-    const entity = await Entity.findById(condition);
-    return entity;
-  }
-  if (typeof condition === 'object' && condition !== null) {
-    const entity = await Entity.findOne(condition);
-    return entity;
-  }
-  return null;
+const findEntityByCondition = async ({ condition, fields, populate }) => {
+  const intent = await findByCondition(Entity, condition, fields, populate);
+  return intent;
 };
 
 const findAllIntentByCondition = async ({
@@ -62,7 +52,7 @@ const findAllIntentByCondition = async ({
 module.exports = {
   createEntity,
   updateEntity,
-  findEntity,
+  findEntityByCondition,
   // deleteEntity,
   findAllIntentByCondition,
 };

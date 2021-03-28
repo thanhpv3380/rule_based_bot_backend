@@ -1,17 +1,17 @@
 const Bot = require('../models/bot');
-const { findAll, findByCondition } = require('../utils/db');
+const {findAll, findByCondition} = require('../utils/db');
 
 const findAllBot = async ({
-  key,
-  searchFields,
-  query,
-  offset,
-  limit,
-  fields,
-  sort,
-  populate,
-}) => {
-  const { data, metadata } = await findAll({
+                            key,
+                            searchFields,
+                            query,
+                            offset,
+                            limit,
+                            fields,
+                            sort,
+                            populate,
+                          }) => {
+  const {data, metadata} = await findAll({
     model: Bot,
     key,
     searchFields,

@@ -1,4 +1,4 @@
-const omitBy = (obj = {}, listKeys = [], { deep = false }) => {
+const omitBy = (obj = {}, listKeys = [], {deep = false}) => {
   if (typeof obj !== 'object' || !obj) return {};
   if (!Array.isArray(listKeys)) return {};
 
@@ -17,7 +17,7 @@ const omitBy = (obj = {}, listKeys = [], { deep = false }) => {
   return obj;
 };
 
-const omitIsNil = (obj, { deep = false }) => {
+const omitIsNil = (obj, {deep = false}) => {
   if (typeof obj !== 'object' || !obj) return {};
 
   Object.keys(obj).forEach((key) => {

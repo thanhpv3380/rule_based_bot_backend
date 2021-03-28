@@ -4,7 +4,7 @@ var ObjectId = mongoose.Types.ObjectId;
 const groupFlowSchema = new mongoose.Schema(
   {
     name: String,
-    workFlows : [ObjectId],
+    workFlows: [ObjectId],
     isGroup: Boolean,
     botId: ObjectId,
   },

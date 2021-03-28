@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { auth, getBotId } = require('../middlewares/auth');
+const {auth, getBotId} = require('../middlewares/auth');
 const asyncMiddleware = require('../middlewares/async');
 const dictionaryController = require('../controllers/dictionary');
 

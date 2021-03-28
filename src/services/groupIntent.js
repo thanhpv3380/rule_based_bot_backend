@@ -1,10 +1,10 @@
 /* eslint-disable guard-for-in */
 const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
-const { GROUP } = require('../constants/index');
+const {GROUP} = require('../constants/index');
 const groupIntentDao = require('../daos/groupIntent');
 
-const findAllGroupIntentAndItem = async ({ keyword, botId }) => {
+const findAllGroupIntentAndItem = async ({keyword, botId}) => {
   const groupIntents = await groupIntentDao.findAllGroupIntentAndItem({
     keyword,
     botId,
@@ -23,7 +23,7 @@ const findGroupIntentById = async (id) => {
   return groupIntent;
 };
 
-const createGroupIntent = async ({ name, botId }) => {
+const createGroupIntent = async ({name, botId}) => {
   const groupIntentExist = await groupIntentDao.findGroupIntentByCondition({
     name,
     bot: botId,
@@ -39,7 +39,7 @@ const createGroupIntent = async ({ name, botId }) => {
   return groupIntent;
 };
 
-const updateGroupIntent = async ({ id, botId, name }) => {
+const updateGroupIntent = async ({id, botId, name}) => {
   let groupIntentExist = await groupIntentDao.findGroupIntentByCondition({
     _id: id,
   });
@@ -59,7 +59,7 @@ const updateGroupIntent = async ({ id, botId, name }) => {
     }
   }
 
-  const groupIntent = await groupIntentDao.updateGroupIntent(id, { name });
+  const groupIntent = await groupIntentDao.updateGroupIntent(id, {name});
   return groupIntent;
 };
 

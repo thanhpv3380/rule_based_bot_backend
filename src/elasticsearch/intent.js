@@ -29,7 +29,7 @@ const findIntent = async (usersay) => {
     index: 'intents',
     body: {
       query: {
-        match: { patterns: usersay },
+        match: {patterns: usersay},
       },
     },
   });

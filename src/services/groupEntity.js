@@ -1,10 +1,10 @@
 /* eslint-disable guard-for-in */
 const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
-const { GROUP } = require('../constants/index');
+const {GROUP} = require('../constants/index');
 const groupEntityDao = require('../daos/groupEntity');
 
-const findAllGroupEntityAndItem = async ({ keyword, botId }) => {
+const findAllGroupEntityAndItem = async ({keyword, botId}) => {
   const groupEntities = await groupEntityDao.findAllGroupEntityAndItem({
     keyword,
     botId,
@@ -22,7 +22,7 @@ const findGroupEntityById = async (id) => {
   return groupEntity;
 };
 
-const createGroupEntity = async ({ name, botId }) => {
+const createGroupEntity = async ({name, botId}) => {
   const groupEntityExist = await groupEntityDao.findGroupEntityByCondition({
     name,
     bot: botId,
@@ -38,7 +38,7 @@ const createGroupEntity = async ({ name, botId }) => {
   return groupEntity;
 };
 
-const updateGroupEntity = async ({ id, botId, name }) => {
+const updateGroupEntity = async ({id, botId, name}) => {
   let groupEntityExist = await groupEntityDao.findGroupEntityByCondition({
     _id: id,
   });
@@ -47,7 +47,7 @@ const updateGroupEntity = async ({ id, botId, name }) => {
   }
 
   groupEntityExist = await groupEntityDao.findGroupEntityByCondition({
-    _id: { $ne: id },
+    _id: {$ne: id},
     name,
     bot: botId,
   });
@@ -55,7 +55,7 @@ const updateGroupEntity = async ({ id, botId, name }) => {
     throw new CustomError(errorCodes.ITEM_EXIST);
   }
 
-  const groupEntity = await groupEntityDao.updateGroupEntity(id, { name });
+  const groupEntity = await groupEntityDao.updateGroupEntity(id, {name});
   return groupEntity;
 };
 

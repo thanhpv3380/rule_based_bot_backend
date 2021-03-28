@@ -1,4 +1,4 @@
-const { Joi, validate } = require('express-validation');
+const {Joi, validate} = require('express-validation');
 
 const login = {
   body: Joi.object({
@@ -16,6 +16,6 @@ const register = {
 };
 
 module.exports = {
-  loginValidate: validate(login, { keyByField: true }),
-  registerValidate: validate(register, { keyByField: true }),
+  loginValidate: validate(login, {keyByField: true}),
+  registerValidate: validate(register, {keyByField: true}),
 };

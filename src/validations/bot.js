@@ -1,4 +1,4 @@
-const { Joi, validate } = require('express-validation');
+const {Joi, validate} = require('express-validation');
 
 const create = {
   body: Joi.object({
@@ -7,5 +7,5 @@ const create = {
 };
 
 module.exports = {
-  createValidate: validate(create, { keyByField: true }),
+  createValidate: validate(create, {keyByField: true}),
 };

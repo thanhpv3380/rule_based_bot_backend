@@ -1,17 +1,17 @@
 const Action = require('../models/action');
-const { findAll, findByCondition } = require('../utils/db');
+const {findAll, findByCondition} = require('../utils/db');
 
 const findAllActionByCondition = async ({
-  key,
-  searchFields,
-  query,
-  offset,
-  limit,
-  fields,
-  sort,
-  populate,
-}) => {
-  const { data, metadata } = await findAll({
+                                          key,
+                                          searchFields,
+                                          query,
+                                          offset,
+                                          limit,
+                                          fields,
+                                          sort,
+                                          populate,
+                                        }) => {
+  const {data, metadata} = await findAll({
     model: Action,
     key,
     searchFields,
@@ -22,7 +22,7 @@ const findAllActionByCondition = async ({
     sort,
     populate,
   });
-  return { data, metadata };
+  return {data, metadata};
 };
 
 const findActionByCondition = async (condition, fields, populate) => {
@@ -31,12 +31,12 @@ const findActionByCondition = async (condition, fields, populate) => {
 };
 
 const createAction = async ({
-  name,
-  actions,
-  userId,
-  groupActionId,
-  botId,
-}) => {
+                              name,
+                              actions,
+                              userId,
+                              groupActionId,
+                              botId,
+                            }) => {
   const action = await Action.create({
     name,
     actions,
@@ -48,7 +48,7 @@ const createAction = async ({
 };
 
 const updateAction = async (id, data) => {
-  const action = await Action.findByIdAndUpdate(id, data, { new: true });
+  const action = await Action.findByIdAndUpdate(id, data, {new: true});
   return action;
 };
 

@@ -5,8 +5,8 @@ const chatbotService = require('../services/chatbot');
 const client = redisClient.createClient(6379);
 
 const checkCacheUsersay = (req, res, next) => {
-  const { bot } = req;
-  const { usersay } = req.query;
+  const {bot} = req;
+  const {usersay} = req.query;
   client.get(bot.id, async (e, data) => {
     if (data) {
       const response = await chatbotService.handleUsersaySendAgain(
@@ -15,7 +15,7 @@ const checkCacheUsersay = (req, res, next) => {
         usersay,
         client,
       );
-      res.send({ status: 1, result: response });
+      res.send({status: 1, result: response});
     } else {
       next();
     }

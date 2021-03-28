@@ -1,7 +1,7 @@
 /* eslint-disable spaced-comment */
 const mongoose = require('mongoose');
 
-const { ObjectId } = mongoose.Types;
+const {ObjectId} = mongoose.Types;
 
 const workFlowSchema = new mongoose.Schema(
   {

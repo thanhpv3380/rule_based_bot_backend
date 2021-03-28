@@ -5,22 +5,22 @@ const errorCodes = require('../errors/code');
 const dictionaryDao = require('../daos/dictionary');
 
 const findAllDictionary = async ({
-  botId,
-  key,
-  searchFields,
-  limit,
-  offset,
-  fields,
-  sort,
-  query,
-}) => {
+                                   botId,
+                                   key,
+                                   searchFields,
+                                   limit,
+                                   offset,
+                                   fields,
+                                   sort,
+                                   query,
+                                 }) => {
   const newSearchFields = searchFields ? searchFields.split(',') : null;
   const newFields = fields ? fields.split(',') : null;
   const newSort = sort ? sort.split(',') : null;
-  const { data, metadata } = await dictionaryDao.findAllDictionary({
+  const {data, metadata} = await dictionaryDao.findAllDictionary({
     key,
     searchFields: newSearchFields,
-    query: { ...query, bot: botId },
+    query: {...query, bot: botId},
     offset,
     limit,
     fields: newFields,
@@ -28,11 +28,11 @@ const findAllDictionary = async ({
     populate: ['createBy'],
   });
 
-  return { dictionaries: data, metadata };
+  return {dictionaries: data, metadata};
 };
 
 const findDictionaryById = async (id) => {
-  const dictionary = await dictionaryDao.findDictionary({ _id: id }, null, [
+  const dictionary = await dictionaryDao.findDictionary({_id: id}, null, [
     'createBy',
   ]);
   if (!dictionary) {
@@ -41,7 +41,7 @@ const findDictionaryById = async (id) => {
   return dictionary;
 };
 
-const createDictionary = async ({ acronym, original, userId, botId }) => {
+const createDictionary = async ({acronym, original, userId, botId}) => {
   const dictionaryExist = await dictionaryDao.findDictionary({
     acronym,
     bot: botId,

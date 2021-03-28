@@ -2,8 +2,8 @@ const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
 const entityDao = require('../daos/entity');
 
-const findAllEntityByBotId = async ({ botId, keyword }) => {
-  const { data } = await entityDao.findAllEntityByCondition({
+const findAllEntityByBotId = async ({botId, keyword}) => {
+  const {data} = await entityDao.findAllEntityByCondition({
     key: keyword,
     searchFields: ['name'],
     query: {
@@ -15,7 +15,7 @@ const findAllEntityByBotId = async ({ botId, keyword }) => {
 };
 
 const findEntityById = async (id) => {
-  const entity = await entityDao.findEntityByCondition({ _id: id });
+  const entity = await entityDao.findEntityByCondition({_id: id});
   if (!entity) {
     throw new CustomError(errorCodes.NOT_FOUND);
   }
@@ -23,15 +23,15 @@ const findEntityById = async (id) => {
 };
 
 const createEntity = async ({
-  name,
-  type,
-  pattern,
-  synonyms,
-  patterns,
-  userId,
-  groupEntityId,
-  botId,
-}) => {
+                              name,
+                              type,
+                              pattern,
+                              synonyms,
+                              patterns,
+                              userId,
+                              groupEntityId,
+                              botId,
+                            }) => {
   const entityExist = await entityDao.findEntityByCondition({
     name,
     bot: botId,
@@ -54,17 +54,17 @@ const createEntity = async ({
 };
 
 const updateEntity = async ({
-  id,
-  name,
-  type,
-  pattern,
-  synonyms,
-  patterns,
-  groupEntityId,
-  botId,
-}) => {
+                              id,
+                              name,
+                              type,
+                              pattern,
+                              synonyms,
+                              patterns,
+                              groupEntityId,
+                              botId,
+                            }) => {
   const entityExist = await entityDao.findEntityByCondition({
-    _id: { $ne: id },
+    _id: {$ne: id},
     name,
     bot: botId,
   });

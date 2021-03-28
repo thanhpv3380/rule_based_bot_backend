@@ -4,7 +4,7 @@ const codes = require('../errors/code');
 const authService = require('../services/auth');
 
 const auth = async (req, res, next) => {
-  const { authorization } = req.headers;
+  const {authorization} = req.headers;
   if (!authorization) throw new CustomError(codes.UNAUTHORIZED);
 
   const [tokenType, accessToken] = authorization.split(' ');

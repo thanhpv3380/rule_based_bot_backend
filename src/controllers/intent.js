@@ -1,7 +1,7 @@
 const intentService = require('../services/intent');
 
 const create = async (req, res) => {
-  const { bot, user } = req;
+  const {bot, user} = req;
   const {
     name,
     patterns,
@@ -22,12 +22,12 @@ const create = async (req, res) => {
     bot: bot.id,
     createBy: user.id,
   };
-  const intent = await intentService.createIntent({ data });
-  return res.send({ status: 1, result: intent });
+  const intent = await intentService.createIntent({data});
+  return res.send({status: 1, result: intent});
 };
 
 const update = async (req, res) => {
-  const { bot } = req;
+  const {bot} = req;
   const {
     name,
     isActive,
@@ -37,7 +37,7 @@ const update = async (req, res) => {
     parameters,
     groupIntent,
   } = req.body;
-  const { id } = req.params;
+  const {id} = req.params;
   const data = {
     name,
     isActive,
@@ -48,54 +48,54 @@ const update = async (req, res) => {
     groupIntent,
   };
   const intent = await intentService.updateIntent(id, bot.id, data);
-  return res.send({ status: 1, result: intent });
+  return res.send({status: 1, result: intent});
 };
 
 const updatePatternOfIntent = async (req, res) => {
-  const { id } = req.params;
-  const { pattern } = req.body;
-  const intent = await intentService.updatePatternOfIntent({ id, pattern });
-  return res.send({ status: 1, result: intent });
+  const {id} = req.params;
+  const {pattern} = req.body;
+  const intent = await intentService.updatePatternOfIntent({id, pattern});
+  return res.send({status: 1, result: intent});
 };
 
 const getIntent = async (req, res) => {
-  const { id } = req.params;
+  const {id} = req.params;
   const intent = await intentService.findIntentById(id);
-  res.send({ status: 1, result: intent });
+  res.send({status: 1, result: intent});
 };
 
 const deleteIntent = async (req, res) => {
-  const { id } = req.params;
+  const {id} = req.params;
   await intentService.deleteIntentById(id);
-  res.send({ status: 1 });
+  res.send({status: 1});
 };
 
 const removeUsersay = async (req, res) => {
-  const { id } = req.params;
-  const { pattern } = req.body;
+  const {id} = req.params;
+  const {pattern} = req.body;
   await intentService.removeUsersayOfIntent(id, pattern);
-  res.send({ status: 1 });
+  res.send({status: 1});
 };
 
 const addUsersay = async (req, res) => {
-  const { id } = req.params;
-  const { pattern } = req.body;
+  const {id} = req.params;
+  const {pattern} = req.body;
   await intentService.addUsersayOfIntent(id, pattern);
-  res.send({ status: 1 });
+  res.send({status: 1});
 };
 
 const addParameter = async (req, res) => {
-  const { id } = req.params;
-  const { parameter } = req.body;
+  const {id} = req.params;
+  const {parameter} = req.body;
   await intentService.addParameterOfIntent(id, parameter);
-  res.send({ status: 1 });
+  res.send({status: 1});
 };
 
 const removeParameter = async (req, res) => {
-  const { id } = req.params;
-  const { parameter } = req.body;
+  const {id} = req.params;
+  const {parameter} = req.body;
   await intentService.removeParameterOfIntent(id, parameter);
-  res.send({ status: 1 });
+  res.send({status: 1});
 };
 
 module.exports = {

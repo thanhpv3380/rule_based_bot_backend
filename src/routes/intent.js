@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const asyncMiddleware = require('../middlewares/async');
 const intentController = require('../controllers/intent');
-const { auth, getBotId } = require('../middlewares/auth');
+const {auth, getBotId} = require('../middlewares/auth');
 
 router.post(
   '/intents',

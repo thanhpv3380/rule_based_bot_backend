@@ -3,7 +3,7 @@ const fs = require('fs');
 
 function mkDirByPathSync(targetDir, opts) {
   const isRelativeToScript = opts && opts.isRelativeToScript;
-  const { sep } = path;
+  const {sep} = path;
   const initDir = path.isAbsolute(targetDir) ? sep : '';
   const baseDir = isRelativeToScript ? __dirname : '.';
 

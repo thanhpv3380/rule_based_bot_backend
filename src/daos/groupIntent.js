@@ -1,18 +1,18 @@
 const {
-  Types: { ObjectId },
+  Types: {ObjectId},
 } = require('mongoose');
 const GroupIntent = require('../models/groupIntent');
-const { findByCondition } = require('../utils/db');
+const {findByCondition} = require('../utils/db');
 
-const findAllGroupIntentAndItem = async ({ keyword, botId }) => {
+const findAllGroupIntentAndItem = async ({keyword, botId}) => {
   const groupIntents = await GroupIntent.aggregate([
     {
-      $match: { bot: ObjectId(botId) },
+      $match: {bot: ObjectId(botId)},
     },
     {
       $lookup: {
         from: 'intents',
-        let: { id: '$_id' },
+        let: {id: '$_id'},
         pipeline: [
           {
             $match: {
@@ -22,13 +22,13 @@ const findAllGroupIntentAndItem = async ({ keyword, botId }) => {
             },
           },
           {
-            $match: { name: { $regex: keyword, $options: 'g' } },
+            $match: {name: {$regex: keyword, $options: 'g'}},
           },
         ],
         as: 'children',
       },
     },
-    { $sort: { groupType: -1 } },
+    {$sort: {groupType: -1}},
     {
       $project: {
         _id: 1,
@@ -56,7 +56,7 @@ const findGroupIntentByCondition = async (condition, fields, populate) => {
   return groupIntent;
 };
 
-const createGroupIntent = async ({ name, botId, groupType }) => {
+const createGroupIntent = async ({name, botId, groupType}) => {
   const groupIntent = await GroupIntent.create({
     name,
     bot: botId,

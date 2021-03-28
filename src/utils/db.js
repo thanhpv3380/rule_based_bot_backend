@@ -1,15 +1,15 @@
 /* eslint-disable radix */
 const findAll = async ({
-  model,
-  key,
-  searchFields,
-  query,
-  offset,
-  limit,
-  fields,
-  sort = ['createdAt_desc'],
-  populate,
-} = {}) => {
+                         model,
+                         key,
+                         searchFields,
+                         query,
+                         offset,
+                         limit,
+                         fields,
+                         sort = ['createdAt_desc'],
+                         populate,
+                       } = {}) => {
   const s =
     searchFields &&
     searchFields
@@ -23,34 +23,34 @@ const findAll = async ({
       )
       .map((field) => {
         return model.schema.paths[field].instance === 'Number'
-          ? { [field]: parseInt(key, 10) }
-          : { [field]: new RegExp(key, 'g') };
+          ? {[field]: parseInt(key, 10)}
+          : {[field]: new RegExp(key, 'g')};
       });
 
   const count = await model.countDocuments(
-    key ? { $or: s, ...query } : { ...query },
+    key ? {$or: s, ...query} : {...query},
   );
   const total = await model.estimatedDocumentCount();
   const documents = await model
-    .find(key ? { $or: s, ...query } : { ...query })
+    .find(key ? {$or: s, ...query} : {...query})
     .populate(populate)
     .skip(parseInt(offset) || 0)
     .limit(parseInt(limit) || null)
     .sort(
       sort
         ? JSON.parse(
-            `{${sort
-              .map((element) => {
-                const field = element.substring(0, element.lastIndexOf('_'));
-                const value =
-                  element.substring(element.lastIndexOf('_') + 1) === 'asc'
-                    ? 1
-                    : -1;
-                return `"${field}":${value}`;
-              })
-              .join(',')}}`,
-          )
-        : { _id: 1 },
+        `{${sort
+          .map((element) => {
+            const field = element.substring(0, element.lastIndexOf('_'));
+            const value =
+              element.substring(element.lastIndexOf('_') + 1) === 'asc'
+                ? 1
+                : -1;
+            return `"${field}":${value}`;
+          })
+          .join(',')}}`,
+        )
+        : {_id: 1},
     )
     .select(
       fields
@@ -60,7 +60,7 @@ const findAll = async ({
     .lean();
   return {
     data: documents,
-    metadata: { count, total },
+    metadata: {count, total},
   };
 };
 
@@ -77,4 +77,4 @@ const findByCondition = async (model, condition, fields, populate) => {
   return document;
 };
 
-module.exports = { findAll, findByCondition };
+module.exports = {findAll, findByCondition};

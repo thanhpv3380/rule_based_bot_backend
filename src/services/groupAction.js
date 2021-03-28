@@ -1,10 +1,10 @@
 /* eslint-disable guard-for-in */
 const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
-const { GROUP } = require('../constants/index');
+const {GROUP} = require('../constants/index');
 const groupActionDao = require('../daos/groupAction');
 
-const findAllGroupActionAndItem = async ({ keyword, botId }) => {
+const findAllGroupActionAndItem = async ({keyword, botId}) => {
   const groupActions = await groupActionDao.findAllGroupActionAndItem({
     keyword,
     botId,
@@ -22,7 +22,7 @@ const findGroupActionById = async (id) => {
   return groupAction;
 };
 
-const createGroupAction = async ({ name, botId }) => {
+const createGroupAction = async ({name, botId}) => {
   const groupActionExist = await groupActionDao.findGroupActionByCondition({
     name,
     bot: botId,
@@ -38,7 +38,7 @@ const createGroupAction = async ({ name, botId }) => {
   return groupAction;
 };
 
-const updateGroupAction = async ({ id, botId, name }) => {
+const updateGroupAction = async ({id, botId, name}) => {
   let groupActionExist = await groupActionDao.findGroupActionByCondition({
     _id: id,
   });
@@ -47,7 +47,7 @@ const updateGroupAction = async ({ id, botId, name }) => {
   }
 
   groupActionExist = await groupActionDao.findGroupActionByCondition({
-    _id: { $ne: id },
+    _id: {$ne: id},
     name,
     bot: botId,
   });
@@ -55,7 +55,7 @@ const updateGroupAction = async ({ id, botId, name }) => {
     throw new CustomError(errorCodes.ITEM_EXIST);
   }
 
-  const groupAction = await groupActionDao.updateGroupAction(id, { name });
+  const groupAction = await groupActionDao.updateGroupAction(id, {name});
   return groupAction;
 };
 

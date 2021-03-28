@@ -10,4 +10,4 @@ const generateRandomString = (length, allowedChars) => {
   return text;
 };
 
-module.exports = { generateRandomString };
+module.exports = {generateRandomString};

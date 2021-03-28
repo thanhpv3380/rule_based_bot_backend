@@ -14,7 +14,7 @@ const errorHandler = require('./middlewares/errorHandler');
 require('dotenv').config();
 require('./models');
 
-const { PORT } = require('./configs');
+const {PORT} = require('./configs');
 
 const app = express();
 
@@ -23,7 +23,7 @@ app.use(helmet());
 app.use(compression());
 app.use(morgan('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(camelCaseReq);
 app.use(omitReq);
 app.use(snakeCaseRes());

@@ -1,21 +1,21 @@
 const {
-  Types: { ObjectId },
+  Types: {ObjectId},
 } = require('mongoose');
 const GroupAction = require('../models/groupAction');
-const { findByCondition } = require('../utils/db');
+const {findByCondition} = require('../utils/db');
 
-const findAllGroupActionAndItem = async ({ keyword, botId }) => {
+const findAllGroupActionAndItem = async ({keyword, botId}) => {
   const groupActions = await GroupAction.aggregate([
     {
       $match: {
         bot: ObjectId(botId),
-        name: { $regex: keyword, $options: 'g' },
+        name: {$regex: keyword, $options: 'g'},
       },
     },
     {
       $lookup: {
         from: 'actions',
-        let: { id: '$_id' },
+        let: {id: '$_id'},
         pipeline: [
           {
             $match: {
@@ -25,13 +25,13 @@ const findAllGroupActionAndItem = async ({ keyword, botId }) => {
             },
           },
           {
-            $match: { name: { $regex: keyword, $options: 'g' } },
+            $match: {name: {$regex: keyword, $options: 'g'}},
           },
         ],
         as: 'children',
       },
     },
-    { $sort: { groupType: -1 } },
+    {$sort: {groupType: -1}},
     {
       $project: {
         _id: 1,
@@ -59,7 +59,7 @@ const findGroupActionByCondition = async (condition, fields, populate) => {
   return groupAction;
 };
 
-const createGroupAction = async ({ name, botId, groupType }) => {
+const createGroupAction = async ({name, botId, groupType}) => {
   const groupAction = await GroupAction.create({
     name,
     bot: botId,

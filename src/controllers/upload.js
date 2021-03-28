@@ -3,7 +3,7 @@ const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
 const uploadService = require('../services/upload');
 
-const { DOMAIN_NAME } = process.env;
+const {DOMAIN_NAME} = process.env;
 
 async function uploadFile(req, res, next) {
   uploadService.upload.single('file')(req, res, (err) => {
@@ -43,8 +43,8 @@ async function uploadFile(req, res, next) {
     }
 
     const link = `${DOMAIN_NAME}/${req.file.path.slice(7)}`;
-    return res.send({ status: 1, result: { link } });
+    return res.send({status: 1, result: {link}});
   });
 }
 
-module.exports = { uploadFile };
+module.exports = {uploadFile};

@@ -5,7 +5,7 @@ const getErrorMessage = require('../errors/message');
 // eslint-disable-next-line no-unused-vars
 const errorHandler = (err, req, res, next) => {
   let statusCode = err.code || err.statusCode;
-  let { message } = err;
+  let {message} = err;
   let details;
   const code = err.code || err.statusCode || codes.INTERNAL_SERVER_ERROR;
   switch (code) {
@@ -41,7 +41,7 @@ const errorHandler = (err, req, res, next) => {
         message,
         details,
       },
-      { deep: true },
+      {deep: true},
     ),
   );
 };

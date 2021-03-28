@@ -10,7 +10,7 @@ const intentES = require('../elasticsearch/intent');
 const client = redisClient.createClient(6379);
 
 const handleUsersaySend = async (usersay, botId, userId) => {
-  const { hits } = await intentES.findIntent(usersay);
+  const {hits} = await intentES.findIntent(usersay);
   const result = hits.hits.find((el) => el._score === hits.max_score);
   const intent = await findIntent(result._id);
   for (let index = 0; index < intent.parameters.length; index++) {
@@ -32,7 +32,7 @@ const handleUsersaySend = async (usersay, botId, userId) => {
     // nếu parameter tìm thấy
     intent.parameters[index].value = parameter[0];
   }
-  const { mappingAction } = intent;
+  const {mappingAction} = intent;
   const response = handleResponse(mappingAction, intent.parameters);
   return response;
 };
@@ -61,7 +61,7 @@ const handleUsersaySendAgain = async (botId, data, usersay) => {
   }
 
   // nếu tìm thấy parameter trong lần hỏi tiếp theo
-  const { mappingAction } = data.intent;
+  const {mappingAction} = data.intent;
   data.parameterRequire.value = param;
   data.parameters.push(data.parameterRequire);
   // vòng lặp kiểm tra các parameter sau đó
@@ -156,7 +156,7 @@ const handleResponse = (action, parameters) => {
 
 const findIntent = async (id) => {
   const intent = await intentDao.findIntentByCondition({
-    condition: { _id: id },
+    condition: {_id: id},
     populate: [
       {
         path: 'mappingAction',
@@ -184,7 +184,6 @@ const findIntent = async (id) => {
 };
 
 module.exports = {
-  // getAction,
   handleUsersaySendAgain,
   handleUsersaySend,
 };

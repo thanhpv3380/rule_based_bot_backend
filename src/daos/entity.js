@@ -1,17 +1,17 @@
 const Entity = require('../models/entity');
-const { findAll, findByCondition } = require('../utils/db');
+const {findAll, findByCondition} = require('../utils/db');
 
 const findAllEntityByCondition = async ({
-  key,
-  searchFields,
-  query,
-  offset,
-  limit,
-  fields,
-  sort,
-  populate,
-}) => {
-  const { data, metadata } = await findAll({
+                                          key,
+                                          searchFields,
+                                          query,
+                                          offset,
+                                          limit,
+                                          fields,
+                                          sort,
+                                          populate,
+                                        }) => {
+  const {data, metadata} = await findAll({
     model: Entity,
     key,
     searchFields,
@@ -22,7 +22,7 @@ const findAllEntityByCondition = async ({
     sort,
     populate,
   });
-  return { data, metadata };
+  return {data, metadata};
 };
 
 const findEntityByCondition = async (condition, fields, populate) => {
@@ -31,15 +31,15 @@ const findEntityByCondition = async (condition, fields, populate) => {
 };
 
 const createEntity = async ({
-  name,
-  type,
-  pattern,
-  synonyms,
-  patterns,
-  userId,
-  groupEntityId,
-  botId,
-}) => {
+                              name,
+                              type,
+                              pattern,
+                              synonyms,
+                              patterns,
+                              userId,
+                              groupEntityId,
+                              botId,
+                            }) => {
   const entity = await Entity.create({
     name,
     type,
@@ -54,7 +54,7 @@ const createEntity = async ({
 };
 
 const updateEntity = async (id, data) => {
-  const entity = await Entity.findByIdAndUpdate(id, data, { new: true });
+  const entity = await Entity.findByIdAndUpdate(id, data, {new: true});
   return entity;
 };
 

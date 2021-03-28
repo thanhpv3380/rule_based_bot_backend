@@ -2,8 +2,8 @@ const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
 const actionDao = require('../daos/action');
 
-const findAllActionByBotId = async ({ botId, keyword }) => {
-  const { data } = await actionDao.findAllActionByCondition({
+const findAllActionByBotId = async ({botId, keyword}) => {
+  const {data} = await actionDao.findAllActionByCondition({
     key: keyword,
     searchFields: ['name'],
     query: {
@@ -15,7 +15,7 @@ const findAllActionByBotId = async ({ botId, keyword }) => {
 };
 
 const findActionById = async (id) => {
-  const action = await actionDao.findActionByCondition({ _id: id });
+  const action = await actionDao.findActionByCondition({_id: id});
   if (!action) {
     throw new CustomError(errorCodes.NOT_FOUND);
   }
@@ -23,12 +23,12 @@ const findActionById = async (id) => {
 };
 
 const createAction = async ({
-  name,
-  actions,
-  userId,
-  groupActionId,
-  botId,
-}) => {
+                              name,
+                              actions,
+                              userId,
+                              groupActionId,
+                              botId,
+                            }) => {
   const actionExist = await actionDao.findActionByCondition({
     name,
     bot: botId,
@@ -47,9 +47,9 @@ const createAction = async ({
   return action;
 };
 
-const updateAction = async ({ id, name, actions, groupActionId, botId }) => {
+const updateAction = async ({id, name, actions, groupActionId, botId}) => {
   const actionExist = await actionDao.findActionByCondition({
-    _id: { $ne: id },
+    _id: {$ne: id},
     name,
     bot: botId,
   });

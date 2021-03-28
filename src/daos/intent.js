@@ -1,17 +1,17 @@
 const Intent = require('../models/intent');
-const { findAll, findByCondition } = require('../utils/db');
+const {findAll, findByCondition} = require('../utils/db');
 
 const findAllIntentByCondition = async ({
-  key,
-  searchFields,
-  query,
-  offset,
-  limit,
-  fields,
-  sort,
-  populate,
-}) => {
-  const { data, metadata } = await findAll({
+                                          key,
+                                          searchFields,
+                                          query,
+                                          offset,
+                                          limit,
+                                          fields,
+                                          sort,
+                                          populate,
+                                        }) => {
+  const {data, metadata} = await findAll({
     model: Intent,
     key,
     searchFields,
@@ -22,10 +22,10 @@ const findAllIntentByCondition = async ({
     sort,
     populate,
   });
-  return { data, metadata };
+  return {data, metadata};
 };
 
-const findIntentByCondition = async ({ condition, fields, populate }) => {
+const findIntentByCondition = async ({condition, fields, populate}) => {
   const intent = await findByCondition(Intent, condition, fields, populate);
   return intent;
 };
@@ -47,7 +47,7 @@ const deleteIntent = async (id) => {
 };
 
 const deleteIntentByGroupId = async (groupId) => {
-  Intent.remove({ groupIntent: groupId });
+  Intent.remove({groupIntent: groupId});
 };
 
 module.exports = {

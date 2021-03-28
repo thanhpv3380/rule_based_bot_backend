@@ -3,8 +3,8 @@ const path = require('path');
 
 const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
-const { mkDirByPathSync } = require('../utils/file');
-const { generateRandomString } = require('../utils/random');
+const {mkDirByPathSync} = require('../utils/file');
+const {generateRandomString} = require('../utils/random');
 
 const DESTINATION = 'public';
 const IMAGES_FOLDER = 'images';
@@ -71,4 +71,4 @@ const upload = multer({
   },
 });
 
-module.exports = { upload };
+module.exports = {upload};

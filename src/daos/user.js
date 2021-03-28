@@ -1,10 +1,10 @@
 const {
-  Types: { ObjectId },
+  Types: {ObjectId},
 } = require('mongoose');
 const User = require('../models/user');
 
-const createUser = async ({ email, name, password }) => {
-  const user = await User.create({ email, name, password });
+const createUser = async ({email, name, password}) => {
+  const user = await User.create({email, name, password});
   return user;
 };
 
@@ -23,7 +23,7 @@ const findUser = async (condition) => {
 };
 
 const updateUser = async (userId, data) => {
-  const user = await User.findByIdAndUpdate(userId, data, { new: true });
+  const user = await User.findByIdAndUpdate(userId, data, {new: true});
   return user;
 };
 
@@ -32,7 +32,7 @@ const deleteUser = async (userId) => {
 };
 
 const findByIdAndUpdate = async (userId, id) => {
-  await User.findByIdAndUpdate(userId, { $push: { bots: id } });
+  await User.findByIdAndUpdate(userId, {$push: {bots: id}});
 };
 
 module.exports = {

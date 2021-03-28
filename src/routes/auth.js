@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const asyncMiddleware = require('../middlewares/async');
-const { auth } = require('../middlewares/auth');
-const { loginValidate, registerValidate } = require('../validations/auth');
+const {auth} = require('../middlewares/auth');
+const {loginValidate, registerValidate} = require('../validations/auth');
 const authController = require('../controllers/auth');
 
 /* eslint-disable prettier/prettier */

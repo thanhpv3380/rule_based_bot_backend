@@ -1,28 +1,28 @@
 /* eslint-disable radix */
 const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
-const { GROUP_SINGLE, GROUP_SINGLE_NAME } = require('../constants/index');
+const {GROUP_SINGLE, GROUP_SINGLE_NAME} = require('../constants/index');
 const botDao = require('../daos/bot');
 const groupActionDao = require('../daos/groupAction');
 const groupIntentDao = require('../daos/groupIntent');
 const groupEntityDao = require('../daos/groupEntity');
 
 const findAllBot = async ({
-  userId,
-  key,
-  searchFields,
-  limit,
-  offset,
-  fields,
-  sort,
-}) => {
+                            userId,
+                            key,
+                            searchFields,
+                            limit,
+                            offset,
+                            fields,
+                            sort,
+                          }) => {
   const newSearchFields = searchFields ? searchFields.split(',') : null;
   const newFields = fields ? fields.split(',') : null;
   const newSort = sort ? sort.split(',') : null;
-  const { data, metadata } = await botDao.findAllBot({
+  const {data, metadata} = await botDao.findAllBot({
     key,
     searchFields: newSearchFields,
-    query: { users: userId },
+    query: {users: userId},
     offset,
     limit,
     fields: newFields,
@@ -30,11 +30,11 @@ const findAllBot = async ({
     populate: ['createBy', 'users'],
   });
 
-  return { bots: data, metadata };
+  return {bots: data, metadata};
 };
 
 const findBotById = async (id) => {
-  const bot = await botDao.findBot({ _id: id }, null, ['createBy', 'users']);
+  const bot = await botDao.findBot({_id: id}, null, ['createBy', 'users']);
   if (!bot) {
     throw new CustomError(errorCodes.NOT_FOUND);
   }

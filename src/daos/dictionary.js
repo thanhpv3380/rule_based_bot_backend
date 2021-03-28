@@ -1,17 +1,17 @@
 const Dictionary = require('../models/dictionary');
-const { findAll, findByCondition } = require('../utils/db');
+const {findAll, findByCondition} = require('../utils/db');
 
 const findAllDictionary = async ({
-  key,
-  searchFields,
-  query,
-  offset,
-  limit,
-  fields,
-  sort,
-  populate,
-}) => {
-  const { data, metadata } = await findAll({
+                                   key,
+                                   searchFields,
+                                   query,
+                                   offset,
+                                   limit,
+                                   fields,
+                                   sort,
+                                   populate,
+                                 }) => {
+  const {data, metadata} = await findAll({
     model: Dictionary,
     key,
     searchFields,
@@ -38,7 +38,7 @@ const findDictionary = async (condition, fields, populate) => {
   return dictionary;
 };
 
-const createDictionary = async ({ acronym, original, userId, botId }) => {
+const createDictionary = async ({acronym, original, userId, botId}) => {
   const dictionary = await Dictionary.create({
     acronym,
     original,

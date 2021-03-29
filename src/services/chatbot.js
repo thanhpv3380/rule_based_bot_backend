@@ -110,16 +110,12 @@ const handleResponse = (action, parameters) => {
           return el;
         });
         return {
-          type: 'CHAT',
-          accessToken: '<access_token>',
           message: {
             text: text[Math.floor(Math.random() * (text.length - 1))],
           },
         };
       case 'MEDIA':
         return {
-          type: 'CHAT',
-          accessToken: '<access_token>',
           message: {
             text: item.media.description,
             attachment: {
@@ -132,8 +128,6 @@ const handleResponse = (action, parameters) => {
         };
       default:
         return {
-          type: 'CHAT',
-          access_token: '<access_token>',
           message: {
             text: '<text>',
             attachment: {
@@ -184,7 +178,6 @@ const findIntent = async (id) => {
 };
 
 module.exports = {
-  // getAction,
   handleUsersaySendAgain,
   handleUsersaySend,
 };

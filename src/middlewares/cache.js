@@ -8,7 +8,6 @@ const checkCacheUsersay = (req, res, next) => {
   const { bot } = req;
   const { usersay } = req.query;
   client.get(bot.id, async (e, data) => {
-    console.log(data);
     if (data) {
       const response = await chatbotService.handleUsersaySendAgain(
         bot.id,

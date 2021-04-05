@@ -1,9 +1,10 @@
+/* eslint-disable no-console */
 const chatConsumer = require('./chatConsumer');
 const outputConsumer = require('./outputConsumer');
 
 function consumer(connection) {
   connection.createChannel((err, channel) => {
-    channel.on('error', channelError => {
+    channel.on('error', (channelError) => {
       console.error('[RabbitMQ Channel ERROR]', channelError);
     });
 

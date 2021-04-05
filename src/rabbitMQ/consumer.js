@@ -3,6 +3,7 @@
 const redisClient = require('redis');
 const amqp = require('amqplib');
 const chatbotService = require('../services/chatbot');
+const { RECEIVE_QUEUE, SEND_QUEUE, EXCHANGE } = require('../constants/index');
 
 const client = redisClient.createClient(6379);
 
@@ -13,18 +14,18 @@ amqp
       conn.close();
     });
     return conn.createChannel().then((ch) => {
-      const exReceive = 'receive_rule_bot_ex';
-      const queReceive = 'receive_rule_bot_qu';
+      // const EXCHANGE = 'receive_rule_bot_ex';
+      // const RECEIVE_QUEUE = 'receive_rule_bot_qu';
 
-      let ok = ch.assertExchange(exReceive, 'direct', { durable: true });
+      let ok = ch.assertExchange(EXCHANGE, 'direct', { durable: true });
 
       ok = ok.then(() => {
-        return ch.assertQueue(queReceive);
+        return ch.assertQueue(RECEIVE_QUEUE);
       });
 
       ok = ok.then((qok) => {
         const { queue } = qok;
-        ch.bindQueue(queue, exReceive, queReceive).then(() => {
+        ch.bindQueue(queue, EXCHANGE, RECEIVE_QUEUE).then(() => {
           return queue;
         });
       });
@@ -64,7 +65,7 @@ amqp
             );
           }
           console.log(response);
-          ch.sendToQueue('send_mgs', Buffer.from(JSON.stringify(response)));
+          ch.sendToQueue(SEND_QUEUE, Buffer.from(JSON.stringify(response)));
         });
       }
     });

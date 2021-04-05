@@ -1,6 +1,7 @@
+/* eslint-disable no-console */
 function producer(connection) {
   connection.createChannel((err, channel) => {
-    channel.on('error', channelError => {
+    channel.on('error', (channelError) => {
       console.error('[RabbitMQ Channel ERROR]', channelError);
     });
 

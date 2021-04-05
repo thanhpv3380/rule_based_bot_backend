@@ -7,44 +7,82 @@ const redisClient = require('redis');
 const intentDao = require('../daos/intent');
 const intentES = require('../elasticsearch/intent');
 
-const client = redisClient.createClient(6379);
+const getAction = async (botId, usersay, userId) => {
+  let data = await getAsync(botId);
 
+  if (data) {
+    data = JSON.parse(data);
+    const response = await handleUsersaySendAgain(
+      botId,
+      JSON.parse(data),
+      usersay,
+      client,
+    );
+    return response;
+  }
+
+  const response = await handleUsersaySend(usersay, bot.id, user.id);
+};
+
+const client = redisClient.createClient(6379);
+// todo hỏi lại từng param hay hỏi lại tất cả
 const handleUsersaySend = async (usersay, botId, userId) => {
   const { hits } = await intentES.findIntent(usersay);
+  if (hits.hits.length === 0) {
+    return [
+      {
+        message: {
+          text: 'Xin lỗi tôi không hiểu ý bạn',
+        },
+      },
+    ];
+  }
   const result = hits.hits.find((el) => el._score === hits.max_score);
-  const intent = await findIntent(result._id);
+  const intent = await findIntentById(result._id);
+  const parametersRequire = [];
+  const parameters = [];
   for (let index = 0; index < intent.parameters.length; index++) {
     const el = intent.parameters[index];
-    const parameter = usersay.match(el.entity.pattern);
+    const parameter = getParameter(el.entity, usersay);
     if (parameter === null && el.required) {
-      const data = {
-        parameterRequire: el,
-        intent,
-        userId,
-        indexParam: index,
-        parameters: intent.parameters.filter((item, i) => i < index),
-        numberOfLoop: 0,
-      };
-      client.setex(botId, 3600, JSON.stringify(data));
-      const response = handleResponse(el.response.actionAskAgain, [el]);
-      return response;
+      parametersRequire.push(el);
+    } else {
+      // nếu parameter tìm thấy
+      el.value = parameter;
+      parameters.push(el);
     }
-    // nếu parameter tìm thấy
-    intent.parameters[index].value = parameter[0];
+  }
+  if (parametersRequire.length !== 0) {
+    const data = {
+      parametersRequire,
+      intentId: result._id,
+      userId,
+      parameters,
+      numberOfLoop: 0,
+    };
+    client.setex(botId, 3600, JSON.stringify(data)); // Todo bất đồng độ
+    const response = handleResponse(
+      parametersRequire[0].response.actionAskAgain,
+      [parametersRequire[0]],
+    );
+    return response;
   }
   const { mappingAction } = intent;
-  const response = handleResponse(mappingAction, intent.parameters);
+  const response = handleResponse(mappingAction, parameters);
   return response;
 };
 
 const handleUsersaySendAgain = async (botId, data, usersay) => {
-  const param = usersay.match(data.parameterRequire.entity.pattern);
+  const intent = await findIntentById(data.intentId);
+  const currentParameter = await { ...data.parametersRequire[0] };
+  const param = getParameter(currentParameter.entity, usersay);
+  const newParameterRequire = [...data.parametersRequire];
   if (param === null) {
     // nếu parameter vẫn không tìm thấy
-    if (data.numberOfLoop >= data.parameterRequire.response.numberOfLoop) {
+    if (data.numberOfLoop >= currentParameter.response.numberOfLoop) {
       // nếu quá số vòng lặp
       const response = handleResponse(
-        data.parameterRequire.response.actionBreak,
+        currentParameter.response.actionBreak,
         [],
       );
       client.del(botId);
@@ -53,29 +91,34 @@ const handleUsersaySendAgain = async (botId, data, usersay) => {
     // nếu không quá số vòng lặp
     data.numberOfLoop += 1;
     client.set(botId, JSON.stringify(data));
-    const response = handleResponse(
-      data.parameterRequire.response.actionAskAgain,
-      [data.parameterRequire],
-    );
+    const response = handleResponse(currentParameter.response.actionAskAgain, [
+      currentParameter,
+    ]);
     return response;
   }
 
   // nếu tìm thấy parameter trong lần hỏi tiếp theo
-  const { mappingAction } = data.intent;
-  data.parameterRequire.value = param;
-  data.parameters.push(data.parameterRequire);
+  const { mappingAction } = intent;
+  currentParameter.value = param[0];
+  data.parameters.push(currentParameter);
+  newParameterRequire.splice(0, 1);
+  const listIndex = [];
   // vòng lặp kiểm tra các parameter sau đó
-  for (let i = data.indexParam; i < data.intent.parameters.length; i++) {
-    const element = data.intent.parameters[i];
-    const newParameter = usersay.match(element.entity.pattern);
+  for (let i = 0; i < newParameterRequire.length; i++) {
+    const element = newParameterRequire[i];
+    const newParameter = getParameter(element.entity, usersay);
     if (newParameter === null && element.required) {
       // nếu parameter sau đó không tìm thấy
       const newData = {
         ...data,
-        parameterRequire: element,
-        indexParam: i,
+        parametersRequire:
+          listIndex.length === 0
+            ? newParameterRequire.filter(
+                (el, index) =>
+                  listIndex.findIndex((item) => item === index) < 0,
+              )
+            : newParameterRequire,
         parameters: data.parameters,
-        timeStart: new Date(),
         numberOfLoop: 0,
       };
       client.setex(botId, 3600, JSON.stringify(newData));
@@ -83,9 +126,9 @@ const handleUsersaySendAgain = async (botId, data, usersay) => {
         element,
       ]);
       // xoá cache của parameter trước đó
-      client.del(botId);
       return response;
     }
+    listIndex.push(i);
     // nếu parameter sau đó tìm thấy
     element.value = newParameter;
     data.parameters.push(element);
@@ -94,6 +137,22 @@ const handleUsersaySendAgain = async (botId, data, usersay) => {
   // xoá cache của parameter trước đó
   client.del(botId);
   return response;
+};
+
+const getParameter = (entity, usersay) => {
+  let param;
+  switch (entity.type) {
+    case '1':
+      param = entity.synonyms.find(
+        (el) => el.input.findIndex((item) => usersay.indexOf(item) >= 0) > 0,
+      );
+      return (param && param.output) || param;
+    case '2':
+      param = usersay.match(entity.pattern);
+      return param;
+    default:
+      return null;
+  }
 };
 
 // no use for actionAskAgain
@@ -148,7 +207,7 @@ const handleResponse = (action, parameters) => {
   return response;
 };
 
-const findIntent = async (id) => {
+const findIntentById = async (id) => {
   const intent = await intentDao.findIntentByCondition({
     condition: { _id: id },
     populate: [
@@ -181,3 +240,25 @@ module.exports = {
   handleUsersaySendAgain,
   handleUsersaySend,
 };
+
+// result_queue_name: mqQueues.OUTPUT_QUEUE,
+//     zalo,
+//     facebook,
+//     viber,
+//     telegram,
+//     messageInfo,
+//     isDev,
+//     inputMessage: {
+//       attachment,
+//     },
+//     customerInfo: { name, phoneNumber },
+//     type: returnArrayAction
+//       ? responseActionTypes.ARRAY_ACTION
+//       : responseActionTypes.SINGLE_ACTION,};
+//   PRODUCER.sendToQueue(
+//     'request-normalization-queue',
+//     Buffer.from(JSON.stringify(msg)),
+//   );
+
+// customerInfo: // chưa biết có lưu log hay ko tạm thời lấy để định danh sessionId
+// inputMessage: ''

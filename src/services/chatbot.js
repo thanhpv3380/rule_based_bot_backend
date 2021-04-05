@@ -21,11 +21,11 @@ const getAction = async (botId, usersay, userId) => {
     return response;
   }
 
-  const response = await handleUsersaySend(usersay, bot.id, user.id);
+  const response = await handleUsersaySend(usersay, botId, userId);
+  return response;
 };
 
 const client = redisClient.createClient(6379);
-// todo hỏi lại từng param hay hỏi lại tất cả
 const handleUsersaySend = async (usersay, botId, userId) => {
   const { hits } = await intentES.findIntent(usersay);
   if (hits.hits.length === 0) {
@@ -239,26 +239,10 @@ const findIntentById = async (id) => {
 module.exports = {
   handleUsersaySendAgain,
   handleUsersaySend,
+  getAction,
 };
 
-// result_queue_name: mqQueues.OUTPUT_QUEUE,
-//     zalo,
-//     facebook,
-//     viber,
-//     telegram,
-//     messageInfo,
-//     isDev,
-//     inputMessage: {
-//       attachment,
-//     },
-//     customerInfo: { name, phoneNumber },
-//     type: returnArrayAction
-//       ? responseActionTypes.ARRAY_ACTION
-//       : responseActionTypes.SINGLE_ACTION,};
-//   PRODUCER.sendToQueue(
-//     'request-normalization-queue',
-//     Buffer.from(JSON.stringify(msg)),
-//   );
-
 // customerInfo: // chưa biết có lưu log hay ko tạm thời lấy để định danh sessionId
-// inputMessage: ''
+// message: ''
+// result_queue:
+// sessionId:

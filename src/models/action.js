@@ -27,13 +27,13 @@ const actionSchema = new mongoose.Schema(
           url: String,
           headers: [
             {
-              name: String,
+              title: String,
               value: String,
             },
           ],
           body: [
             {
-              name: String,
+              title: String,
               value: String,
             },
           ],

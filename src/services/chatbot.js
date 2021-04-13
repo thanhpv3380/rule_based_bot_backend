@@ -1,32 +1,27 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable prefer-destructuring */
 /* eslint-disable no-plusplus */
-// const CustomError = require('../errors/CustomError');
-// const errorCodes = require('../errors/code');
-const redisClient = require('redis');
+const { client } = require('../utils/redis');
 const intentDao = require('../daos/intent');
 const intentES = require('../elasticsearch/intent');
 
-const getAction = async (botId, usersay, userId) => {
-  let data = await getAsync(botId);
+const getAction = async (sessionId, usersay) => {
+  const data = await client.getAsync(sessionId);
 
   if (data) {
-    data = JSON.parse(data);
     const response = await handleUsersaySendAgain(
-      botId,
+      sessionId,
       JSON.parse(data),
       usersay,
-      client,
     );
     return response;
   }
 
-  const response = await handleUsersaySend(usersay, botId, userId);
+  const response = await handleUsersaySend(sessionId, usersay);
   return response;
 };
 
-const client = redisClient.createClient(6379);
-const handleUsersaySend = async (usersay, botId, userId) => {
+const handleUsersaySend = async (sessionId, usersay) => {
   const { hits } = await intentES.findIntent(usersay);
   if (hits.hits.length === 0) {
     return [
@@ -56,11 +51,10 @@ const handleUsersaySend = async (usersay, botId, userId) => {
     const data = {
       parametersRequire,
       intentId: result._id,
-      userId,
       parameters,
       numberOfLoop: 0,
     };
-    client.setex(botId, 3600, JSON.stringify(data)); // Todo bất đồng độ
+    await client.lpushAsync(sessionId, JSON.stringify(data));
     const response = handleResponse(
       parametersRequire[0].response.actionAskAgain,
       [parametersRequire[0]],
@@ -72,7 +66,7 @@ const handleUsersaySend = async (usersay, botId, userId) => {
   return response;
 };
 
-const handleUsersaySendAgain = async (botId, data, usersay) => {
+const handleUsersaySendAgain = async (sessionId, data, usersay) => {
   const intent = await findIntentById(data.intentId);
   const currentParameter = await { ...data.parametersRequire[0] };
   const param = getParameter(currentParameter.entity, usersay);
@@ -85,12 +79,12 @@ const handleUsersaySendAgain = async (botId, data, usersay) => {
         currentParameter.response.actionBreak,
         [],
       );
-      client.del(botId);
+      await client.delAsync(sessionId);
       return response;
     }
     // nếu không quá số vòng lặp
     data.numberOfLoop += 1;
-    client.set(botId, JSON.stringify(data));
+    await client.setAsync(sessionId, JSON.stringify(data));
     const response = handleResponse(currentParameter.response.actionAskAgain, [
       currentParameter,
     ]);
@@ -121,7 +115,7 @@ const handleUsersaySendAgain = async (botId, data, usersay) => {
         parameters: data.parameters,
         numberOfLoop: 0,
       };
-      client.setex(botId, 3600, JSON.stringify(newData));
+      await client.setAsync(sessionId, JSON.stringify(newData));
       const response = handleResponse(element.response.actionAskAgain, [
         element,
       ]);
@@ -135,7 +129,7 @@ const handleUsersaySendAgain = async (botId, data, usersay) => {
   }
   const response = handleResponse(mappingAction, data.parameters);
   // xoá cache của parameter trước đó
-  client.del(botId);
+  await client.delAsync(sessionId);
   return response;
 };
 
@@ -242,7 +236,6 @@ module.exports = {
   getAction,
 };
 
-// customerInfo: // chưa biết có lưu log hay ko tạm thời lấy để định danh sessionId
-// message: ''
-// result_queue:
+// message: {text: ""}
+// resultQueue:
 // sessionId:

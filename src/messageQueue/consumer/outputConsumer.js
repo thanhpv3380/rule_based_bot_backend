@@ -1,9 +1,8 @@
 /* eslint-disable no-console */
-const cstruct = require('python-struct');
-const camelCase = require('camelcase-keys');
+const chatbotService = require('../../services/chatbot');
 const {
   mqQueues: { OUTPUT_QUEUE },
-} = require('../../../configs');
+} = require('../../configs');
 
 module.exports = (channel) => {
   channel.assertQueue(OUTPUT_QUEUE, { durable: false });
@@ -11,28 +10,16 @@ module.exports = (channel) => {
 
   channel.consume(OUTPUT_QUEUE, (message) => {
     channel.ack(message);
-
+    const content = JSON.parse(message.content.toString('utf8'));
+    const {
+      message: { text },
+      sessionId,
+      resultQueue,
+    } = content;
     try {
-      const { content } = message;
-      const [jsonLength, byteLength] = cstruct.unpack(
-        '>ii',
-        content.slice(0, 8),
-      );
-
-      if (byteLength === 0) {
-        let response = JSON.parse(
-          content.slice(8, jsonLength + 8).toString('utf8'),
-        );
-        response = camelCase(response, { deep: true });
-
-        console.log('Response from bot', JSON.stringify(response));
-        const { error, message: errorMessage } = response;
-        if (error && errorMessage) {
-          delete response.message;
-          response.errorMessage = errorMessage;
-        }
-        require('../responseHandler').handleResponse(response);
-      }
+      const response = chatbotService.getAction(`LIVECHAT_${sessionId}`, text);
+      // require('../responseHandler').handleResponse(response);
+      channel.sendToQueue(resultQueue, Buffer.from(JSON.stringify(response)));
     } catch (error) {
       console.log(error);
     }

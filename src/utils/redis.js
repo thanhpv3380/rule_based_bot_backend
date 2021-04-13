@@ -9,7 +9,7 @@ bluebird.promisifyAll(redis.Multi.prototype);
 const client = redis.createClient({
   port: process.env.REDIS_PORT || 6379,
   host: process.env.REDIS_HOST,
-  password: process.env.REDIS_PASSWORD,
+  // password: process.env.REDIS_PASSWORD,
 });
 
 client.on('error', (err) => {
@@ -19,13 +19,13 @@ client.on('error', (err) => {
 const publisher = redis.createClient({
   port: process.env.REDIS_PORT || 6379,
   host: process.env.REDIS_HOST,
-  password: process.env.REDIS_PASSWORD,
+  // password: process.env.REDIS_PASSWORD,
 });
 
 const subscriber = redis.createClient({
   port: process.env.REDIS_PORT || 6379,
   host: process.env.REDIS_HOST,
-  password: process.env.REDIS_PASSWORD,
+  // password: process.env.REDIS_PASSWORD,
 });
 
 module.exports = { client, publisher, subscriber };

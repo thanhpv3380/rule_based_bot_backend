@@ -7,6 +7,7 @@ const client = redisClient.createClient(6379);
 const checkCacheUsersay = (req, res, next) => {
   const { bot } = req;
   const { usersay } = req.query;
+  // client.lpushAsync();
   client.get(bot.id, async (e, data) => {
     if (data) {
       const response = await chatbotService.handleUsersaySendAgain(

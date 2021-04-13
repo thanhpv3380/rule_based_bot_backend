@@ -30,7 +30,7 @@ app.use(snakeCaseRes());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 require('./routes')(app);
-require('./rabbitMQ/consumer');
+require('./messageQueue/index');
 
 app.use(errorHandler);
 

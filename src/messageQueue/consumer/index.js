@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-const chatConsumer = require('./chatConsumer');
 const outputConsumer = require('./outputConsumer');
 
 function consumer(connection) {
@@ -12,7 +11,6 @@ function consumer(connection) {
       console.error('RabbitMQ Channel closed');
     });
 
-    chatConsumer(channel);
     outputConsumer(channel);
   });
 }

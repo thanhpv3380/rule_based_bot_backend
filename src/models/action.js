@@ -37,6 +37,14 @@ const actionSchema = new mongoose.Schema(
               value: String,
             },
           ],
+          response: {},
+          slots: [
+            {
+              id: ObjectId,
+              name: String,
+              value: String,
+            },
+          ],
         },
         loop: {
           intent: [

@@ -12,6 +12,7 @@ const getAllBot = async (req, res) => {
     fields,
     sort,
   });
+
   return res.send({ status: 1, result: { bots, metadata } });
 };
 

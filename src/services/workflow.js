@@ -112,6 +112,11 @@ const updateWorkflow = async ({ id, name, nodes, groupWorkflowId, botId }) => {
   return workflow;
 };
 
+const updateNodes = async (id, data) => {
+  const workflow = await workflowDao.updateWorkflow(id, data);
+  return workflow;
+};
+
 const deleteWorkflow = async (id) => {
   await workflowDao.deleteWorkflow(id);
 };
@@ -141,4 +146,5 @@ module.exports = {
   addNode,
   findById,
   removeNode,
+  updateNodes,
 };

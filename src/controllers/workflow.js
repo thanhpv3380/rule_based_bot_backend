@@ -68,7 +68,7 @@ const updateNodes = async (req, res) => {
       };
     }),
   };
-  const workFlow = await workflowService.updateWorkFlow(id, data);
+  const workFlow = await workflowService.updateNodes(id, data);
   return res.send({ status: 1, result: workFlow });
 };
 

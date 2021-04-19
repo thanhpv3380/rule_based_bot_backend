@@ -3,9 +3,10 @@ const mongoose = require('mongoose');
 
 const { ObjectId } = mongoose.Types;
 
-const workFlowSchema = new mongoose.Schema(
+const workflowSchema = new mongoose.Schema(
   {
     name: String,
+    displayName: String,
     nodes: [
       {
         type: {
@@ -30,9 +31,9 @@ const workFlowSchema = new mongoose.Schema(
         },
       },
     ],
-    groupWorkFlow: {
+    groupWorkflow: {
       type: ObjectId,
-      refPath: 'GroupWorkFlow',
+      ref: 'GroupWorkflow',
     },
     bot: {
       type: ObjectId,
@@ -50,4 +51,4 @@ const workFlowSchema = new mongoose.Schema(
   { typeKey: '$type' },
 );
 
-module.exports = mongoose.model('WorkFlow', workFlowSchema);
+module.exports = mongoose.model('Workflow', workflowSchema);

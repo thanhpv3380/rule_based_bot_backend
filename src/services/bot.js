@@ -6,6 +6,7 @@ const botDao = require('../daos/bot');
 const groupActionDao = require('../daos/groupAction');
 const groupIntentDao = require('../daos/groupIntent');
 const groupEntityDao = require('../daos/groupEntity');
+const groupWorkflowDao = require('../daos/groupWorkflow');
 
 const findAllBot = async ({
   userId,
@@ -19,6 +20,7 @@ const findAllBot = async ({
   const newSearchFields = searchFields ? searchFields.split(',') : null;
   const newFields = fields ? fields.split(',') : null;
   const newSort = sort ? sort.split(',') : null;
+
   const { data, metadata } = await botDao.findAllBot({
     key,
     searchFields: newSearchFields,
@@ -54,6 +56,11 @@ const createBot = async (userId, data) => {
     groupType: GROUP_SINGLE,
   });
   await groupEntityDao.createGroupEntity({
+    name: GROUP_SINGLE_NAME,
+    botId: bot.id,
+    groupType: GROUP_SINGLE,
+  });
+  await groupWorkflowDao.createGroupWorkflow({
     name: GROUP_SINGLE_NAME,
     botId: bot.id,
     groupType: GROUP_SINGLE,

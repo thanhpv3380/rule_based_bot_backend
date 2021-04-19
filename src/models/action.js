@@ -27,12 +27,23 @@ const actionSchema = new mongoose.Schema(
           url: String,
           headers: [
             {
-              name: String,
+              title: String,
               value: String,
             },
           ],
           body: [
             {
+              title: String,
+              value: String,
+            },
+          ],
+          response: {},
+          parameters: [
+            {
+              slot: {
+                type: ObjectId,
+                ref: 'Slot',
+              },
               name: String,
               value: String,
             },

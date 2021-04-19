@@ -1,13 +1,17 @@
-/* eslint-disable spaced-comment */
 const mongoose = require('mongoose');
 
 const { ObjectId } = mongoose.Types;
 
-const groupWorkflowSchema = new mongoose.Schema(
+const slotSchema = new mongoose.Schema(
   {
     name: String,
     displayName: String,
-    groupType: Number, //1: DEFAULT, 2: GROUP, 3: GROUP_SINGLE,
+    dataType: Number, // Number, Floar, Text,...
+    slotType: Number, // 1 default
+    customData: {
+      values: [],
+      conditions: [],
+    },
     bot: {
       type: ObjectId,
       ref: 'Bot',
@@ -19,4 +23,4 @@ const groupWorkflowSchema = new mongoose.Schema(
   },
 );
 
-module.exports = mongoose.model('GroupWorkflow', groupWorkflowSchema);
+module.exports = mongoose.model('Slot', slotSchema);

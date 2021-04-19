@@ -6,7 +6,7 @@ const entitySchema = new mongoose.Schema(
   {
     name: String,
     displayName: String,
-    type: String,
+    type: Number,
     pattern: String,
     synonyms: [
       {

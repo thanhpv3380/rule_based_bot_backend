@@ -30,6 +30,11 @@ const findIntentByCondition = async ({ condition, fields, populate }) => {
   return intent;
 };
 
+const fintIntentsByBot = async ({ condition, fields }) => {
+  const intent = await Intent.find(condition, fields);
+  return intent;
+};
+
 const createIntent = async (data) => {
   const intent = await Intent.create(data);
   return intent;
@@ -55,6 +60,7 @@ module.exports = {
   updateIntent,
   findIntentByCondition,
   findAllIntentByCondition,
+  fintIntentsByBot,
   deleteIntent,
   deleteIntentByGroupId,
 };

@@ -9,27 +9,25 @@ const workflowSchema = new mongoose.Schema(
     displayName: String,
     nodes: [
       {
-        node: {
-          type: ObjectId,
-        },
-        type: String, //INTENT, ACTION, CONDITION, START, END
-        refData: {
-          type: ObjectId,
-          refPath: 'refDataModel',
-        },
-        refDataModel: {
+        type: {
           type: String,
-          enum: ['INTENT', 'ACTION', 'CONDITION'],
+        }, //INTENT, ACTION, CONDITION, START, END
+        intent: {
+          type: ObjectId,
+          refPath: 'Intent',
         },
-        parent: [
-          {
-            type: ObjectId,
-            refPath: 'parentModel',
-          },
-        ],
-        parentModel: {
-          type: String,
-          enum: ['INTENT', 'ACTION', 'CONDITION'],
+        action: {
+          type: ObjectId,
+          refPath: 'Action',
+        },
+        condition: {
+          type: ObjectId,
+          refPath: 'Condition',
+        },
+        parent: [ObjectId],
+        position: {
+          x: Number,
+          y: Number,
         },
       },
     ],
@@ -50,6 +48,7 @@ const workflowSchema = new mongoose.Schema(
     timestamps: true,
     versionKey: false,
   },
+  { typeKey: '$type' },
 );
 
 module.exports = mongoose.model('Workflow', workflowSchema);

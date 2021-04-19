@@ -38,9 +38,12 @@ const actionSchema = new mongoose.Schema(
             },
           ],
           response: {},
-          slots: [
+          parameters: [
             {
-              id: ObjectId,
+              slot: {
+                type: ObjectId,
+                ref: 'Slot',
+              },
               name: String,
               value: String,
             },

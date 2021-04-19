@@ -73,8 +73,16 @@ const findIntentById = async (id) => {
     ],
   });
   if (!intent) {
-    throw new CustomError(errorCodes.ITEM_EXIST);
+    throw new CustomError(errorCodes.ITEM_NOT_EXIST);
   }
+  return intent;
+};
+
+const findIntentByBotId = async (botId) => {
+  const intent = await intentDao.fintIntentsByBot({
+    condition: { bot: botId },
+    fields: ['_id', 'name'],
+  });
   return intent;
 };
 
@@ -156,6 +164,7 @@ module.exports = {
   createIntent,
   updateIntent,
   updatePatternOfIntent,
+  findIntentByBotId,
   findIntentById,
   deleteIntentById,
   addUsersayOfIntent,

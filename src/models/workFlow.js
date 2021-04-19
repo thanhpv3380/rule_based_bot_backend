@@ -8,30 +8,36 @@ const workFlowSchema = new mongoose.Schema(
     name: String,
     nodes: [
       {
-        node: {
-          type: ObjectId,
-        },
-        type: String, //INTENT, ACTION, CONDITION, START, END
-        refData: {
-          type: ObjectId,
-          refPath: 'refDataModel',
-        },
-        refDataModel: {
+        type: {
           type: String,
-          enum: ['INTENT', 'ACTION', 'CONDITION'],
+        }, //INTENT, ACTION, CONDITION, START, END
+        intent: {
+          type: ObjectId,
+          refPath: 'Intent',
         },
-        parent: [
-          {
-            type: ObjectId,
-            refPath: 'parentModel',
-          },
-        ],
-        parentModel: {
-          type: String,
-          enum: ['INTENT', 'ACTION', 'CONDITION'],
+        action: {
+          type: ObjectId,
+          refPath: 'Action',
+        },
+        condition: {
+          type: ObjectId,
+          refPath: 'Condition',
+        },
+        parent: [ObjectId],
+        position: {
+          x: Number,
+          y: Number,
         },
       },
     ],
+    groupWorkFlow: {
+      type: ObjectId,
+      refPath: 'GroupWorkFlow',
+    },
+    bot: {
+      type: ObjectId,
+      ref: 'Bot',
+    },
     createBy: {
       type: ObjectId,
       ref: 'User',
@@ -41,6 +47,7 @@ const workFlowSchema = new mongoose.Schema(
     timestamps: true,
     versionKey: false,
   },
+  { typeKey: '$type' },
 );
 
 module.exports = mongoose.model('WorkFlow', workFlowSchema);

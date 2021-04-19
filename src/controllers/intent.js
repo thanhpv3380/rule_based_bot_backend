@@ -58,6 +58,12 @@ const updatePatternOfIntent = async (req, res) => {
   return res.send({ status: 1, result: intent });
 };
 
+const getListIntent = async (req, res) => {
+  const { bot } = req;
+  const intents = await intentService.findIntentByBotId(bot.id);
+  return res.send({ status: 1, result: intents });
+};
+
 const getIntent = async (req, res) => {
   const { id } = req.params;
   const intent = await intentService.findIntentById(id);
@@ -103,6 +109,7 @@ module.exports = {
   update,
   updatePatternOfIntent,
   removeUsersay,
+  getListIntent,
   getIntent,
   deleteIntent,
   addUsersay,

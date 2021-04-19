@@ -16,6 +16,11 @@ router.put(
   asyncMiddleware(intentController.update),
 );
 router.get('/intents/:id', asyncMiddleware(intentController.getIntent));
+router.get(
+  '/intents',
+  getBotId,
+  asyncMiddleware(intentController.getListIntent),
+);
 router.delete('/intents/:id', asyncMiddleware(intentController.deleteIntent));
 router.put(
   '/intents/patterns/:id',

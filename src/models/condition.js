@@ -20,6 +20,10 @@ const conditionSchema = new mongoose.Schema(
       type: ObjectId,
       ref: 'User',
     },
+    bot: {
+      type: ObjectId,
+      ref: 'Bot',
+    },
   },
   {
     timestamps: true,

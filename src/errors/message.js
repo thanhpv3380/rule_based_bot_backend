@@ -10,6 +10,8 @@ const getErrorMessage = (code) => {
       return 'Item existed';
     case codes.ITEM_NOT_CHANGE:
       return 'Item not change';
+    case codes.ITEM_NAME_EXIST:
+      return 'Name is exist';
     default:
       return null;
   }

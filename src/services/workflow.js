@@ -16,15 +16,7 @@ const findAllWorkflowByBotId = async ({ botId, keyword }) => {
 };
 
 const findWorkflowById = async (id) => {
-  const workflow = await workflowDao.findWorkflowByCondition({ _id: id });
-  if (!workflow) {
-    throw new CustomError(errorCodes.NOT_FOUND);
-  }
-  return workflow;
-};
-
-const findById = async (id) => {
-  const workFlow = await workflowDao.findWorkflowByCondition(
+  const workflow = await workflowDao.findWorkflowByCondition(
     {
       _id: id,
     },
@@ -61,10 +53,10 @@ const findById = async (id) => {
       },
     ],
   );
-  if (!workFlow) {
-    throw new CustomError(errorCodes.ITEM_NOT_EXIST);
+  if (!workflow) {
+    throw new CustomError(errorCodes.NOT_FOUND);
   }
-  return workFlow;
+  return workflow;
 };
 
 const createWorkflow = async ({
@@ -92,27 +84,27 @@ const createWorkflow = async ({
   return Workflow;
 };
 
-const updateWorkflow = async ({ id, name, nodes, groupWorkflowId, botId }) => {
-  const workflowExist = await workflowDao.findWorkflowByCondition({
-    _id: { $ne: id },
-    name,
-    bot: botId,
-  });
-  if (workflowExist) {
-    throw new CustomError(errorCodes.ITEM_EXIST);
+const updateWorkflow = async (id, data, botId) => {
+  const params = data;
+
+  // eslint-disable-next-line prettier/prettier
+  for (const prop in params) {
+    if (!params[prop]) delete params[prop];
   }
 
-  const workflow = await workflowDao.updateWorkflow(id, {
-    name,
-    nodes,
-    groupWorkflow: groupWorkflowId,
-  });
+  if (params && params.name) {
+    const workflowExist = await workflowDao.findWorkflowByCondition({
+      _id: { $ne: id },
+      name: data.name,
+      bot: botId,
+    });
+    if (workflowExist) {
+      throw new CustomError(errorCodes.ITEM_NAME_EXIST);
+    }
+  }
 
-  return workflow;
-};
-
-const updateNodes = async (id, data) => {
-  const workflow = await workflowDao.updateWorkflow(id, data);
+  console.log(params);
+  const workflow = await workflowDao.updateWorkflow(id, params);
   return workflow;
 };
 
@@ -151,7 +143,5 @@ module.exports = {
   updateWorkflow,
   deleteWorkflow,
   addNode,
-  findById,
   removeNode,
-  updateNodes,
 };

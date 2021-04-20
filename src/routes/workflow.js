@@ -34,13 +34,6 @@ router.delete(
   asyncMiddleware(workflowController.deleteWorkflow),
 );
 router.put(
-  '/workflows/flowDraw/:id',
-  auth,
-  getBotId,
-  workflowController.updateNodes,
-);
-
-router.put(
   '/workflows/addNode/:id',
   auth,
   getBotId,

@@ -132,7 +132,15 @@ const addNode = async (id, data) => {
   return node;
 };
 
-const removeNode = async (id, nodeId) => {
+const removeNode = async (id, nodeId, type) => {
+  if (type === 'CONDITION') {
+    const workflow = await workflowDao.findWorkflowByCondition({ _id: id });
+    if (!workflow) {
+      throw new CustomError(errorCodes.NOT_FOUND);
+    }
+    const item = workflow.nodes.find((el) => el._id === nodeId);
+    await conditionDao.deleteCondition(item._id);
+  }
   await workflowDao.removeNode(id, nodeId);
 };
 

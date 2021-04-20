@@ -83,9 +83,9 @@ const addNode = async (req, res) => {
 };
 
 const removeNode = async (req, res) => {
-  const { nodeId } = req.body;
+  const { nodeId, type } = req.body;
   const { id } = req.params;
-  await workflowService.removeNode(id, nodeId);
+  await workflowService.removeNode(id, nodeId, type);
   return res.send({ status: 1 });
 };
 

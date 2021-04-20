@@ -43,9 +43,14 @@ const updateCondition = async (id, data) => {
   return condition;
 };
 
+const deleteCondition = async (id) => {
+  await Condition.findByIdAndDelete(id);
+};
+
 module.exports = {
   findAllConditionByCondition,
   findConditionByCondition,
   createCondition,
   updateCondition,
+  deleteCondition,
 };

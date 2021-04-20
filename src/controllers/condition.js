@@ -25,9 +25,8 @@ const update = async (req, res) => {
 };
 
 const getConditionById = async (req, res) => {
-  const { bot } = req;
   const { id } = req.params;
-  const workFlow = await conditionService.findById(id, bot.id);
+  const workFlow = await conditionService.findById(id);
   return res.send({ status: 1, result: workFlow });
 };
 

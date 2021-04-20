@@ -12,10 +12,10 @@ const updateCondition = async (id, data) => {
   return condition;
 };
 
-const findById = async (id, botId) => {
+const findById = async (id) => {
+  console.log(id, 'condition');
   const condition = await conditionDao.findConditionByCondition({
     condition: {
-      bot: botId,
       _id: id,
     },
     populate: [
@@ -40,6 +40,7 @@ const findById = async (id, botId) => {
       },
     ],
   });
+  console.log(condition, 'condition');
   if (!condition) {
     throw new CustomError(errorCodes.ITEM_NOT_EXIST);
   }

@@ -61,7 +61,6 @@ const findById = async (id) => {
       },
     ],
   );
-  console.log(workFlow);
   if (!workFlow) {
     throw new CustomError(errorCodes.ITEM_NOT_EXIST);
   }
@@ -112,19 +111,24 @@ const updateWorkflow = async ({ id, name, nodes, groupWorkflowId, botId }) => {
   return workflow;
 };
 
+const updateNodes = async (id, data) => {
+  const workflow = await workflowDao.updateWorkflow(id, data);
+  return workflow;
+};
+
 const deleteWorkflow = async (id) => {
   await workflowDao.deleteWorkflow(id);
 };
 const addNode = async (id, data) => {
-  const node = await workflowDao.addNode(id, data);
   if (data.type === 'CONDITION') {
     const dataCondition = {
       operator: 'and',
       conditions: [],
     };
     const condition = await conditionDao.createCondition(dataCondition);
-    node.condition = condition.id;
+    data.condition = condition._id;
   }
+  const node = await workflowDao.addNode(id, data);
   return node;
 };
 
@@ -141,4 +145,5 @@ module.exports = {
   addNode,
   findById,
   removeNode,
+  updateNodes,
 };

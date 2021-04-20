@@ -53,9 +53,12 @@ const deleteWorkflow = async (req, res) => {
 };
 
 const updateNodes = async (req, res) => {
-  const { nodes } = req.body;
+  const { nodes, offsetX, offsetY, zoom } = req.body;
   const { id } = req.params;
   const data = {
+    offsetX,
+    offsetY,
+    zoom,
     nodes: nodes.map((el) => {
       return {
         _id: ObjectId(el.id),
@@ -68,7 +71,7 @@ const updateNodes = async (req, res) => {
       };
     }),
   };
-  const workFlow = await workflowService.updateWorkFlow(id, data);
+  const workFlow = await workflowService.updateNodes(id, data);
   return res.send({ status: 1, result: workFlow });
 };
 

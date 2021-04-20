@@ -25,12 +25,16 @@ const workflowSchema = new mongoose.Schema(
           refPath: 'Condition',
         },
         parent: [ObjectId],
+        children: [ObjectId],
         position: {
           x: Number,
           y: Number,
         },
       },
     ],
+    zoom: Number,
+    offsetX: Number,
+    offsetY: Number,
     groupWorkflow: {
       type: ObjectId,
       ref: 'GroupWorkflow',

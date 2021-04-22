@@ -45,6 +45,7 @@ const findWorkflowAndItem = async (id) => {
               },
             },
           },
+<<<<<<< HEAD
           {
             $lookup: {
               from: 'intents',
@@ -93,9 +94,25 @@ const findWorkflowAndItem = async (id) => {
               as: 'action',
             },
           },
+=======
+>>>>>>> 090a3730676b81910d43caf6931a791acf2dd2f4
         ],
         as: 'nodes',
       },
+    },
+  ]);
+  await Workflow.populate(workflow, [
+    {
+      path: 'nodes.intent',
+      model: 'Intent',
+    },
+    {
+      path: 'nodes.condition',
+      model: 'Condition',
+    },
+    {
+      path: 'nodes.action',
+      model: 'Action',
     },
   ]);
   return workflow;

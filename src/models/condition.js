@@ -7,10 +7,12 @@ const conditionSchema = new mongoose.Schema(
     conditions: [
       {
         parameter: String,
-        intent: {
-          type: ObjectId,
-          ref: 'Intent',
-        },
+        intents: [
+          {
+            type: ObjectId,
+            ref: 'Intent',
+          },
+        ],
         operator: String,
         value: String,
       },

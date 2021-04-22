@@ -1,6 +1,3 @@
-const {
-  Types: { ObjectId },
-} = require('mongoose');
 const workflowService = require('../services/workflow');
 
 const getAllWorkflowByBotId = async (req, res) => {
@@ -15,7 +12,7 @@ const getAllWorkflowByBotId = async (req, res) => {
 
 const getWorkflowById = async (req, res) => {
   const { id } = req.params;
-  const workflow = await workflowService.findById(id);
+  const workflow = await workflowService.findWorkflowById(id);
   return res.send({ status: 1, result: { workflow } });
 };
 
@@ -34,15 +31,9 @@ const createWorkflow = async (req, res) => {
 
 const updateWorkflow = async (req, res) => {
   const { id } = req.params;
-  const { name, nodes, groupWorkflow } = req.body;
+  const data = req.body;
   const { bot } = req;
-  const workflow = await workflowService.updateWorkflow({
-    id,
-    name,
-    nodes,
-    groupWorkflowId: groupWorkflow,
-    botId: bot.id,
-  });
+  const workflow = await workflowService.updateWorkflow(id, data, bot.id);
   return res.send({ status: 1, result: { workflow } });
 };
 
@@ -52,6 +43,7 @@ const deleteWorkflow = async (req, res) => {
   return res.send({ status: 1 });
 };
 
+<<<<<<< HEAD
 const updateNodes = async (req, res) => {
   const { nodes, offsetX, offsetY, zoom } = req.body;
   const { id } = req.params;
@@ -76,6 +68,8 @@ const updateNodes = async (req, res) => {
   return res.send({ status: 1, result: workFlow });
 };
 
+=======
+>>>>>>> task/flow
 const addNode = async (req, res) => {
   const { node } = req.body;
   const { id } = req.params;
@@ -84,9 +78,9 @@ const addNode = async (req, res) => {
 };
 
 const removeNode = async (req, res) => {
-  const { nodeId } = req.body;
+  const { nodeId, type } = req.body;
   const { id } = req.params;
-  await workflowService.removeNode(id, nodeId);
+  await workflowService.removeNode(id, nodeId, type);
   return res.send({ status: 1 });
 };
 
@@ -98,5 +92,4 @@ module.exports = {
   deleteWorkflow,
   addNode,
   removeNode,
-  updateNodes,
 };

@@ -1,8 +1,12 @@
 const {
   Types: { ObjectId },
 } = require('mongoose');
+<<<<<<< HEAD
 const intent = require('../models/intent');
 const Workflow = require('../models/workFlow');
+=======
+const Workflow = require('../models/workflow');
+>>>>>>> task/flow
 const { findAll, findByCondition } = require('../utils/db');
 
 const findAllWorkflowByCondition = async ({

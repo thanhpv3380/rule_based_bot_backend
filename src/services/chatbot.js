@@ -8,7 +8,7 @@ const { client } = require('../utils/redis');
 const intentDao = require('../daos/intent');
 const intentES = require('../elasticsearch/intent');
 const workflowDao = require('../daos/workflow');
-const workFlow = require('../models/workFlow');
+const workFlow = require('../models/workflow');
 
 const getAction = async (sessionId, usersay) => {
   // check session

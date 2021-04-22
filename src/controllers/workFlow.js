@@ -43,33 +43,6 @@ const deleteWorkflow = async (req, res) => {
   return res.send({ status: 1 });
 };
 
-<<<<<<< HEAD
-const updateNodes = async (req, res) => {
-  const { nodes, offsetX, offsetY, zoom } = req.body;
-  const { id } = req.params;
-  const data = {
-    offsetX,
-    offsetY,
-    zoom,
-    nodes: nodes.map((el) => {
-      return {
-        _id: ObjectId(el.id),
-        type: el.type,
-        parent: el.parent,
-        children: el.children,
-        position: el.position,
-        intent: el.intent,
-        action: el.action,
-        condition: el.condition,
-      };
-    }),
-  };
-  const workFlow = await workflowService.updateNodes(id, data);
-  return res.send({ status: 1, result: workFlow });
-};
-
-=======
->>>>>>> task/flow
 const addNode = async (req, res) => {
   const { node } = req.body;
   const { id } = req.params;

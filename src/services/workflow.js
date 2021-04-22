@@ -16,15 +16,7 @@ const findAllWorkflowByBotId = async ({ botId, keyword }) => {
 };
 
 const findWorkflowById = async (id) => {
-  const workflow = await workflowDao.findWorkflowByCondition({ _id: id });
-  if (!workflow) {
-    throw new CustomError(errorCodes.NOT_FOUND);
-  }
-  return workflow;
-};
-
-const findById = async (id) => {
-  const workFlow = await workflowDao.findWorkflowByCondition(
+  const workflow = await workflowDao.findWorkflowByCondition(
     {
       _id: id,
     },
@@ -61,10 +53,10 @@ const findById = async (id) => {
       },
     ],
   );
-  if (!workFlow) {
-    throw new CustomError(errorCodes.ITEM_NOT_EXIST);
+  if (!workflow) {
+    throw new CustomError(errorCodes.NOT_FOUND);
   }
-  return workFlow;
+  return workflow;
 };
 
 const createWorkflow = async ({
@@ -92,27 +84,30 @@ const createWorkflow = async ({
   return Workflow;
 };
 
-const updateWorkflow = async ({ id, name, nodes, groupWorkflowId, botId }) => {
-  const workflowExist = await workflowDao.findWorkflowByCondition({
-    _id: { $ne: id },
-    name,
-    bot: botId,
-  });
-  if (workflowExist) {
-    throw new CustomError(errorCodes.ITEM_EXIST);
+const updateWorkflow = async (id, data, botId) => {
+  const params = data;
+
+  for (const prop in params) {
+    if (Array.isArray(params[prop])){
+      if (params[prop].length <= 0) delete params[prop];
+    } else {
+      if (!params[prop]) delete params[prop];
+    }
   }
 
-  const workflow = await workflowDao.updateWorkflow(id, {
-    name,
-    nodes,
-    groupWorkflow: groupWorkflowId,
-  });
+  if (params && params.name) {
+    const workflowExist = await workflowDao.findWorkflowByCondition({
+      _id: { $ne: id },
+      name: data.name,
+      bot: botId,
+    });
+    if (workflowExist) {
+      throw new CustomError(errorCodes.ITEM_NAME_EXIST);
+    }
+  }
 
-  return workflow;
-};
-
-const updateNodes = async (id, data) => {
-  const workflow = await workflowDao.updateWorkflow(id, data);
+  console.log(params);
+  const workflow = await workflowDao.updateWorkflow(id, params);
   return workflow;
 };
 
@@ -132,7 +127,15 @@ const addNode = async (id, data) => {
   return node;
 };
 
-const removeNode = async (id, nodeId) => {
+const removeNode = async (id, nodeId, type) => {
+  if (type === 'CONDITION') {
+    const workflow = await workflowDao.findWorkflowByCondition({ _id: id });
+    if (!workflow) {
+      throw new CustomError(errorCodes.NOT_FOUND);
+    }
+    const item = workflow.nodes.find((el) => el._id === nodeId);
+    await conditionDao.deleteCondition(item._id);
+  }
   await workflowDao.removeNode(id, nodeId);
 };
 
@@ -143,7 +146,5 @@ module.exports = {
   updateWorkflow,
   deleteWorkflow,
   addNode,
-  findById,
   removeNode,
-  updateNodes,
 };

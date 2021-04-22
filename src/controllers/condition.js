@@ -9,8 +9,8 @@ const create = async (req, res) => {
     bot: bot.id,
     createBy: user.id,
   };
-  const workFlow = await conditionService.createCondition(data);
-  return res.send({ status: 1, result: workFlow });
+  const condition = await conditionService.createCondition(data);
+  return res.send({ status: 1, result: condition });
 };
 
 const update = async (req, res) => {
@@ -20,14 +20,14 @@ const update = async (req, res) => {
     operator,
     conditions,
   };
-  const workFlow = await conditionService.updateCondition(id, data);
-  return res.send({ status: 1, result: workFlow });
+  const condition = await conditionService.updateCondition(id, data);
+  return res.send({ status: 1, result: condition });
 };
 
 const getConditionById = async (req, res) => {
   const { id } = req.params;
-  const workFlow = await conditionService.findById(id);
-  return res.send({ status: 1, result: workFlow });
+  const condition = await conditionService.findById(id);
+  return res.send({ status: 1, result: condition });
 };
 
 module.exports = {

@@ -64,17 +64,32 @@ const findWorkflowAndItem = async (id) => {
           {
             $lookup: {
               from: 'conditions',
-              localField: 'condition',
-              foreignField: '_id',
-
+              let: { condition: '$condition' },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: {
+                      $eq: ['$_id', '$$condition'],
+                    },
+                  },
+                },
+              ],
               as: 'condition',
             },
           },
           {
             $lookup: {
               from: 'actions',
-              localField: 'action',
-              foreignField: '_id',
+              let: { action: '$action' },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: {
+                      $eq: ['$_id', '$$action'],
+                    },
+                  },
+                },
+              ],
               as: 'action',
             },
           },

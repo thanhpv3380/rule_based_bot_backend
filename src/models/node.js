@@ -47,6 +47,10 @@ const nodeSchema = new mongoose.Schema(
       x: Number,
       y: Number,
     },
+    bot: {
+      type: ObjectId,
+      ref: 'Bot',
+    },
   },
   {
     timestamps: true,

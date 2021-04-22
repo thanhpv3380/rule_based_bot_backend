@@ -45,42 +45,23 @@ const findWorkflowAndItem = async (id) => {
               },
             },
           },
-          {
-            $lookup: {
-              from: 'intents',
-              let: { intent: '$intent' },
-              pipeline: [
-                {
-                  $match: {
-                    $expr: {
-                      $eq: ['$_id', '$$intent'],
-                    },
-                  },
-                },
-              ],
-              as: 'intent',
-            },
-          },
-          {
-            $lookup: {
-              from: 'conditions',
-              localField: 'condition',
-              foreignField: '_id',
-
-              as: 'condition',
-            },
-          },
-          {
-            $lookup: {
-              from: 'actions',
-              localField: 'action',
-              foreignField: '_id',
-              as: 'action',
-            },
-          },
         ],
         as: 'nodes',
       },
+    },
+  ]);
+  await Workflow.populate(workflow, [
+    {
+      path: 'nodes.intent',
+      model: 'Intent',
+    },
+    {
+      path: 'nodes.condition',
+      model: 'Condition',
+    },
+    {
+      path: 'nodes.action',
+      model: 'Action',
     },
   ]);
   return workflow;

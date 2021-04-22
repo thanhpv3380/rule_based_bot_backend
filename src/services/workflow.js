@@ -87,9 +87,12 @@ const createWorkflow = async ({
 const updateWorkflow = async (id, data, botId) => {
   const params = data;
 
-  // eslint-disable-next-line prettier/prettier
   for (const prop in params) {
-    if (!params[prop]) delete params[prop];
+    if (Array.isArray(params[prop])){
+      if (params[prop].length <= 0) delete params[prop];
+    } else {
+      if (!params[prop]) delete params[prop];
+    }
   }
 
   if (params && params.name) {

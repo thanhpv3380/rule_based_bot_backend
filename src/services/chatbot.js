@@ -1,22 +1,28 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable prefer-destructuring */
 /* eslint-disable no-plusplus */
+const {
+  Types: { ObjectId },
+} = require('mongoose');
 const { client } = require('../utils/redis');
 const intentDao = require('../daos/intent');
 const intentES = require('../elasticsearch/intent');
+const workflowDao = require('../daos/workflow');
+const workFlow = require('../models/workFlow');
 
 const getAction = async (sessionId, usersay) => {
-  const data = await client.getAsync(sessionId);
+  // check session
+  // const data = await client.getAsync(sessionId);
 
-  if (data) {
-    const response = await handleUsersaySendAgain(
-      sessionId,
-      JSON.parse(data),
-      usersay,
-    );
-    return response;
-  }
-
+  // if (data) {
+  //   const response = await handleUsersaySendAgain(
+  //     sessionId,
+  //     JSON.parse(data),
+  //     usersay,
+  //   );
+  //   return response;
+  // }
+  // if not in session
   const response = await handleUsersaySend(sessionId, usersay);
   return response;
 };
@@ -33,37 +39,82 @@ const handleUsersaySend = async (sessionId, usersay) => {
     ];
   }
   const result = hits.hits.find((el) => el._score === hits.max_score);
+
   const intent = await findIntentById(result._id);
-  const parametersRequire = [];
-  const parameters = [];
-  for (let index = 0; index < intent.parameters.length; index++) {
-    const el = intent.parameters[index];
-    const parameter = getParameter(el.entity, usersay);
-    if (parameter === null && el.required) {
-      parametersRequire.push(el);
-    } else {
-      // nếu parameter tìm thấy
-      el.value = parameter;
-      parameters.push(el);
-    }
-  }
-  if (parametersRequire.length !== 0) {
-    const data = {
-      parametersRequire,
-      intentId: result._id,
-      parameters,
-      numberOfLoop: 0,
-    };
-    await client.lpushAsync(sessionId, JSON.stringify(data));
-    const response = handleResponse(
-      parametersRequire[0].response.actionAskAgain,
-      [parametersRequire[0]],
-    );
-    return response;
-  }
-  const { mappingAction } = intent;
-  const response = handleResponse(mappingAction, parameters);
-  return response;
+
+  // find intent is start workflow
+  const workflows = await workflowDao.findWorkflowByPropertyIntent(
+    intent.bot,
+    intent._id,
+  );
+
+  // todo tối ưu trong truy vấn
+  // const workflow = workflows.find((el) => {
+  //   // console.log(el);
+  //   const nodeIntent = el.nodes.find(
+  //     (node) => node.intent === intent._id.toString(),
+  //   );
+  //   if (nodeIntent) {
+  //     const check = el.nodes.foreach((node) => {
+  //       console.log(node, 'end');
+  //       if (node.type === 'START' && nodeIntent.parent.includes(node._id)) {
+  //         return true;
+  //       }
+  //       return false;
+  //     });
+  //     if (check) {
+  //       console.log(el, 'end');
+  //       return true;
+  //     }
+  //   }
+  //   return false;
+  // });
+  console.log(workflows);
+
+  // const currentNode = workflows[0].nodes;
+  // const
+  return workflows;
+  // const currentNode = workflow.nodes.find(el);
+  // const data = {
+  //   workflowId: workFlow._id,
+  //   currentIntent:
+  // };
+
+  // todo ==========================
+
+  // find intent if intent not in workflow
+  // const intent = await findIntentById(result._id);
+
+  // const parametersRequire = [];
+  // const parameters = [];
+  // for (let index = 0; index < intent.parameters.length; index++) {
+  //   const el = intent.parameters[index];
+  //   const parameter = getParameter(el.entity, usersay);
+  //   if (parameter === null && el.required) {
+  //     parametersRequire.push(el);
+  //   } else {
+  //     // nếu parameter tìm thấy
+  //     el.value = parameter;
+  //     parameters.push(el);
+  //   }
+  // }
+  // if (parametersRequire.length !== 0) {
+  //   const data = {
+  //     parametersRequire,
+  //     intentId: result._id,
+  //     parameters,
+  //     numberOfLoop: 0,
+  //   };
+  //   await client.lpushAsync(sessionId, JSON.stringify(data));
+  //   const response = handleResponse(
+  //     parametersRequire[0].response.actionAskAgain,
+  //     [parametersRequire[0]],
+  //   );
+  //   return response;
+  // }
+  // const { mappingAction } = intent;
+  // const response = handleResponse(mappingAction, parameters);
+  // return response;
 };
 
 const handleUsersaySendAgain = async (sessionId, data, usersay) => {

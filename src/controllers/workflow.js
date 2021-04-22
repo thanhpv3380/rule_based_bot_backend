@@ -64,6 +64,7 @@ const updateNodes = async (req, res) => {
         _id: ObjectId(el.id),
         type: el.type,
         parent: el.parent,
+        children: el.children,
         position: el.position,
         intent: el.intent,
         action: el.action,

@@ -39,6 +39,7 @@ const handleUsersaySend = async (sessionId, usersay) => {
     ];
   }
   const result = hits.hits.find((el) => el._score === hits.max_score);
+  console.log(result);
 
   const intent = await findIntentById(result._id);
 

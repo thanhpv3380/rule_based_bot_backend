@@ -2,6 +2,7 @@ const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
 const workflowDao = require('../daos/workflow');
 const conditionDao = require('../daos/condition');
+const nodeDao = require('../daos/node');
 
 const findAllWorkflowByBotId = async ({ botId, keyword }) => {
   const { data } = await workflowDao.findAllWorkflowByCondition({
@@ -16,6 +17,11 @@ const findAllWorkflowByBotId = async ({ botId, keyword }) => {
 };
 
 const findWorkflowById = async (id) => {
+  const workflow = await workflowDao.findWorkflowAndItem(id);
+  return workflow;
+};
+
+const findWorkflowByIdTest = async (id) => {
   const workflow = await workflowDao.findWorkflowByCondition(
     {
       _id: id,
@@ -88,9 +94,10 @@ const updateWorkflow = async (id, data, botId) => {
   const params = data;
 
   for (const prop in params) {
-    if (Array.isArray(params[prop])){
+    if (Array.isArray(params[prop])) {
       if (params[prop].length <= 0) delete params[prop];
     } else {
+      // eslint-disable-next-line no-lonely-if
       if (!params[prop]) delete params[prop];
     }
   }
@@ -106,7 +113,6 @@ const updateWorkflow = async (id, data, botId) => {
     }
   }
 
-  console.log(params);
   const workflow = await workflowDao.updateWorkflow(id, params);
   return workflow;
 };

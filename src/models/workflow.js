@@ -24,8 +24,18 @@ const workflowSchema = new mongoose.Schema(
           type: ObjectId,
           refPath: 'Condition',
         },
-        parent: [ObjectId],
-        children: [{ type: ObjectId, refPath: 'workflows.nodes' }],
+        parent: [
+          {
+            id: { type: ObjectId, ref: 'Workflow' },
+            type: String,
+          },
+        ],
+        children: [
+          {
+            id: { type: ObjectId, ref: 'Workflow' },
+            type: String,
+          },
+        ],
         position: {
           x: Number,
           y: Number,

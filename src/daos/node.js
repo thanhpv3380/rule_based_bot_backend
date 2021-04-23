@@ -16,17 +16,30 @@ const updateNode = async (id, data) => {
   return node;
 };
 
+const pushNodeToChildren = async (id, data) => {
+  const node = await Node.findByIdAndUpdate(id, {
+    $push: {
+      children: data,
+    },
+  });
+  return node;
+};
+
 const deleteNode = async (id) => {
   await Node.findByIdAndDelete(id);
 };
 
 const deleteNodeConnect = async (workflowId, nodeId) => {
-  await Node.updateMany(
+  console.log(workflowId, nodeId);
+  await Node.update(
     { workflow: workflowId },
     {
       $pull: {
         $or: [{ children: { node: nodeId } }, { parent: { node: nodeId } }],
       },
+    },
+    {
+      multi: true,
     },
   );
 };
@@ -55,6 +68,7 @@ module.exports = {
   findNodeByCondition,
   createNode,
   updateNode,
+  pushNodeToChildren,
   deleteNode,
   deleteNodeConnect,
   findNodeIntentStartFlow,

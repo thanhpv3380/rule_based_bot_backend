@@ -21,6 +21,16 @@ const createNode = async (data) => {
     data.condition = condition._id;
   }
   const node = await nodeDao.createNode(data);
+
+  if (data && data.parent && data.parent.length > 0) {
+    const parentId = data.parent[0].node;
+    const newData = {
+      node: (node && node.id) || null,
+      type: (data && data.type) || 'START',
+    };
+    await nodeDao.pushNodeToChildren(parentId, newData);
+  }
+
   return node;
 };
 

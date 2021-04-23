@@ -6,13 +6,14 @@ const conditionSchema = new mongoose.Schema(
   {
     conditions: [
       {
-        parameter: String,
-        intents: [
-          {
-            type: ObjectId,
-            ref: 'Intent',
-          },
-        ],
+        parameter: {
+          type: ObjectId,
+          ref: 'Intent.parameters',
+        },
+        intent: {
+          type: ObjectId,
+          ref: 'Intent',
+        },
         operator: String,
         value: String,
       },

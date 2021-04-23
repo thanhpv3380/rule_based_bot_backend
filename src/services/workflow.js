@@ -1,10 +1,7 @@
-const mongoose = require('mongoose');
 const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
 const workflowDao = require('../daos/workflow');
 const nodeDao = require('../daos/node');
-
-const { ObjectId } = mongoose.Types;
 
 const findAllWorkflowByBotId = async ({ botId, keyword }) => {
   const { data } = await workflowDao.findAllWorkflowByCondition({

@@ -42,5 +42,9 @@ router.put(
   '/intents/:id/removeParameter',
   asyncMiddleware(intentController.removeParameter),
 );
+router.post(
+  '/intents/getParameters',
+  asyncMiddleware(intentController.getParametersIntent),
+);
 
 module.exports = router;

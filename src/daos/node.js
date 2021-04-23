@@ -16,11 +16,6 @@ const updateNode = async (id, data) => {
   return node;
 };
 
-const updateManyNode = async (data) => {
-  const node = await Node.updateMany({}, data);
-  return node;
-};
-
 const deleteNode = async (id) => {
   await Node.findByIdAndDelete(id);
 };
@@ -36,11 +31,31 @@ const deleteNodeConnect = async (workflowId, nodeId) => {
   );
 };
 
+const findNodeIntentStartFlow = async (botId, intentId) => {
+  console.time();
+  const node = await Node.find({
+    'parent.type': 'START',
+    type: 'INTENT',
+    intent: intentId,
+  }).populate([
+    {
+      path: 'intent',
+      model: 'Intent',
+    },
+    {
+      path: 'node',
+      model: 'Node',
+    },
+  ]);
+  console.timeEnd();
+  return node;
+};
+
 module.exports = {
   findNodeByCondition,
   createNode,
   updateNode,
-  updateManyNode,
   deleteNode,
   deleteNodeConnect,
+  findNodeIntentStartFlow,
 };

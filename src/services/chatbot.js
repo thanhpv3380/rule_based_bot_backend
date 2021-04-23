@@ -8,7 +8,7 @@ const { client } = require('../utils/redis');
 const intentDao = require('../daos/intent');
 const intentES = require('../elasticsearch/intent');
 const workflowDao = require('../daos/workflow');
-const workFlow = require('../models/workflow');
+const nodeDao = require('../daos/node');
 
 const getAction = async (sessionId, usersay) => {
   // check session
@@ -39,12 +39,11 @@ const handleUsersaySend = async (sessionId, usersay) => {
     ];
   }
   const result = hits.hits.find((el) => el._score === hits.max_score);
-  console.log(result);
 
   const intent = await findIntentById(result._id);
 
   // find intent is start workflow
-  const workflows = await workflowDao.findWorkflowByPropertyIntent(
+  const workflows = await nodeDao.findNodeIntentStartFlow(
     intent.bot,
     intent._id,
   );

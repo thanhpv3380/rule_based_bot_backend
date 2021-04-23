@@ -64,7 +64,7 @@ const findWorkflowAndItem = async (id) => {
       model: 'Action',
     },
   ]);
-  return workflow;
+  return workflow[0];
 };
 
 const findWorkflowByCondition = async (condition, fields, populate) => {
@@ -96,16 +96,6 @@ const updateWorkflow = async (id, data) => {
 
 const deleteWorkflow = async (id) => {
   await Workflow.findByIdAndDelete(id);
-};
-
-const addNode = async (id, node) => {
-  node._id = new ObjectId();
-  await Workflow.findByIdAndUpdate(id, { $push: { nodes: node } });
-  return node;
-};
-
-const removeNode = async (id, nodeId) => {
-  await Workflow.findByIdAndUpdate(id, { $pull: { nodes: { _id: nodeId } } });
 };
 
 const findWorkflowByPropertyIntent = async (botId, intentId) => {
@@ -147,6 +137,4 @@ module.exports = {
   createWorkflow,
   updateWorkflow,
   deleteWorkflow,
-  addNode,
-  removeNode,
 };

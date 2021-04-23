@@ -1,16 +1,46 @@
 const Node = require('../models/node');
+const { findByCondition } = require('../utils/db');
 
-const create = async (data) => {
+const findNodeByCondition = async (condition) => {
+  const node = await findByCondition(Node, condition);
+  return node;
+};
+
+const createNode = async (data) => {
   const node = await Node.create(data);
   return node;
 };
 
-const update = async (id, data) => {
-  const node = await Node.findByIdAndUpdate(id, data);
+const updateNode = async (id, data) => {
+  const node = await Node.findByIdAndUpdate(id, data, { new: true });
   return node;
 };
 
+const updateManyNode = async (data) => {
+  const node = await Node.updateMany({}, data);
+  return node;
+};
+
+const deleteNode = async (id) => {
+  await Node.findByIdAndDelete(id);
+};
+
+const deleteNodeConnect = async (workflowId, nodeId) => {
+  await Node.updateMany(
+    { workflow: workflowId },
+    {
+      $pull: {
+        $or: [{ children: { node: nodeId } }, { parent: { node: nodeId } }],
+      },
+    },
+  );
+};
+
 module.exports = {
-  create,
-  update,
+  findNodeByCondition,
+  createNode,
+  updateNode,
+  updateManyNode,
+  deleteNode,
+  deleteNodeConnect,
 };

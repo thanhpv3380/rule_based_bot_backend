@@ -7,41 +7,6 @@ const workflowSchema = new mongoose.Schema(
   {
     name: String,
     displayName: String,
-    nodes: [
-      {
-        type: {
-          type: String,
-        }, //INTENT, ACTION, CONDITION, START, END
-        intent: {
-          type: ObjectId,
-          refPath: 'Intent',
-        },
-        action: {
-          type: ObjectId,
-          refPath: 'Action',
-        },
-        condition: {
-          type: ObjectId,
-          refPath: 'Condition',
-        },
-        parent: [
-          {
-            id: { type: ObjectId, ref: 'Workflow' },
-            type: String,
-          },
-        ],
-        children: [
-          {
-            id: { type: ObjectId, ref: 'Workflow' },
-            type: String,
-          },
-        ],
-        position: {
-          x: Number,
-          y: Number,
-        },
-      },
-    ],
     zoom: Number,
     offsetX: Number,
     offsetY: Number,

@@ -1,7 +1,6 @@
 const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
 const workflowDao = require('../daos/workflow');
-const conditionDao = require('../daos/condition');
 const nodeDao = require('../daos/node');
 const {
   Types: { ObjectId },
@@ -24,50 +23,6 @@ const findWorkflowById = async (id) => {
   return workflow;
 };
 
-const findWorkflowByIdTest = async (id) => {
-  const workflow = await workflowDao.findWorkflowByCondition(
-    {
-      _id: id,
-    },
-    null,
-    [
-      {
-        path: 'nodes',
-        populate: [
-          {
-            path: 'intent',
-            model: 'Intent',
-            select: 'name _id',
-          },
-          {
-            path: 'action',
-            model: 'Action',
-            select: 'name _id',
-          },
-          {
-            path: 'condition',
-            model: 'Condition',
-            select: 'name _id',
-          },
-        ],
-      },
-      {
-        path: 'bot',
-        model: 'Bot',
-      },
-      {
-        path: 'createBy',
-        model: 'User',
-        select: 'name _id',
-      },
-    ],
-  );
-  if (!workflow) {
-    throw new CustomError(errorCodes.NOT_FOUND);
-  }
-  return workflow;
-};
-
 const createWorkflow = async ({
   name,
   nodes,
@@ -82,7 +37,7 @@ const createWorkflow = async ({
   if (workflowExist) {
     throw new CustomError(errorCodes.ITEM_EXIST);
   }
-  const Workflow = await workflowDao.createWorkflow({
+  const workflow = await workflowDao.createWorkflow({
     name,
     nodes,
     userId,
@@ -90,7 +45,7 @@ const createWorkflow = async ({
     botId,
   });
 
-  return Workflow;
+  return workflow;
 };
 
 const updateWorkflow = async (id, data, botId) => {
@@ -123,36 +78,27 @@ const updateWorkflow = async (id, data, botId) => {
   //   });
   // }
 
+  if (params && params.nodes) {
+    // const newNodes = params.nodes.map((el) => {
+    //   const obj = {
+    //     ...el,
+    //     _id: ObjectId(el.id),
+    //   };
+    //   delete obj.id;
+    //   return obj;
+    // });
+    params.nodes.map(async (el) => {
+      await nodeDao.updateNode(el.id, el);
+    });
+
+    delete params.nodes;
+  }
   const workflow = await workflowDao.updateWorkflow(id, params);
   return workflow;
 };
 
 const deleteWorkflow = async (id) => {
   await workflowDao.deleteWorkflow(id);
-};
-const addNode = async (id, data) => {
-  if (data.type === 'CONDITION') {
-    const dataCondition = {
-      operator: 'and',
-      conditions: [],
-    };
-    const condition = await conditionDao.createCondition(dataCondition);
-    data.condition = condition._id;
-  }
-  const node = await workflowDao.addNode(id, data);
-  return node;
-};
-
-const removeNode = async (id, nodeId, type) => {
-  if (type === 'CONDITION') {
-    const workflow = await workflowDao.findWorkflowByCondition({ _id: id });
-    if (!workflow) {
-      throw new CustomError(errorCodes.NOT_FOUND);
-    }
-    const item = workflow.nodes.find((el) => el._id === nodeId);
-    await conditionDao.deleteCondition(item._id);
-  }
-  await workflowDao.removeNode(id, nodeId);
 };
 
 module.exports = {
@@ -161,6 +107,4 @@ module.exports = {
   createWorkflow,
   updateWorkflow,
   deleteWorkflow,
-  addNode,
-  removeNode,
 };

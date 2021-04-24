@@ -4,10 +4,6 @@ const { ObjectId } = mongoose.Types;
 
 const nodeSchema = new mongoose.Schema(
   {
-    workflow: {
-      type: ObjectId,
-      ref: 'Workflow',
-    },
     type: String, // INTENT, ACTION, CONDITION, START, END
     intent: {
       type: ObjectId,
@@ -46,6 +42,10 @@ const nodeSchema = new mongoose.Schema(
     position: {
       x: Number,
       y: Number,
+    },
+    workflow: {
+      type: ObjectId,
+      ref: 'Workflow',
     },
     bot: {
       type: ObjectId,

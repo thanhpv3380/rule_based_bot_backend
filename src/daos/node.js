@@ -1,14 +1,47 @@
 const Node = require('../models/node');
 const { findByCondition } = require('../utils/db');
 
-const create = async (data) => {
+const findNodeByCondition = async (condition) => {
+  const node = await findByCondition(Node, condition);
+  return node;
+};
+
+const createNode = async (data) => {
   const node = await Node.create(data);
   return node;
 };
 
-const update = async (id, data) => {
-  const node = await Node.findByIdAndUpdate(id, data);
+const updateNode = async (id, data) => {
+  const node = await Node.findByIdAndUpdate(id, data, { new: true });
   return node;
+};
+
+const pushNodeToChildren = async (id, data) => {
+  const node = await Node.findByIdAndUpdate(id, {
+    $push: {
+      children: data,
+    },
+  });
+  return node;
+};
+
+const deleteNode = async (id) => {
+  await Node.findByIdAndDelete(id);
+};
+
+const deleteNodeConnect = async (workflowId, nodeId) => {
+  console.log(workflowId, nodeId);
+  await Node.update(
+    { workflow: workflowId },
+    {
+      $pull: {
+        $or: [{ children: { node: nodeId } }, { parent: { node: nodeId } }],
+      },
+    },
+    {
+      multi: true,
+    },
+  );
 };
 
 const findNodeIntentStartFlow = async (botId, intentId) => {
@@ -98,8 +131,12 @@ const findNodeById = async (id) => {
   return workflow;
 };
 module.exports = {
-  create,
-  update,
-  findNodeById,
+  findNodeByCondition,
+  createNode,
+  updateNode,
+  pushNodeToChildren,
+  deleteNode,
+  deleteNodeConnect,
   findNodeIntentStartFlow,
+  findNodeById,
 };

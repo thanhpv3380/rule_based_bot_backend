@@ -17,9 +17,9 @@ module.exports = (channel) => {
       resultQueue,
     } = content;
     try {
-      const response = chatbotService.getAction(`LIVECHAT_${sessionId}`, text);
+      chatbotService.getAction(`LIVECHAT_${sessionId}`, text, resultQueue);
       // require('../responseHandler').handleResponse(response);
-      channel.sendToQueue(resultQueue, Buffer.from(JSON.stringify(response)));
+      // channel.sendToQueue(resultQueue, Buffer.from(JSON.stringify(response)));
     } catch (error) {
       console.log(error);
     }

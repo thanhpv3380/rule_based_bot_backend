@@ -8,4 +8,17 @@ module.exports = {
   RECEIVE_QUEUE: 'request-rule-bot',
   SEND_QUEUE: 'live-chat',
   EXCHANGE: 'request-rule-bot',
+
+  NODE_START: 'START',
+  NODE_INTENT: 'INTENT',
+  NODE_CONDITION: 'CONDITION',
+  NODE_ACTION: 'ACTION',
+
+  EQUAL: '=',
+  GREATER: '>',
+  LESS_THAN: '<',
+  DIFFERENT: '!=',
+  START_WITH: 'start with',
+  OPERATOR_AND: 'and',
+  OPERATOR_OR: 'or',
 };

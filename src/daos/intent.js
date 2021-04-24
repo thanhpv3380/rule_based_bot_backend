@@ -56,6 +56,15 @@ const deleteIntentByGroupId = async (groupId) => {
   await Intent.remove({ groupIntent: groupId });
 };
 
+const findParametersByList = async (data) => {
+  const intents = await Intent.find({
+    _id: { $in: data },
+  });
+  const parameters = [];
+  intents.forEach((el) => parameters.push(...el.parameters));
+  return parameters;
+};
+
 module.exports = {
   createIntent,
   updateIntent,
@@ -64,4 +73,5 @@ module.exports = {
   findIntentsByBot,
   deleteIntent,
   deleteIntentByGroupId,
+  findParametersByList,
 };

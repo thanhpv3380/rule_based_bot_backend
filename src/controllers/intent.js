@@ -104,6 +104,12 @@ const removeParameter = async (req, res) => {
   res.send({ status: 1 });
 };
 
+const getParametersByList = async (req, res) => {
+  const { list } = req.body;
+  const parameters = await intentService.findParametersByList(list);
+  res.send({ status: 1, result: { parameters } });
+};
+
 module.exports = {
   create,
   update,
@@ -115,4 +121,5 @@ module.exports = {
   addUsersay,
   addParameter,
   removeParameter,
+  getParametersByList,
 };

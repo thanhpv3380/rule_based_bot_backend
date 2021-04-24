@@ -45,22 +45,9 @@ const deleteNode = async (workflowId, nodeId) => {
   await nodeDao.deleteNodeConnect(workflowId, nodeId);
 };
 
-const findParameters = async (data) => {
-  const nodes = data.map((el) => el.node);
-  const listNode = await nodeDao.findParameters(nodes);
-  const intents = [];
-  listNode.forEach((el) => {
-    if (el.intent) {
-      intents.push(el.intent);
-    }
-  });
-  return intents;
-};
-
 module.exports = {
   findNodeById,
   createNode,
   updateNode,
   deleteNode,
-  findParameters,
 };

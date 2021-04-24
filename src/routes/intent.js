@@ -42,5 +42,11 @@ router.put(
   '/intents/:id/removeParameter',
   asyncMiddleware(intentController.removeParameter),
 );
+router.post(
+  '/intents/getParametersByList',
+  auth,
+  getBotId,
+  asyncMiddleware(intentController.getParametersByList),
+);
 
 module.exports = router;

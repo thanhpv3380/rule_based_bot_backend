@@ -160,6 +160,11 @@ const removeParameterOfIntent = async (id, parameter) => {
   return intent;
 };
 
+const findParametersByList = async (data) => {
+  const parameters = await intentDao.findParametersByList(data);
+  return parameters;
+};
+
 module.exports = {
   createIntent,
   updateIntent,
@@ -171,4 +176,5 @@ module.exports = {
   removeUsersayOfIntent,
   addParameterOfIntent,
   removeParameterOfIntent,
+  findParametersByList,
 };

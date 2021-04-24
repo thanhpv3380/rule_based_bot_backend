@@ -64,6 +64,18 @@ const findNodeIntentStartFlow = async (botId, intentId) => {
   return node;
 };
 
+const findParameters = async (data) => {
+  const nodes = await Node.find({
+    _id: { $in: data },
+  }).populate([
+    {
+      path: 'intent',
+      model: 'Intent',
+    },
+  ]);
+  return nodes;
+};
+
 module.exports = {
   findNodeByCondition,
   createNode,
@@ -72,4 +84,5 @@ module.exports = {
   deleteNode,
   deleteNodeConnect,
   findNodeIntentStartFlow,
+  findParameters,
 };

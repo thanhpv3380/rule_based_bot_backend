@@ -29,9 +29,16 @@ const deleteNode = async (req, res) => {
   return res.send({ status: 1 });
 };
 
+const getParameters = async (req, res) => {
+  const { nodes } = req.body;
+  const parameters = await nodeService.findParameters(nodes);
+  res.send({ status: 1, result: { parameters } });
+};
+
 module.exports = {
   getNodeById,
   createNode,
   updateNode,
   deleteNode,
+  getParameters,
 };

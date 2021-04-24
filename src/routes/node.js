@@ -27,5 +27,10 @@ router.delete(
   getBotId,
   asyncMiddleware(nodeController.deleteNode),
 );
-
+router.post(
+  '/nodes/getParameters',
+  auth,
+  getBotId,
+  asyncMiddleware(nodeController.getParameters),
+);
 module.exports = router;

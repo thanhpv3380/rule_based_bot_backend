@@ -1,15 +1,14 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable prefer-destructuring */
 /* eslint-disable no-plusplus */
+const axios = require('axios');
 const { client } = require('../utils/redis');
 const intentES = require('../elasticsearch/intent');
 const nodeDao = require('../daos/node');
 const conditionDao = require('../daos/condition');
 const actionDao = require('../daos/action');
 const intentDao = require('../daos/intent');
-
 const {
-  // NODE_START,
   NODE_INTENT,
   NODE_ACTION,
   NODE_CONDITION,
@@ -19,7 +18,10 @@ const {
   DIFFERENT,
   START_WITH,
   OPERATOR_AND,
-  // OPERATOR_OR,
+  ACTION_TEXT,
+  ACTION_MEDIA,
+  ACTION_JSON_API,
+  ACTION_OPTION,
 } = require('../constants');
 
 let actionResponse = [];
@@ -29,14 +31,13 @@ let parameters = [];
 const getAction = async (sessionId, usersay, resultQueue) => {
   // await client.delAsync(sessionId);
   let data = await client.getAsync(sessionId);
-
   // check session existed
   if (data) {
     data = JSON.parse(data);
     parameters = data.parameters;
-
+    console.log(parameters, 'paramters');
     if (data.isMappingOneOne) {
-      const response = await handleUsersaySendAgain(
+      const response = await handleCheckRequireParamsAgain(
         sessionId,
         data,
         usersay,
@@ -85,6 +86,7 @@ const handleUsersaySend = async (sessionId, usersay, resultQueue) => {
   // Check require parameter of intent
   const response = await requireParamsIntent(
     workflow,
+    intent,
     usersay,
     sessionId,
     resultQueue,
@@ -144,6 +146,7 @@ const handleUserSayInWorkflow = async (
 
   const response = await requireParamsIntent(
     intentNode,
+    intentNode.intent,
     usersay,
     sessionId,
     resultQueue,
@@ -163,16 +166,16 @@ const handleUserSayInWorkflow = async (
 
 const requireParamsIntent = async (
   workflow,
+  intent,
   usersay,
   sessionId,
   resultQueue,
 ) => {
-  const { intent } = workflow;
   const { PRODUCER } = global;
   for (let index = 0; index < intent.parameters.length; index++) {
     const el = JSON.parse(JSON.stringify(intent.parameters[index]));
     const parameter = getParameter(el.entity, usersay);
-    if (parameter === null && el.required) {
+    if (!parameter && el.required) {
       parametersRequire.push(el);
     } else {
       // nếu parameter tìm thấy
@@ -209,6 +212,7 @@ const requireParamsIntent = async (
 const checkChildNode = async (sessionId, currentNode, resultQueue) => {
   const { PRODUCER } = global;
   if (!currentNode || currentNode.children.length === 0) {
+    await client.delAsync(sessionId);
     return;
   }
   let type = null;
@@ -314,7 +318,7 @@ const handleMappingOneOne = async (intent, resultQueue, sessionId) => {
   return response;
 };
 
-const handleUsersaySendAgain = async (
+const handleCheckRequireParamsAgain = async (
   sessionId,
   data,
   usersay,
@@ -388,9 +392,13 @@ const handleUsersaySendAgain = async (
     return handleMappingOneOne(intent, resultQueue, sessionId);
   }
   const currentNode = await nodeDao.findNodeById(data.currentNodeId);
-  await client.setAsync(sessionId, data);
+  await client.setAsync(sessionId, JSON.stringify(data));
   await checkChildNode(sessionId, currentNode, resultQueue);
-  return actionResponse;
+
+  const responses = [...actionResponse];
+  actionResponse = [];
+  parameters = [];
+  return responses;
 };
 
 const getParameter = (entity, usersay) => {
@@ -411,9 +419,9 @@ const getParameter = (entity, usersay) => {
 
 // no use for actionAskAgain
 const handleResponse = (action) => {
-  const response = action.actions.map((item) => {
+  const response = action.actions.map(async (item) => {
     switch (item.typeAction) {
-      case 'TEXT':
+      case ACTION_TEXT:
         const text = item.text.map((el) => {
           for (let index = 0; index < parameters.length; index++) {
             const element = parameters[index];
@@ -427,7 +435,7 @@ const handleResponse = (action) => {
             text: text[Math.floor(Math.random() * (text.length - 1))],
           },
         };
-      case 'MEDIA':
+      case ACTION_MEDIA:
         return {
           message: {
             text: item.media.description,
@@ -439,7 +447,18 @@ const handleResponse = (action) => {
             },
           },
         };
-      default:
+      case ACTION_JSON_API:
+        const { method, url, headers, body } = item.api;
+        // eslint-disable-next-line no-unused-vars
+        const data = await axios({
+          method,
+          url,
+          headers: headers.reduce((a, b) => Object.assign(a, b), {}),
+          body: body.reduce((a, b) => Object.assign(a, b), {}),
+        });
+        // todo get parameter
+        return null;
+      case ACTION_OPTION:
         return {
           message: {
             text: '<text>',
@@ -456,9 +475,11 @@ const handleResponse = (action) => {
             },
           },
         };
+      default:
+        return null;
     }
   });
-  return response;
+  return response.filter((el) => el !== null);
 };
 const findIntentById = async (id) => {
   const intent = await intentDao.findIntentByCondition({
@@ -490,7 +511,7 @@ const findIntentById = async (id) => {
 };
 
 module.exports = {
-  handleUsersaySendAgain,
+  handleCheckRequireParamsAgain,
   handleUsersaySend,
   getAction,
 };

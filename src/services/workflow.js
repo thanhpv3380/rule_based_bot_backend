@@ -2,9 +2,6 @@ const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
 const workflowDao = require('../daos/workflow');
 const nodeDao = require('../daos/node');
-const {
-  Types: { ObjectId },
-} = require('mongoose');
 
 const findAllWorkflowByBotId = async ({ botId, keyword }) => {
   const { data } = await workflowDao.findAllWorkflowByCondition({
@@ -70,14 +67,6 @@ const updateWorkflow = async (id, data, botId) => {
       throw new CustomError(errorCodes.ITEM_NAME_EXIST);
     }
   }
-  // if (params && params.nodes) {
-  //   params.nodes.map(async (el) => {
-  //     el.workflow = id;
-  //     el._id = ObjectId(el.id);
-  //     await nodeDao.create(el);
-  //   });
-  // }
-
   if (params && params.nodes) {
     // const newNodes = params.nodes.map((el) => {
     //   const obj = {
@@ -87,10 +76,12 @@ const updateWorkflow = async (id, data, botId) => {
     //   delete obj.id;
     //   return obj;
     // });
-    params.nodes.map(async (el) => {
-      await nodeDao.updateNode(el.id, el);
-    });
-
+    // eslint-disable-next-line no-plusplus
+    for (let i = 0; i < params.nodes.length; i++) {
+      const nodeId = params.nodes[i].id;
+      delete params.nodes[i].id;
+      await nodeDao.updateNode(nodeId, params.nodes[i]);
+    }
     delete params.nodes;
   }
   const workflow = await workflowDao.updateWorkflow(id, params);

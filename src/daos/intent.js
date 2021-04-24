@@ -1,4 +1,5 @@
 const Intent = require('../models/intent');
+
 const { findAll, findByCondition } = require('../utils/db');
 
 const findAllIntentByCondition = async ({
@@ -30,7 +31,7 @@ const findIntentByCondition = async ({ condition, fields, populate }) => {
   return intent;
 };
 
-const fintIntentsByBot = async ({ condition, fields }) => {
+const findIntentsByBot = async ({ condition, fields }) => {
   const intent = await Intent.find(condition, fields);
   return intent;
 };
@@ -52,7 +53,7 @@ const deleteIntent = async (id) => {
 };
 
 const deleteIntentByGroupId = async (groupId) => {
-  Intent.remove({ groupIntent: groupId });
+  await Intent.remove({ groupIntent: groupId });
 };
 
 module.exports = {
@@ -60,7 +61,7 @@ module.exports = {
   updateIntent,
   findIntentByCondition,
   findAllIntentByCondition,
-  fintIntentsByBot,
+  findIntentsByBot,
   deleteIntent,
   deleteIntentByGroupId,
 };

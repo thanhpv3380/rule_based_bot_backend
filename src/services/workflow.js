@@ -3,6 +3,9 @@ const errorCodes = require('../errors/code');
 const workflowDao = require('../daos/workflow');
 const conditionDao = require('../daos/condition');
 const nodeDao = require('../daos/node');
+const {
+  Types: { ObjectId },
+} = require('mongoose');
 
 const findAllWorkflowByBotId = async ({ botId, keyword }) => {
   const { data } = await workflowDao.findAllWorkflowByCondition({
@@ -112,6 +115,13 @@ const updateWorkflow = async (id, data, botId) => {
       throw new CustomError(errorCodes.ITEM_NAME_EXIST);
     }
   }
+  // if (params && params.nodes) {
+  //   params.nodes.map(async (el) => {
+  //     el.workflow = id;
+  //     el._id = ObjectId(el.id);
+  //     await nodeDao.create(el);
+  //   });
+  // }
 
   const workflow = await workflowDao.updateWorkflow(id, params);
   return workflow;

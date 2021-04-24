@@ -1,5 +1,5 @@
-const intent = require('../models/intent');
 const Node = require('../models/node');
+const { findByCondition } = require('../utils/db');
 
 const create = async (data) => {
   const node = await Node.create(data);
@@ -12,7 +12,6 @@ const update = async (id, data) => {
 };
 
 const findNodeIntentStartFlow = async (botId, intentId) => {
-  console.time();
   const node = await Node.find({
     'parent.type': 'START',
     type: 'INTENT',
@@ -21,18 +20,86 @@ const findNodeIntentStartFlow = async (botId, intentId) => {
     {
       path: 'intent',
       model: 'Intent',
+      populate: [
+        {
+          path: 'mappingAction',
+          select: 'name _id',
+        },
+        {
+          path: 'parameters',
+          populate: [
+            {
+              path: 'entity',
+            },
+            {
+              path: 'response.actionAskAgain',
+              model: 'Action',
+              select: 'name _id',
+            },
+            {
+              path: 'response.actionBreak',
+              model: 'Action',
+              select: 'name _id',
+            },
+          ],
+        },
+      ],
     },
     {
-      path: 'node',
+      path: 'children.node',
       model: 'Node',
     },
   ]);
-  console.timeEnd();
   return node;
 };
-
+const findNodeById = async (id) => {
+  const workflow = await findByCondition(Node, { _id: id }, null, [
+    {
+      path: 'intent',
+      model: 'Intent',
+      populate: [
+        {
+          path: 'mappingAction',
+          model: 'Action',
+        },
+        {
+          path: 'parameters',
+          populate: [
+            {
+              path: 'entity',
+            },
+            {
+              path: 'response.actionAskAgain',
+              model: 'Action',
+              select: 'name _id',
+            },
+            {
+              path: 'response.actionBreak',
+              model: 'Action',
+              select: 'name _id',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      path: 'condition',
+      model: 'Condition',
+    },
+    {
+      path: 'action',
+      model: 'Action',
+    },
+    {
+      path: 'children.node',
+      model: 'Node',
+    },
+  ]);
+  return workflow;
+};
 module.exports = {
   create,
   update,
+  findNodeById,
   findNodeIntentStartFlow,
 };

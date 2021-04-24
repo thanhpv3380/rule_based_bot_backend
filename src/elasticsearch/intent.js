@@ -24,12 +24,51 @@ const updateIntent = async (intent) => {
   });
 };
 
-const findIntent = async (usersay) => {
+const findIntent = async (usersay, botId) => {
   const data = await client.search({
     index: 'intents',
     body: {
       query: {
-        match: { patterns: usersay },
+        bool: {
+          must: [
+            {
+              match: { patterns: usersay },
+            },
+          ],
+          filter: [
+            {
+              term: { bot: botId },
+            },
+          ],
+        },
+      },
+    },
+  });
+  return data;
+};
+
+const findIntentByCondition = async (usersay, botId, intents) => {
+  const data = await client.search({
+    index: 'intents',
+    body: {
+      query: {
+        bool: {
+          must: [
+            {
+              match: { patterns: usersay },
+            },
+          ],
+          filter: [
+            {
+              ids: {
+                values: intents,
+              },
+            },
+            {
+              term: { bot: botId },
+            },
+          ],
+        },
       },
     },
   });
@@ -48,4 +87,5 @@ module.exports = {
   updateIntent,
   findIntent,
   deleteIntent,
+  findIntentByCondition,
 };

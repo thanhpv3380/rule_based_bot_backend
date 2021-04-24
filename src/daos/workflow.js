@@ -45,57 +45,6 @@ const findWorkflowAndItem = async (id) => {
               },
             },
           },
-<<<<<<< HEAD
-          {
-            $lookup: {
-              from: 'intents',
-              let: { intent: '$intent' },
-              pipeline: [
-                {
-                  $match: {
-                    $expr: {
-                      $eq: ['$_id', '$$intent'],
-                    },
-                  },
-                },
-              ],
-              as: 'intent',
-            },
-          },
-          {
-            $lookup: {
-              from: 'conditions',
-              let: { condition: '$condition' },
-              pipeline: [
-                {
-                  $match: {
-                    $expr: {
-                      $eq: ['$_id', '$$condition'],
-                    },
-                  },
-                },
-              ],
-              as: 'condition',
-            },
-          },
-          {
-            $lookup: {
-              from: 'actions',
-              let: { action: '$action' },
-              pipeline: [
-                {
-                  $match: {
-                    $expr: {
-                      $eq: ['$_id', '$$action'],
-                    },
-                  },
-                },
-              ],
-              as: 'action',
-            },
-          },
-=======
->>>>>>> 090a3730676b81910d43caf6931a791acf2dd2f4
         ],
         as: 'nodes',
       },
@@ -115,7 +64,7 @@ const findWorkflowAndItem = async (id) => {
       model: 'Action',
     },
   ]);
-  return workflow;
+  return workflow[0];
 };
 
 const findWorkflowByCondition = async (condition, fields, populate) => {

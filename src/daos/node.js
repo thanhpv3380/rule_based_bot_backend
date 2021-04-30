@@ -30,16 +30,20 @@ const deleteNode = async (id) => {
 };
 
 const deleteNodeConnect = async (workflowId, nodeId) => {
-  console.log(workflowId, nodeId);
-  await Node.update(
+  await Node.updateMany(
     { workflow: workflowId },
     {
       $pull: {
-        $or: [{ children: { node: nodeId } }, { parent: { node: nodeId } }],
+        children: { node: nodeId },
       },
     },
+  );
+  await Node.updateMany(
+    { workflow: workflowId },
     {
-      multi: true,
+      $pull: {
+        parent: { node: nodeId },
+      },
     },
   );
 };

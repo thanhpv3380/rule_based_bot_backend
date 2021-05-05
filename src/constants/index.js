@@ -21,4 +21,9 @@ module.exports = {
   START_WITH: 'start with',
   OPERATOR_AND: 'and',
   OPERATOR_OR: 'or',
+
+  ACTION_TEXT: 'TEXT',
+  ACTION_MEDIA: 'MEDIA',
+  ACTION_JSON_API: 'JSON_API',
+  ACTION_OPTION: 'OPTION',
 };

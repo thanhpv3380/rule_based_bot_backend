@@ -71,12 +71,10 @@ const findNodeIntentStartFlow = async (botId, intentId) => {
             {
               path: 'response.actionAskAgain',
               model: 'Action',
-              select: 'name _id',
             },
             {
               path: 'response.actionBreak',
               model: 'Action',
-              select: 'name _id',
             },
           ],
         },
@@ -109,12 +107,10 @@ const findNodeById = async (id) => {
             {
               path: 'response.actionAskAgain',
               model: 'Action',
-              select: 'name _id',
             },
             {
               path: 'response.actionBreak',
               model: 'Action',
-              select: 'name _id',
             },
           ],
         },

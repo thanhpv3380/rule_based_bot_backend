@@ -18,6 +18,7 @@ router.put(
 router.get('/intents/:id', asyncMiddleware(intentController.getIntent));
 router.get(
   '/intents',
+  auth,
   getBotId,
   asyncMiddleware(intentController.getListIntent),
 );

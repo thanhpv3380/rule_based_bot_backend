@@ -3,6 +3,20 @@ const errorCodes = require('../errors/code');
 const intentDao = require('../daos/intent');
 const intentES = require('../elasticsearch/intent');
 
+const findAllActionByBotId = async ({ botId, fields, sort }) => {
+  const newFields = fields.split(',');
+  const newSort = sort.split(',');
+  const { data } = await intentDao.findAllIntentByCondition({
+    fields: newFields,
+    sort: newSort,
+    query: {
+      bot: botId,
+    },
+  });
+
+  return data;
+};
+
 const createIntent = async ({ data }) => {
   const intentExist = await intentDao.findIntentByCondition({
     condition: { name: data.name },
@@ -79,11 +93,12 @@ const findIntentById = async (id) => {
 };
 
 const findIntentByBotId = async (botId) => {
-  const intent = await intentDao.findIntentsByBot({
-    condition: { bot: botId },
+  const { data } = await intentDao.findAllIntentByCondition({
+    query: { bot: botId },
     fields: ['_id', 'name'],
+    sort: ['name_desc'],
   });
-  return intent;
+  return data;
 };
 
 const deleteIntentById = async (id) => {
@@ -166,6 +181,7 @@ const findParametersByList = async (data) => {
 };
 
 module.exports = {
+  findAllActionByBotId,
   createIntent,
   updateIntent,
   updatePatternOfIntent,

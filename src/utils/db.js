@@ -58,6 +58,7 @@ const findAll = async ({
         : {},
     )
     .lean();
+  console.log(documents);
   return {
     data: documents,
     metadata: { count, total },

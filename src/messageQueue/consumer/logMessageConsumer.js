@@ -18,7 +18,7 @@ module.exports = (channel) => {
     //   accessToken,
     // } = content;
     try {
-      messageService.handleLogMessage();
+      messageService.handleLogMessage(content);
     } catch (error) {
       console.log(error);
     }

@@ -1,6 +1,3 @@
-const {
-  Types: { ObjectId },
-} = require('mongoose');
 const Node = require('../models/node');
 const { findByCondition } = require('../utils/db');
 
@@ -32,27 +29,23 @@ const deleteNode = async (id) => {
   await Node.findByIdAndDelete(id);
 };
 
-// const deleteNodeConnect = async (workflowId, nodeId) => {
-//   await Node.update(
-//     { workflow: ObjectId(workflowId) },
-//     {
-//       $pull: {
-//         $or: [
-//           { children: { node: ObjectId(nodeId) } },
-//           { parent: { node: ObjectId(nodeId) } },
-//         ],
-//       },
-//     },
-//     {
-//       multi: true,
-//     },
-//   );
-// };
-
-const deleteNodeConnect = async (workflowId, data) => {
-  await Node.update({ workflow: ObjectId(workflowId) }, data, {
-    multi: true,
-  });
+const deleteNodeConnect = async (workflowId, nodeId) => {
+  await Node.updateMany(
+    { workflow: workflowId },
+    {
+      $pull: {
+        children: { node: nodeId },
+      },
+    },
+  );
+  await Node.updateMany(
+    { workflow: workflowId },
+    {
+      $pull: {
+        parent: { node: nodeId },
+      },
+    },
+  );
 };
 
 const findNodeIntentStartFlow = async (botId, intentId) => {
@@ -93,18 +86,6 @@ const findNodeIntentStartFlow = async (botId, intentId) => {
     },
   ]);
   return node;
-};
-
-const findParameters = async (data) => {
-  const nodes = await Node.find({
-    _id: { $in: data },
-  }).populate([
-    {
-      path: 'intent',
-      model: 'Intent',
-    },
-  ]);
-  return nodes;
 };
 
 const findNodeById = async (id) => {
@@ -159,6 +140,5 @@ module.exports = {
   deleteNode,
   deleteNodeConnect,
   findNodeIntentStartFlow,
-  findParameters,
   findNodeById,
 };

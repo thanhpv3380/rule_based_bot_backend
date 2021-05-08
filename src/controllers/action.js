@@ -2,9 +2,10 @@ const actionService = require('../services/action');
 
 const getAllActionByBotId = async (req, res) => {
   const { bot } = req;
-  const { keyword } = req.query;
+  const { fields, sort } = req.query;
   const actions = await actionService.findAllActionByBotId({
-    keyword,
+    fields,
+    sort,
     botId: bot.id,
   });
   return res.send({ status: 1, result: { actions } });

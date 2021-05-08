@@ -1,6 +1,3 @@
-const {
-  Types: { ObjectId },
-} = require('mongoose');
 const Intent = require('../models/intent');
 
 const { findAll, findByCondition } = require('../utils/db');
@@ -78,6 +75,15 @@ const findParameterById = async (intentId, parameterId) => {
   );
 };
 
+const findParametersByList = async (data) => {
+  const intents = await Intent.find({
+    _id: { $in: data },
+  });
+  const parameters = [];
+  intents.forEach((el) => parameters.push(...el.parameters));
+  return parameters;
+};
+
 module.exports = {
   createIntent,
   updateIntent,
@@ -87,4 +93,5 @@ module.exports = {
   findIntentsByBot,
   deleteIntent,
   deleteIntentByGroupId,
+  findParametersByList,
 };

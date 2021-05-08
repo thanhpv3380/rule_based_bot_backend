@@ -50,7 +50,7 @@ const actionSchema = new mongoose.Schema(
           ],
         },
         loop: {
-          intent: [
+          intents: [
             {
               type: ObjectId,
               ref: 'Intent',
@@ -65,7 +65,7 @@ const actionSchema = new mongoose.Schema(
             type: ObjectId,
             ref: 'Action',
           },
-          parameter: [
+          parameters: [
             {
               name: String,
               intent: {

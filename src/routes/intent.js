@@ -18,6 +18,7 @@ router.put(
 router.get('/intents/:id', asyncMiddleware(intentController.getIntent));
 router.get(
   '/intents',
+  auth,
   getBotId,
   asyncMiddleware(intentController.getListIntent),
 );
@@ -41,6 +42,12 @@ router.put(
 router.put(
   '/intents/:id/removeParameter',
   asyncMiddleware(intentController.removeParameter),
+);
+router.post(
+  '/intents/getParametersByList',
+  auth,
+  getBotId,
+  asyncMiddleware(intentController.getParametersByList),
 );
 
 module.exports = router;

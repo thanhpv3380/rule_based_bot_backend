@@ -68,20 +68,14 @@ const updateWorkflow = async (id, data, botId) => {
     }
   }
   if (params && params.nodes) {
-    // const newNodes = params.nodes.map((el) => {
-    //   const obj = {
-    //     ...el,
-    //     _id: ObjectId(el.id),
-    //   };
-    //   delete obj.id;
-    //   return obj;
-    // });
-    // eslint-disable-next-line no-plusplus
-    for (let i = 0; i < params.nodes.length; i++) {
-      const nodeId = params.nodes[i].id;
-      delete params.nodes[i].id;
-      await nodeDao.updateNode(nodeId, params.nodes[i]);
-    }
+    await Promise.all(
+      params.nodes.map(async (el) => {
+        const nodeId = el.id;
+        delete el.id;
+        const node = await nodeDao.updateNode(nodeId, el);
+        return node;
+      }),
+    );
     delete params.nodes;
   }
   const workflow = await workflowDao.updateWorkflow(id, params);

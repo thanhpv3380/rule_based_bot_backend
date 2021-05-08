@@ -2,12 +2,14 @@
 /* eslint-disable prefer-destructuring */
 /* eslint-disable no-plusplus */
 const axios = require('axios');
+const camelcaseKeys = require('camelcase-keys');
 const { client } = require('../utils/redis');
 const intentES = require('../elasticsearch/intent');
 const nodeDao = require('../daos/node');
-const conditionDao = require('../daos/condition');
+const conditionService = require('./condition');
 const actionDao = require('../daos/action');
 const intentDao = require('../daos/intent');
+const botDao = require('../daos/bot');
 const {
   NODE_INTENT,
   NODE_ACTION,
@@ -28,14 +30,18 @@ let actionResponse = [];
 const parametersRequire = [];
 let parameters = [];
 
-const getAction = async (sessionId, usersay, resultQueue) => {
+const handleMessage = async (sessionId, usersay, resultQueue, accessToken) => {
+  const bot = await botDao.findBot({ botToken: accessToken });
+  await getAction(sessionId, usersay, resultQueue, bot._id);
+};
+
+const getAction = async (sessionId, usersay, resultQueue, botId) => {
   // await client.delAsync(sessionId);
   let data = await client.getAsync(sessionId);
   // check session existed
   if (data) {
     data = JSON.parse(data);
     parameters = data.parameters;
-    console.log(parameters, 'paramters');
     if (data.isMappingOneOne) {
       const response = await handleCheckRequireParamsAgain(
         sessionId,
@@ -45,18 +51,26 @@ const getAction = async (sessionId, usersay, resultQueue) => {
       );
       return response;
     }
-    return handleUserSayInWorkflow(sessionId, usersay, resultQueue, data);
+    return handleUserSayInWorkflow(
+      sessionId,
+      usersay,
+      resultQueue,
+      data,
+      botId,
+    );
   }
   // if not in session
-  const response = await handleUsersaySend(sessionId, usersay, resultQueue);
+  const response = await handleUsersaySend(
+    sessionId,
+    usersay,
+    resultQueue,
+    botId,
+  );
   return response;
 };
 
-const handleUsersaySend = async (sessionId, usersay, resultQueue) => {
-  const { hits } = await intentES.findIntent(
-    usersay,
-    '603325225c597b1fb4c9baa6',
-  );
+const handleUsersaySend = async (sessionId, usersay, resultQueue, botId) => {
+  const { hits } = await intentES.findIntent(usersay, botId);
   if (hits.hits.length === 0) {
     return [
       {
@@ -111,6 +125,7 @@ const handleUserSayInWorkflow = async (
   usersay,
   resultQueue,
   data,
+  botId,
 ) => {
   const currentNode = await nodeDao.findNodeById(data.currentNodeId);
   if (!currentNode) {
@@ -123,7 +138,7 @@ const handleUserSayInWorkflow = async (
   );
   const { hits } = await intentES.findIntentByCondition(
     usersay,
-    '603325225c597b1fb4c9baa6',
+    botId,
     listIntentId,
   );
   if (hits.hits.length === 0) {
@@ -193,7 +208,7 @@ const requireParamsIntent = async (
       isMappingOneOne: true,
     };
     await client.setAsync(sessionId, JSON.stringify(data));
-    const response = handleResponse(
+    const response = await handleResponse(
       parametersRequire[0].response.actionAskAgain,
       [parametersRequire[0]],
     );
@@ -240,7 +255,7 @@ const checkChildNode = async (sessionId, currentNode, resultQueue) => {
         const action = await actionDao.findActionByCondition({
           _id: el.node.action,
         });
-        const response = handleResponse(action);
+        const response = await handleResponse(action);
         if (resultQueue) {
           PRODUCER.sendToQueue(
             resultQueue,
@@ -265,16 +280,15 @@ const comparePosition = (x1, x2) => {
 };
 
 const handleCondition = async (child) => {
-  const condition = await conditionDao.findConditionByCondition({
-    condition: { _id: child.node.condition },
-  });
+  // Todo fix get condition by id
+  const condition = await conditionService.findById(child.node.condition);
   const results = [];
   if (!condition) {
     return false;
   }
   for (const el of condition.conditions) {
     const valueParameter = parameters.find(
-      (p) => p.parameterName === el.parameter,
+      (p) => p.parameterName === el.parameter.name,
     ).value;
     let check;
     switch (el.operator) {
@@ -309,7 +323,7 @@ const handleMappingOneOne = async (intent, resultQueue, sessionId) => {
   const { PRODUCER } = global;
   let response = null;
   if (mappingAction) {
-    response = handleResponse(mappingAction);
+    response = await handleResponse(mappingAction);
   }
   if (resultQueue) {
     PRODUCER.sendToQueue(resultQueue, Buffer.from(JSON.stringify(response)));
@@ -332,7 +346,7 @@ const handleCheckRequireParamsAgain = async (
     // nếu parameter vẫn không tìm thấy
     if (data.numberOfLoop >= currentParameter.response.numberOfLoop) {
       // nếu quá số vòng lặp
-      const response = handleResponse(
+      const response = await handleResponse(
         currentParameter.response.actionBreak,
         [],
       );
@@ -342,9 +356,10 @@ const handleCheckRequireParamsAgain = async (
     // nếu không quá số vòng lặp
     data.numberOfLoop += 1;
     await client.setAsync(sessionId.toString(), JSON.stringify(data));
-    const response = handleResponse(currentParameter.response.actionAskAgain, [
-      currentParameter,
-    ]);
+    const response = await handleResponse(
+      currentParameter.response.actionAskAgain,
+      [currentParameter],
+    );
     return response;
   }
 
@@ -373,7 +388,7 @@ const handleCheckRequireParamsAgain = async (
         isMappingOneOne: true,
       };
       await client.setAsync(sessionId, JSON.stringify(newData));
-      const response = handleResponse(element.response.actionAskAgain, [
+      const response = await handleResponse(element.response.actionAskAgain, [
         element,
       ]);
       // xoá cache của parameter trước đó
@@ -418,10 +433,13 @@ const getParameter = (entity, usersay) => {
 };
 
 // no use for actionAskAgain
-const handleResponse = (action) => {
-  const response = action.actions.map(async (item) => {
+const handleResponse = async (action) => {
+  // const actionJson = [];
+  const responses = [];
+  for (const item of action.actions) {
     switch (item.typeAction) {
       case ACTION_TEXT:
+        // eslint-disable-next-line no-loop-func
         const text = item.text.map((el) => {
           for (let index = 0; index < parameters.length; index++) {
             const element = parameters[index];
@@ -430,13 +448,14 @@ const handleResponse = (action) => {
           }
           return el;
         });
-        return {
+        responses.push({
           message: {
             text: text[Math.floor(Math.random() * (text.length - 1))],
           },
-        };
+        });
+        break;
       case ACTION_MEDIA:
-        return {
+        responses.push({
           message: {
             text: item.media.description,
             attachment: {
@@ -446,20 +465,53 @@ const handleResponse = (action) => {
               },
             },
           },
-        };
+        });
+        break;
       case ACTION_JSON_API:
-        const { method, url, headers, body } = item.api;
+        const { method, url } = item.api;
         // eslint-disable-next-line no-unused-vars
+        const headerObj = {};
+        const body = {};
+        item.api.headers.forEach((el) => {
+          headerObj[el.title] = el.value;
+        });
+        item.api.body.forEach((el) => {
+          body[el.title] = el.value;
+        });
         const data = await axios({
           method,
           url,
-          headers: headers.reduce((a, b) => Object.assign(a, b), {}),
-          body: body.reduce((a, b) => Object.assign(a, b), {}),
+          headers: headerObj,
+          body,
         });
-        // todo get parameter
-        return null;
+        const parameter = item.api.parameters.map((el) => {
+          const values = el.value.split('.');
+          // _.mapKeys(values, (v, k) => _.camelCase(k));
+          let value = { ...data.data };
+
+          for (const ele of values) {
+            value = camelcaseKeys(value, { deep: false });
+            const indexStart = ele.indexOf('[');
+            if (indexStart >= 0) {
+              const indexEnd = ele.indexOf(']');
+              const value1 = ele.slice(0, indexStart);
+              // eslint-disable-next-line radix
+              const value2 = parseInt(ele.slice(indexStart + 1, indexEnd));
+              value = value[value1][value2];
+            } else {
+              value = value[ele];
+            }
+          }
+          return {
+            value,
+            parameter: el.name,
+          };
+        });
+        parameters = parameters.concat(parameter);
+
+        break;
       case ACTION_OPTION:
-        return {
+        responses.push({
           message: {
             text: '<text>',
             attachment: {
@@ -474,12 +526,14 @@ const handleResponse = (action) => {
               },
             },
           },
-        };
+        });
+        break;
       default:
-        return null;
+        break;
     }
-  });
-  return response.filter((el) => el !== null);
+  }
+
+  return responses;
 };
 const findIntentById = async (id) => {
   const intent = await intentDao.findIntentByCondition({
@@ -514,4 +568,5 @@ module.exports = {
   handleCheckRequireParamsAgain,
   handleUsersaySend,
   getAction,
+  handleMessage,
 };

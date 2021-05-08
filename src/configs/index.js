@@ -20,6 +20,8 @@ const { A_WEEK } = require('../constants');
 const mqQueues = {
   RECEIVE_QUEUE: '',
   SEND_QUEUE: '',
+  OUTPUT_QUEUE: 'rule_bot',
+  LOG_MESSAGE_QUEUE: 'log_message',
 };
 
 module.exports = {

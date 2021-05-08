@@ -1,3 +1,6 @@
+const {
+  Types: { ObjectId },
+} = require('mongoose');
 const Intent = require('../models/intent');
 
 const { findAll, findByCondition } = require('../utils/db');
@@ -56,9 +59,29 @@ const deleteIntentByGroupId = async (groupId) => {
   await Intent.remove({ groupIntent: groupId });
 };
 
+const findParameterById = async (intentId, parameterId) => {
+  const parameter = await Intent.aggregate([
+    { $unwind: '$parameters' },
+    {
+      $match: {
+        // _id: ObjectId(intentId),
+        'parameters._id': parameterId,
+      },
+    },
+  ]);
+  return (
+    (parameter[0].parameters && {
+      name: parameter[0].parameters.parameterName,
+      id: parameter[0].parameters._id,
+    }) ||
+    null
+  );
+};
+
 module.exports = {
   createIntent,
   updateIntent,
+  findParameterById,
   findIntentByCondition,
   findAllIntentByCondition,
   findIntentsByBot,

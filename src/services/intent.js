@@ -81,7 +81,7 @@ const findIntentById = async (id) => {
 const findIntentByBotId = async (botId) => {
   const intent = await intentDao.findIntentsByBot({
     condition: { bot: botId },
-    fields: ['_id', 'name'],
+    // fields: ['_id', 'name'],
   });
   return intent;
 };

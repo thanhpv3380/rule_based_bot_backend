@@ -37,7 +37,7 @@ const findIntent = async (usersay, botId) => {
           ],
           filter: [
             {
-              term: { bot: botId },
+              term: { bot: botId.toString() },
             },
           ],
         },
@@ -65,7 +65,7 @@ const findIntentByCondition = async (usersay, botId, intents) => {
               },
             },
             {
-              term: { bot: botId },
+              term: { bot: botId.toString() },
             },
           ],
         },

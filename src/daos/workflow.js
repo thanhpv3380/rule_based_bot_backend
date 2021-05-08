@@ -58,6 +58,11 @@ const findWorkflowAndItem = async (id) => {
     {
       path: 'nodes.condition',
       model: 'Condition',
+      populate: [
+        {
+          path: 'conditions.parameter',
+        },
+      ],
     },
     {
       path: 'nodes.action',

@@ -8,7 +8,7 @@ const conditionSchema = new mongoose.Schema(
       {
         parameter: {
           type: ObjectId,
-          ref: 'Intent.parameters',
+          ref: 'Intent',
         },
         intent: {
           type: ObjectId,
@@ -33,5 +33,11 @@ const conditionSchema = new mongoose.Schema(
     versionKey: false,
   },
 );
+
+conditionSchema.virtual('parameter', {
+  ref: 'Intent',
+  localField: 'parameters._id',
+  foreignField: 'conditions.parameter',
+});
 
 module.exports = mongoose.model('Condition', conditionSchema);

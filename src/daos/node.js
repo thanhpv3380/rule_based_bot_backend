@@ -1,3 +1,6 @@
+const {
+  Types: { ObjectId },
+} = require('mongoose');
 const Node = require('../models/node');
 const { findByCondition } = require('../utils/db');
 
@@ -29,19 +32,27 @@ const deleteNode = async (id) => {
   await Node.findByIdAndDelete(id);
 };
 
-const deleteNodeConnect = async (workflowId, nodeId) => {
-  console.log(workflowId, nodeId);
-  await Node.update(
-    { workflow: workflowId },
-    {
-      $pull: {
-        $or: [{ children: { node: nodeId } }, { parent: { node: nodeId } }],
-      },
-    },
-    {
-      multi: true,
-    },
-  );
+// const deleteNodeConnect = async (workflowId, nodeId) => {
+//   await Node.update(
+//     { workflow: ObjectId(workflowId) },
+//     {
+//       $pull: {
+//         $or: [
+//           { children: { node: ObjectId(nodeId) } },
+//           { parent: { node: ObjectId(nodeId) } },
+//         ],
+//       },
+//     },
+//     {
+//       multi: true,
+//     },
+//   );
+// };
+
+const deleteNodeConnect = async (workflowId, data) => {
+  await Node.update({ workflow: ObjectId(workflowId) }, data, {
+    multi: true,
+  });
 };
 
 const findNodeIntentStartFlow = async (botId, intentId) => {

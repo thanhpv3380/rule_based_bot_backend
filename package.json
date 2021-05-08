@@ -28,7 +28,8 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.2",
     "redis": "^3.0.2",
-    "snakecase-keys": "^3.2.0"
+    "snakecase-keys": "^3.2.0",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "eslint": "^7.5.0",

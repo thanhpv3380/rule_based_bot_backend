@@ -15,6 +15,7 @@ const botSchema = new mongoose.Schema(
         ref: 'User',
       },
     ],
+    botToken: String,
   },
   {
     timestamps: true,

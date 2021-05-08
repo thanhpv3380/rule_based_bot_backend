@@ -1,4 +1,5 @@
 /* eslint-disable radix */
+const { v4: uuidv4 } = require('uuid');
 const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
 const { GROUP_SINGLE, GROUP_SINGLE_NAME } = require('../constants/index');
@@ -44,6 +45,7 @@ const findBotById = async (id) => {
 };
 
 const createBot = async (userId, data) => {
+  data.botToken = uuidv4();
   const bot = await botDao.createBot(data, userId);
   await groupActionDao.createGroupAction({
     name: GROUP_SINGLE_NAME,
@@ -94,6 +96,15 @@ const removeUserInBot = async (botId, userId) => {
   return bot;
 };
 
+const findBotByToken = async (accessToken) => {
+  const bot = await botDao.findBot(
+    { botToken: accessToken },
+    ['name', '_id'],
+    null,
+  );
+  return bot;
+};
+
 module.exports = {
   findAllBot,
   findBotById,
@@ -102,4 +113,5 @@ module.exports = {
   deleteBot,
   addUserInBot,
   removeUserInBot,
+  findBotByToken,
 };

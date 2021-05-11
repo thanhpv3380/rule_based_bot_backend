@@ -3,11 +3,11 @@ const errorCodes = require('../errors/code');
 const actionDao = require('../daos/action');
 
 const findAllActionByBotId = async ({ botId, fields, sort }) => {
-  const newFields = fields.split(',');
-  const newSort = sort.split(',');
+  // const newFields = fields.split(',');
+  // const newSort = sort.split(',');
   const { data } = await actionDao.findAllActionByCondition({
-    fields: newFields,
-    sort: newSort,
+    // fields: newFields,
+    // sort: newSort,
     query: {
       bot: botId,
     },

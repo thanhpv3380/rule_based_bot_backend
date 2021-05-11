@@ -37,6 +37,7 @@ const nodeSchema = new mongoose.Schema(
         type: {
           type: String,
         },
+        typePort: String,
       },
     ],
     position: {

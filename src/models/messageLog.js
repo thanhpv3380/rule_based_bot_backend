@@ -3,14 +3,19 @@ const mongoose = require('mongoose');
 
 const { ObjectId } = mongoose.Types;
 
-const messageSchema = new mongoose.Schema(
+const messageLogSchema = new mongoose.Schema(
   {
-    session: {
+    session: String,
+    bot: {
       type: ObjectId,
-      ref: 'Session',
+      ref: 'Bot',
     },
-    type: String, //BOT, USER
-    status: String,
+    type: { type: String }, //BOT, USER
+    status: { type: String },
+    workflow: {
+      type: ObjectId,
+      ref: 'Workflow',
+    },
     message: {
       text: String,
       attachment: {
@@ -33,4 +38,4 @@ const messageSchema = new mongoose.Schema(
   },
 );
 
-module.exports = mongoose.model('Message', messageSchema);
+module.exports = mongoose.model('MessageLog', messageLogSchema);

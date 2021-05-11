@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 const outputConsumer = require('./outputConsumer');
+const logMessageConsumer = require('./logMessageConsumer');
 
 function consumer(connection) {
   connection.createChannel((err, channel) => {
@@ -12,6 +13,7 @@ function consumer(connection) {
     });
 
     outputConsumer(channel);
+    logMessageConsumer(channel);
   });
 }
 

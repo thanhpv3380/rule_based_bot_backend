@@ -1,6 +1,3 @@
-const {
-  Types: { ObjectId },
-} = require('mongoose');
 const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
 const nodeDao = require('../daos/node');
@@ -45,12 +42,7 @@ const updateNode = async (id, data) => {
 
 const deleteNode = async (workflowId, nodeId) => {
   await nodeDao.deleteNode(nodeId);
-  await nodeDao.deleteNodeConnect(workflowId, {
-    $pull: { children: { node: ObjectId(nodeId) } },
-  });
-  await nodeDao.deleteNodeConnect(workflowId, {
-    $pull: { parent: { node: ObjectId(nodeId) } },
-  });
+  await nodeDao.deleteNodeConnect(workflowId, nodeId);
 };
 
 module.exports = {

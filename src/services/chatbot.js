@@ -24,19 +24,30 @@ const {
   ACTION_MEDIA,
   ACTION_JSON_API,
   ACTION_OPTION,
+  STATUS_DEFAULT,
+  STATUS_ANSWERED,
+  // STATUS_SILENCE,
+  STATUS_NOT_UNDERSTAND,
 } = require('../constants');
+const {
+  mqQueues: { LOG_MESSAGE_QUEUE },
+} = require('../configs');
 
 let actionResponse = [];
 const parametersRequire = [];
 let parameters = [];
+let message;
+let bot;
 
 const handleMessage = async (sessionId, usersay, resultQueue, accessToken) => {
-  const bot = await botDao.findBot({ botToken: accessToken });
-  await getAction(sessionId, usersay, resultQueue, bot._id);
+  const botCurrent = await botDao.findBot({ botToken: accessToken });
+  await getAction(sessionId, usersay, resultQueue, botCurrent._id);
 };
 
 const getAction = async (sessionId, usersay, resultQueue, botId) => {
   // await client.delAsync(sessionId);
+  bot = botId;
+  message = { text: usersay };
   let data = await client.getAsync(sessionId);
   // check session existed
   if (data) {
@@ -70,8 +81,22 @@ const getAction = async (sessionId, usersay, resultQueue, botId) => {
 };
 
 const handleUsersaySend = async (sessionId, usersay, resultQueue, botId) => {
+  const { PRODUCER } = global;
   const { hits } = await intentES.findIntent(usersay, botId);
   if (hits.hits.length === 0) {
+    PRODUCER.sendToQueue(
+      LOG_MESSAGE_QUEUE,
+      Buffer.from(
+        JSON.stringify({
+          sessionId,
+          message,
+          type: 'User',
+          botId: bot,
+          workflowId: null,
+          STATUS_NOT_UNDERSTAND,
+        }),
+      ),
+    );
     return [
       {
         message: {
@@ -127,6 +152,7 @@ const handleUserSayInWorkflow = async (
   data,
   botId,
 ) => {
+  const { PRODUCER } = global;
   const currentNode = await nodeDao.findNodeById(data.currentNodeId);
   if (!currentNode) {
     // eslint-disable-next-line no-console
@@ -142,6 +168,19 @@ const handleUserSayInWorkflow = async (
     listIntentId,
   );
   if (hits.hits.length === 0) {
+    PRODUCER.sendToQueue(
+      LOG_MESSAGE_QUEUE,
+      Buffer.from(
+        JSON.stringify({
+          sessionId,
+          message,
+          type: 'User',
+          bot,
+          workflowId: currentNode.workflow,
+          status: STATUS_NOT_UNDERSTAND,
+        }),
+      ),
+    );
     // Todo return require send again or break flow
     return [
       {
@@ -207,7 +246,7 @@ const requireParamsIntent = async (
       numberOfLoop: 0,
       isMappingOneOne: true,
     };
-    await client.setAsync(sessionId, JSON.stringify(data));
+    await client.setAsync(sessionId, 3600, JSON.stringify(data));
     const response = await handleResponse(
       parametersRequire[0].response.actionAskAgain,
       [parametersRequire[0]],
@@ -218,6 +257,20 @@ const requireParamsIntent = async (
         Buffer.from(JSON.stringify(response)),
       );
     }
+    PRODUCER.sendToQueue(
+      LOG_MESSAGE_QUEUE,
+      Buffer.from(
+        JSON.stringify({
+          sessionId,
+          message,
+          type: 'User',
+          botId: bot,
+          workflowId:
+            workflow && workflow.children.length !== 0 && workflow._id,
+          STATUS_NOT_UNDERSTAND,
+        }),
+      ),
+    );
     await client.delAsync(sessionId);
     return actionResponse.concat(response);
   }
@@ -240,7 +293,7 @@ const checkChildNode = async (sessionId, currentNode, resultQueue) => {
           parameters,
           isMappingOneOne: false,
         };
-        await client.setAsync(sessionId, JSON.stringify(data));
+        await client.setAsync(sessionId, 3600, JSON.stringify(data));
         return;
       case NODE_CONDITION:
         type = NODE_CONDITION;
@@ -262,6 +315,31 @@ const checkChildNode = async (sessionId, currentNode, resultQueue) => {
             Buffer.from(JSON.stringify(response)),
           );
         }
+        PRODUCER.sendToQueue(
+          LOG_MESSAGE_QUEUE,
+          Buffer.from(
+            JSON.stringify({
+              sessionId,
+              message,
+              type: 'User',
+              botId: bot,
+              workflowId: currentNode.workflowId,
+              STATUS_ANSWERED,
+            }),
+          ),
+        );
+        PRODUCER.sendToQueue(
+          LOG_MESSAGE_QUEUE,
+          Buffer.from(
+            JSON.stringify({
+              sessionId,
+              message: response,
+              type: 'Bot',
+              botId: bot,
+              workflowId: currentNode.workflowId,
+            }),
+          ),
+        );
         actionResponse = actionResponse.concat(response);
         const currentChildNode = await nodeDao.findNodeById(el.node._id);
         await checkChildNode(sessionId, currentChildNode, resultQueue);
@@ -271,6 +349,19 @@ const checkChildNode = async (sessionId, currentNode, resultQueue) => {
     }
   }
   if (type === NODE_CONDITION) {
+    PRODUCER.sendToQueue(
+      LOG_MESSAGE_QUEUE,
+      Buffer.from(
+        JSON.stringify({
+          sessionId,
+          message,
+          type: 'User',
+          botId: bot,
+          workflowId: currentNode.workflowId,
+          STATUS_DEFAULT,
+        }),
+      ),
+    );
     // TODO handle action default
   }
 };
@@ -355,7 +446,7 @@ const handleCheckRequireParamsAgain = async (
     }
     // nếu không quá số vòng lặp
     data.numberOfLoop += 1;
-    await client.setAsync(sessionId.toString(), JSON.stringify(data));
+    await client.setAsync(sessionId.toString(), 3600, JSON.stringify(data));
     const response = await handleResponse(
       currentParameter.response.actionAskAgain,
       [currentParameter],
@@ -387,7 +478,7 @@ const handleCheckRequireParamsAgain = async (
         numberOfLoop: 0,
         isMappingOneOne: true,
       };
-      await client.setAsync(sessionId, JSON.stringify(newData));
+      await client.setAsync(sessionId, 3600, JSON.stringify(newData));
       const response = await handleResponse(element.response.actionAskAgain, [
         element,
       ]);
@@ -407,12 +498,13 @@ const handleCheckRequireParamsAgain = async (
     return handleMappingOneOne(intent, resultQueue, sessionId);
   }
   const currentNode = await nodeDao.findNodeById(data.currentNodeId);
-  await client.setAsync(sessionId, JSON.stringify(data));
+  await client.setAsync(sessionId, 3600, JSON.stringify(data));
   await checkChildNode(sessionId, currentNode, resultQueue);
 
   const responses = [...actionResponse];
   actionResponse = [];
   parameters = [];
+
   return responses;
 };
 
@@ -535,6 +627,19 @@ const handleResponse = async (action) => {
 
   return responses;
 };
+
+// const sendMessageLog = (
+//   sessionId,
+//   messageText,
+//   type,
+//   botId,
+//   workflowId,
+//   status,
+// ) => {
+//   const { PRODUCER } = global;
+
+// };
+
 const findIntentById = async (id) => {
   const intent = await intentDao.findIntentByCondition({
     condition: { _id: id },

@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-const messageService = require('../../services/message');
+const messageService = require('../../services/messageLog');
 const {
   mqQueues: { LOG_MESSAGE_QUEUE },
 } = require('../../configs');

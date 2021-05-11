@@ -1,3 +1,6 @@
+const {
+  Types: { ObjectId },
+} = require('mongoose');
 const Node = require('../models/node');
 const { findByCondition } = require('../utils/db');
 
@@ -31,18 +34,18 @@ const deleteNode = async (id) => {
 
 const deleteNodeConnect = async (workflowId, nodeId) => {
   await Node.updateMany(
-    { workflow: workflowId },
+    { workflow: ObjectId(workflowId) },
     {
       $pull: {
-        children: { node: nodeId },
+        children: { node: ObjectId(nodeId) },
       },
     },
   );
   await Node.updateMany(
-    { workflow: workflowId },
+    { workflow: ObjectId(workflowId) },
     {
       $pull: {
-        parent: { node: nodeId },
+        parent: { node: ObjectId(nodeId) },
       },
     },
   );

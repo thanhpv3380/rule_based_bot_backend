@@ -18,5 +18,6 @@ router.get(
   auth,
   asyncMiddleware(botController.removeUserInBot),
 );
+router.get('/ruleBot', asyncMiddleware(botController.getBotByToken));
 
 module.exports = router;

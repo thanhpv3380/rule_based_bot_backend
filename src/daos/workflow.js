@@ -28,6 +28,50 @@ const findAllWorkflowByCondition = async ({
   return { data, metadata };
 };
 
+const findWorkflowAndItem = async (id) => {
+  const workflow = await Workflow.aggregate([
+    {
+      $match: { _id: ObjectId(id) },
+    },
+    {
+      $lookup: {
+        from: 'nodes',
+        let: { id: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $eq: ['$workflow', '$$id'],
+              },
+            },
+          },
+        ],
+        as: 'nodes',
+      },
+    },
+  ]);
+  await Workflow.populate(workflow, [
+    {
+      path: 'nodes.intent',
+      model: 'Intent',
+    },
+    {
+      path: 'nodes.condition',
+      model: 'Condition',
+      populate: [
+        {
+          path: 'conditions.parameter',
+        },
+      ],
+    },
+    {
+      path: 'nodes.action',
+      model: 'Action',
+    },
+  ]);
+  return workflow[0];
+};
+
 const findWorkflowByCondition = async (condition, fields, populate) => {
   const workflow = await findByCondition(Workflow, condition, fields, populate);
   return workflow;
@@ -59,22 +103,43 @@ const deleteWorkflow = async (id) => {
   await Workflow.findByIdAndDelete(id);
 };
 
-const addNode = async (id, node) => {
-  node._id = new ObjectId();
-  await Workflow.findByIdAndUpdate(id, { $push: { nodes: node } });
-  return node;
-};
+const findWorkflowByPropertyIntent = async (botId, intentId) => {
+  console.time();
+  const workflow = await Workflow.aggregate([
+    { $unwind: '$nodes' },
+    { $match: { 'nodes.intent': intentId } },
+    {
+      $lookup: {
+        from: 'intents',
+        let: { id: '$_id', intent: '$nodes.intent' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $eq: ['$_id', intentId],
+              },
+            },
+          },
+        ],
+        as: 'nodes.intent',
+      },
+    },
+  ]);
 
-const removeNode = async (id, nodeId) => {
-  await Workflow.findByIdAndUpdate(id, { $pull: { nodes: { _id: nodeId } } });
+  // const workflow = await Workflow.find(
+  //   { 'nodes.intent': intentId },
+  //   { nodes: { $elemMatch: { intent: intentId } } },
+  // ).populate([{ path: 'nodes.intent', model: 'Intent' }]);
+  console.timeEnd();
+  return workflow;
 };
 
 module.exports = {
   findAllWorkflowByCondition,
   findWorkflowByCondition,
+  findWorkflowByPropertyIntent,
+  findWorkflowAndItem,
   createWorkflow,
   updateWorkflow,
   deleteWorkflow,
-  addNode,
-  removeNode,
 };

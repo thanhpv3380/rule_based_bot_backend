@@ -1,3 +1,6 @@
+const {
+  Types: { ObjectId },
+} = require('mongoose');
 const intentService = require('../services/intent');
 
 const create = async (req, res) => {
@@ -44,7 +47,12 @@ const update = async (req, res) => {
     patterns,
     isMappingAction,
     mappingAction,
-    parameters,
+    parameters: parameters.map((el) => {
+      return {
+        ...el,
+        _id: ObjectId(el.id),
+      };
+    }),
     groupIntent,
   };
   const intent = await intentService.updateIntent(id, bot.id, data);
@@ -104,6 +112,12 @@ const removeParameter = async (req, res) => {
   res.send({ status: 1 });
 };
 
+const getParametersByList = async (req, res) => {
+  const { list } = req.body;
+  const parameters = await intentService.findParametersByList(list);
+  res.send({ status: 1, result: { parameters } });
+};
+
 module.exports = {
   create,
   update,
@@ -115,4 +129,5 @@ module.exports = {
   addUsersay,
   addParameter,
   removeParameter,
+  getParametersByList,
 };

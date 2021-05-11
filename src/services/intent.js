@@ -3,6 +3,20 @@ const errorCodes = require('../errors/code');
 const intentDao = require('../daos/intent');
 const intentES = require('../elasticsearch/intent');
 
+const findAllActionByBotId = async ({ botId, fields, sort }) => {
+  const newFields = fields.split(',');
+  const newSort = sort.split(',');
+  const { data } = await intentDao.findAllIntentByCondition({
+    fields: newFields,
+    sort: newSort,
+    query: {
+      bot: botId,
+    },
+  });
+
+  return data;
+};
+
 const createIntent = async ({ data }) => {
   const intentExist = await intentDao.findIntentByCondition({
     condition: { name: data.name },
@@ -79,11 +93,11 @@ const findIntentById = async (id) => {
 };
 
 const findIntentByBotId = async (botId) => {
-  const intent = await intentDao.fintIntentsByBot({
-    condition: { bot: botId },
-    fields: ['_id', 'name'],
+  const { data } = await intentDao.findAllIntentByCondition({
+    query: { bot: botId },
+    sort: ['name_desc'],
   });
-  return intent;
+  return data;
 };
 
 const deleteIntentById = async (id) => {
@@ -160,7 +174,13 @@ const removeParameterOfIntent = async (id, parameter) => {
   return intent;
 };
 
+const findParametersByList = async (data) => {
+  const parameters = await intentDao.findParametersByList(data);
+  return parameters;
+};
+
 module.exports = {
+  findAllActionByBotId,
   createIntent,
   updateIntent,
   updatePatternOfIntent,
@@ -171,4 +191,5 @@ module.exports = {
   removeUsersayOfIntent,
   addParameterOfIntent,
   removeParameterOfIntent,
+  findParametersByList,
 };

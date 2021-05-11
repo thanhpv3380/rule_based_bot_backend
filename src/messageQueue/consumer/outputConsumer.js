@@ -15,11 +15,19 @@ module.exports = (channel) => {
       message: { text },
       sessionId,
       resultQueue,
+      accessToken,
     } = content;
     try {
-      const response = chatbotService.getAction(`LIVECHAT_${sessionId}`, text);
+      console.time();
+      chatbotService.handleMessage(
+        `LIVECHAT_${sessionId}`,
+        text,
+        resultQueue,
+        accessToken,
+      );
+      console.timeEnd();
       // require('../responseHandler').handleResponse(response);
-      channel.sendToQueue(resultQueue, Buffer.from(JSON.stringify(response)));
+      // channel.sendToQueue(resultQueue, Buffer.from(JSON.stringify(response)));
     } catch (error) {
       console.log(error);
     }

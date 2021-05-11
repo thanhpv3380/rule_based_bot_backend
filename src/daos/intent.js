@@ -1,4 +1,5 @@
 const Intent = require('../models/intent');
+
 const { findAll, findByCondition } = require('../utils/db');
 
 const findAllIntentByCondition = async ({
@@ -30,7 +31,7 @@ const findIntentByCondition = async ({ condition, fields, populate }) => {
   return intent;
 };
 
-const fintIntentsByBot = async ({ condition, fields }) => {
+const findIntentsByBot = async ({ condition, fields }) => {
   const intent = await Intent.find(condition, fields);
   return intent;
 };
@@ -52,15 +53,45 @@ const deleteIntent = async (id) => {
 };
 
 const deleteIntentByGroupId = async (groupId) => {
-  Intent.remove({ groupIntent: groupId });
+  await Intent.remove({ groupIntent: groupId });
+};
+
+const findParameterById = async (intentId, parameterId) => {
+  const parameter = await Intent.aggregate([
+    { $unwind: '$parameters' },
+    {
+      $match: {
+        // _id: ObjectId(intentId),
+        'parameters._id': parameterId,
+      },
+    },
+  ]);
+  return (
+    (parameter[0].parameters && {
+      name: parameter[0].parameters.parameterName,
+      id: parameter[0].parameters._id,
+    }) ||
+    null
+  );
+};
+
+const findParametersByList = async (data) => {
+  const intents = await Intent.find({
+    _id: { $in: data },
+  });
+  const parameters = [];
+  intents.forEach((el) => parameters.push(...el.parameters));
+  return parameters;
 };
 
 module.exports = {
   createIntent,
   updateIntent,
+  findParameterById,
   findIntentByCondition,
   findAllIntentByCondition,
-  fintIntentsByBot,
+  findIntentsByBot,
   deleteIntent,
   deleteIntentByGroupId,
+  findParametersByList,
 };

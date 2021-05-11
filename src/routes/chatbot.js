@@ -10,4 +10,6 @@ router.get(
   asyncMiddleware(chatbotController.getAction),
 );
 
+router.get('/user/testJsonApi', asyncMiddleware(chatbotController.testJsonApi));
+
 module.exports = router;

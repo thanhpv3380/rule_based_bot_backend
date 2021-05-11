@@ -2,10 +2,12 @@ const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
 const actionDao = require('../daos/action');
 
-const findAllActionByBotId = async ({ botId, keyword }) => {
+const findAllActionByBotId = async ({ botId, fields, sort }) => {
+  // const newFields = fields.split(',');
+  // const newSort = sort.split(',');
   const { data } = await actionDao.findAllActionByCondition({
-    key: keyword,
-    searchFields: ['name'],
+    // fields: newFields,
+    // sort: newSort,
     query: {
       bot: botId,
     },

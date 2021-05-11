@@ -57,6 +57,12 @@ const removeUserInBot = async (req, res) => {
   return res.send({ status: 1, result: { bot } });
 };
 
+const getBotByToken = async (res, req) => {
+  const { accessToken } = req.params;
+  const bot = await botService.findBotByToken(accessToken);
+  return res.send({ status: 1, result: { data: bot } });
+};
+
 module.exports = {
   getAllBot,
   getBotById,
@@ -65,4 +71,5 @@ module.exports = {
   deleteBot,
   addUserInBot,
   removeUserInBot,
+  getBotByToken,
 };

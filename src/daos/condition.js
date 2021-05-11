@@ -1,6 +1,6 @@
-// const {
-//   Types: { ObjectId },
-// } = require('mongoose');
+const {
+  Types: { ObjectId },
+} = require('mongoose');
 const Condition = require('../models/condition');
 const { findAll, findByCondition } = require('../utils/db');
 
@@ -47,7 +47,17 @@ const deleteCondition = async (id) => {
   await Condition.findByIdAndDelete(id);
 };
 
+const findById = async (id) => {
+  const condition = await Condition.aggregate([
+    {
+      $match: { _id: ObjectId(id) },
+    },
+  ]);
+  return condition[0];
+};
+
 module.exports = {
+  findById,
   findAllConditionByCondition,
   findConditionByCondition,
   createCondition,

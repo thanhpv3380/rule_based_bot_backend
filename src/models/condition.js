@@ -6,13 +6,14 @@ const conditionSchema = new mongoose.Schema(
   {
     conditions: [
       {
-        parameter: String,
-        intents: [
-          {
-            type: ObjectId,
-            ref: 'Intent',
-          },
-        ],
+        parameter: {
+          type: ObjectId,
+          ref: 'Intent',
+        },
+        intent: {
+          type: ObjectId,
+          ref: 'Intent',
+        },
         operator: String,
         value: String,
       },
@@ -32,5 +33,11 @@ const conditionSchema = new mongoose.Schema(
     versionKey: false,
   },
 );
+
+conditionSchema.virtual('parameter', {
+  ref: 'Intent',
+  localField: 'parameters._id',
+  foreignField: 'conditions.parameter',
+});
 
 module.exports = mongoose.model('Condition', conditionSchema);

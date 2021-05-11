@@ -1,6 +1,7 @@
 const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
 const conditionDao = require('../daos/condition');
+const intentDao = require('../daos/intent');
 
 const createCondition = async (data) => {
   const condition = await conditionDao.createCondition(data);
@@ -13,39 +14,59 @@ const updateCondition = async (id, data) => {
 };
 
 const findById = async (id) => {
-  console.log(id, 'condition');
-  const condition = await conditionDao.findConditionByCondition({
-    condition: {
-      _id: id,
-    },
-    populate: [
-      {
-        path: 'conditions',
-        populate: [
-          {
-            path: 'intent',
-            model: 'Intent',
-            select: 'name _id',
-          },
-        ],
-      },
-      {
-        path: 'bot',
-        model: 'Bot',
-      },
-      {
-        path: 'createBy',
-        model: 'User',
-        select: 'name _id',
-      },
-    ],
-  });
-  console.log(condition, 'condition');
+  const condition = await conditionDao.findById(id);
   if (!condition) {
     throw new CustomError(errorCodes.ITEM_NOT_EXIST);
   }
+  const conditionsResponse = [];
+  for (const el of condition.conditions) {
+    const parameter = await intentDao.findParameterById(
+      el.intent,
+      el.parameter,
+    );
+    const data = {
+      ...el,
+      parameter,
+    };
+    conditionsResponse.push(data);
+  }
+  condition.conditions = conditionsResponse;
   return condition;
 };
+
+// const findByIdT = async (id) => {
+//   const condition = await conditionDao.findConditionByCondition({
+//     condition: {
+//       _id: id,
+//     },
+//     populate: [
+//       {
+//         path: 'conditions',
+//         populate: [
+//           {
+//             path: 'intent',
+//             model: 'Intent',
+//             select: 'name _id',
+//           },
+//         ],
+//       },
+//       {
+//         path: 'bot',
+//         model: 'Bot',
+//       },
+//       {
+//         path: 'createBy',
+//         model: 'User',
+//         select: 'name _id',
+//       },
+//     ],
+//   });
+//   console.log(condition, 'condition');
+//   if (!condition) {
+//     throw new CustomError(errorCodes.ITEM_NOT_EXIST);
+//   }
+//   return condition;
+// };
 
 module.exports = {
   createCondition,

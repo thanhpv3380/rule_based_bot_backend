@@ -2,7 +2,7 @@
 const moment = require('moment');
 const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
-
+const { v4: uuidv4 } = require('uuid');
 const dashboardDao = require('../daos/dashboard');
 
 const findAllDashboard = async ({
@@ -48,6 +48,8 @@ const findDashboardByCondition = async (botId, startDate, endDate) => {
       notUnderstandUsersay:
         currentValue.notUnderstandUsersay + el.notUnderstandUsersay,
       defaultUsersay: currentValue.defaultUsersay + el.defaultUsersay,
+      needConfirmUsersay:
+        currentValue.needConfirmUsersay + el.needConfirmUsersay,
     };
   });
   const rangeDate = Math.floor(
@@ -72,7 +74,10 @@ const findDashboardByCondition = async (botId, startDate, endDate) => {
           answeredUsersay: 0,
           notUnderstandUsersay: 0,
           defaultUsersay: 0,
-          createdAt: moment(endDate).format('DD-MM-YYYY'),
+          needConfirmUsersay: 0,
+          createdAt: moment(endDate)
+            .subtract(dateAgo, 'day')
+            .format('DD-MM-YYYY'),
         });
       }
     }
@@ -87,6 +92,8 @@ const findDashboardByCondition = async (botId, startDate, endDate) => {
         notUnderstandUsersay:
           newDashboard.notUnderstandUsersay / newDashboard.totalUsersay,
         defaultUsersay: newDashboard.defaultUsersay / newDashboard.totalUsersay,
+        needConfirmUsersay:
+          newDashboard.needConfirmUsersay / newDashboard.totalUsersay,
       },
     },
   };

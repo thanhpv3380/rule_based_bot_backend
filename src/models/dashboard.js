@@ -13,6 +13,7 @@ const dashboardSchema = new mongoose.Schema(
     answeredUsersay: Number,
     notUnderstandUsersay: Number,
     defaultUsersay: Number,
+    needConfirmUsersay: Number,
   },
   {
     timestamps: true,

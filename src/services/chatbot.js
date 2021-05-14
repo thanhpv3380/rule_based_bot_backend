@@ -28,6 +28,7 @@ const {
   STATUS_ANSWERED,
   // STATUS_SILENCE,
   STATUS_NOT_UNDERSTAND,
+  STATUS_NEED_CONFIRM,
 } = require('../constants');
 const {
   mqQueues: { LOG_MESSAGE_QUEUE },
@@ -267,7 +268,7 @@ const requireParamsIntent = async (
           botId: bot,
           workflowId:
             workflow && workflow.children.length !== 0 && workflow._id,
-          STATUS_NOT_UNDERSTAND,
+          STATUS_NEED_CONFIRM,
         }),
       ),
     );
@@ -371,7 +372,6 @@ const comparePosition = (x1, x2) => {
 };
 
 const handleCondition = async (child) => {
-  // Todo fix get condition by id
   const condition = await conditionService.findById(child.node.condition);
   const results = [];
   if (!condition) {
@@ -429,6 +429,7 @@ const handleCheckRequireParamsAgain = async (
   usersay,
   resultQueue,
 ) => {
+  const { PRODUCER } = global;
   const intent = await findIntentById(data.intentId);
   const currentParameter = await { ...data.parametersRequire[0] };
   const param = getParameter(currentParameter.entity, usersay);
@@ -442,6 +443,19 @@ const handleCheckRequireParamsAgain = async (
         [],
       );
       await client.delAsync(sessionId);
+      PRODUCER.sendToQueue(
+        LOG_MESSAGE_QUEUE,
+        Buffer.from(
+          JSON.stringify({
+            sessionId,
+            message,
+            type: 'User',
+            botId: bot,
+            workflowId: currentNode.workflowId,
+            STATUS_NOT_UNDERSTAND,
+          }),
+        ),
+      );
       return response;
     }
     // nếu không quá số vòng lặp
@@ -450,6 +464,19 @@ const handleCheckRequireParamsAgain = async (
     const response = await handleResponse(
       currentParameter.response.actionAskAgain,
       [currentParameter],
+    );
+    PRODUCER.sendToQueue(
+      LOG_MESSAGE_QUEUE,
+      Buffer.from(
+        JSON.stringify({
+          sessionId,
+          message,
+          type: 'User',
+          botId: bot,
+          workflowId: currentNode.workflowId,
+          STATUS_NEED_CONFIRM,
+        }),
+      ),
     );
     return response;
   }

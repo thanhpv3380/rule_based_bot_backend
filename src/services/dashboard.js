@@ -2,7 +2,6 @@
 const moment = require('moment');
 const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
-const { v4: uuidv4 } = require('uuid');
 const dashboardDao = require('../daos/dashboard');
 
 const findAllDashboard = async ({
@@ -75,7 +74,7 @@ const findDashboardByCondition = async (botId, startDate, endDate) => {
           notUnderstandUsersay: 0,
           defaultUsersay: 0,
           needConfirmUsersay: 0,
-          createdAt: moment(endDate)
+          createdAt: moment(new Date(endDate))
             .subtract(dateAgo, 'day')
             .format('DD-MM-YYYY'),
         });

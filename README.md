@@ -1,5 +1,6 @@
 * cách cài đặt
   + services
+    - Mongodb 
     - FrontEnd: reactJs
     - BackendL nodejs
     - elasticsearch:7.10.1

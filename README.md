@@ -33,8 +33,8 @@
 
 
 * call api create user
-  - url: /api/v1/auths/register
-  - body: {
+  + url: /api/v1/auths/register
+  + body: {
     "email": "admin@gmail.com",
      "name": "admin",
      "password": "1"

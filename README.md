@@ -1,12 +1,12 @@
-* services
-   FrontEnd: reactJs
-   BackendL nodejs
-   elasticsearch:7.10.1
-   kibana:7.10.1
-   redis
-   rabbitmq
 * cách cài đặt
-  file env backend:
+  + services
+    FrontEnd: reactJs
+    BackendL nodejs
+    elasticsearch:7.10.1
+    kibana:7.10.1
+    redis
+    rabbitmq
+  + file env backend:
       PORT=
       MONGO_HOST=
       MONGO_PORT=
@@ -33,9 +33,9 @@
 
 
 * call api create user
-  url: /api/v1/auths/register
-  body: {
+  - url: /api/v1/auths/register
+  - body: {
     "email": "admin@gmail.com",
      "name": "admin",
      "password": "1"
-}
+    }

@@ -13,15 +13,19 @@ const {
   RABBITMQ_PORT,
   RABBITMQ_USERNAME,
   RABBITMQ_PASSWORD,
+  RECEIVE_QUEUE,
+  SEND_QUEUE,
+  OUTPUT_QUEUE,
+  LOG_MESSAGE_QUEUE,
 } = process.env;
 
 const { A_WEEK } = require('../constants');
 
 const mqQueues = {
-  RECEIVE_QUEUE: '',
-  SEND_QUEUE: '',
-  OUTPUT_QUEUE: 'rule_bot',
-  LOG_MESSAGE_QUEUE: 'log_message',
+  RECEIVE_QUEUE,
+  SEND_QUEUE,
+  OUTPUT_QUEUE,
+  LOG_MESSAGE_QUEUE,
 };
 
 module.exports = {

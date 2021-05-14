@@ -56,12 +56,12 @@ const actionSchema = new mongoose.Schema(
               ref: 'Intent',
             },
           ],
-          actionAskAgain: {
+          numberOfLoop: Number,
+          actionFail: {
             type: ObjectId,
             ref: 'Action',
           },
-          numberOfLoop: Number,
-          actionFail: {
+          actionAskAgain: {
             type: ObjectId,
             ref: 'Action',
           },

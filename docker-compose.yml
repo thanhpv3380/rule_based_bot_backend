@@ -7,6 +7,8 @@ services:
       - '9200:9200'
     environment:
       - discovery.type=single-node
+      - ELASTIC_USERNAME=admin
+      - ELASTIC_PASSWORD=1
     ulimits:
       memlock:
         soft: -1
@@ -23,11 +25,14 @@ services:
       - '6379:6379'
 
     environment:
-      - REDIS_REPLICATION_MODE=master
-      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_PASSWORD=1
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: 'rabbitmq'
+    environment: 
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=1   
     ports:
       - 5672:5672
       - 15672:15672
+    

@@ -10,18 +10,22 @@ const {
   JWT_SECRET_KEY,
   JWT_EXPIRES_TIME,
   RABBITMQ_HOST,
-  // RABBITMQ_PORT,
-  // RABBITMQ_USERNAME,
-  // RABBITMQ_PASSWORD,
+  RABBITMQ_PORT,
+  RABBITMQ_USERNAME,
+  RABBITMQ_PASSWORD,
+  RECEIVE_QUEUE,
+  SEND_QUEUE,
+  OUTPUT_QUEUE,
+  LOG_MESSAGE_QUEUE,
 } = process.env;
 
 const { A_WEEK } = require('../constants');
 
 const mqQueues = {
-  RECEIVE_QUEUE: '',
-  SEND_QUEUE: '',
-  OUTPUT_QUEUE: 'rule_bot',
-  LOG_MESSAGE_QUEUE: 'log_message',
+  RECEIVE_QUEUE,
+  SEND_QUEUE,
+  OUTPUT_QUEUE,
+  LOG_MESSAGE_QUEUE,
 };
 
 module.exports = {
@@ -31,6 +35,6 @@ module.exports = {
   JWT_SECRET_KEY,
   JWT_EXPIRES_TIME: parseInt(JWT_EXPIRES_TIME, 10) || A_WEEK,
   mqQueues,
-  // MQ_URI: `amqp://${RABBITMQ_USERNAME}:${RABBITMQ_PASSWORD}@${RABBITMQ_HOST}:${RABBITMQ_PORT}`,
-  MQ_URI: `amqp://${RABBITMQ_HOST}`,
+  MQ_URI: `amqp://${RABBITMQ_USERNAME}:${RABBITMQ_PASSWORD}@${RABBITMQ_HOST}:${RABBITMQ_PORT}`,
+  // MQ_URI: `amqp://${RABBITMQ_HOST}`,
 };

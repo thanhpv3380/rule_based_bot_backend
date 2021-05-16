@@ -35,8 +35,15 @@ const filterDashboard = async (req, res) => {
   return res.send({ status: 1, result: dashboard });
 };
 
+const statisticWorkingData = async (req, res) => {
+  const { bot } = req;
+  const data = await dashboardService.getStatisticWorkingData(bot.id);
+  return res.send({ status: 1, result: data });
+};
+
 module.exports = {
   create,
   update,
   filterDashboard,
+  statisticWorkingData,
 };

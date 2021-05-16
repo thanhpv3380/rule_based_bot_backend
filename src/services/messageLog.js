@@ -6,6 +6,7 @@ const {
   STATUS_ANSWERED,
   // STATUS_SILENCE,
   STATUS_NOT_UNDERSTAND,
+  STATUS_NEED_CONFIRM,
 } = require('../constants');
 
 const handleLogMessage = async (data) => {
@@ -31,6 +32,7 @@ const handleLogMessage = async (data) => {
       answeredUsersay,
       notUnderstandUsersay,
       defaultUsersay,
+      needConfirmUsersay,
     } = dashboardToday;
 
     const newDashboard = handleDataDashboard(
@@ -39,10 +41,11 @@ const handleLogMessage = async (data) => {
       answeredUsersay,
       notUnderstandUsersay,
       defaultUsersay,
+      needConfirmUsersay,
     );
     await dashboardDao.updateDashboard(dashboardToday._id, newDashboard);
   } else {
-    const newDashboard = handleDataDashboard(messageLog.status, 0, 0, 0, 0);
+    const newDashboard = handleDataDashboard(messageLog.status, 0, 0, 0, 0, 0);
     await dashboardDao.createDashboard(newDashboard);
   }
 };
@@ -53,6 +56,7 @@ const handleDataDashboard = (
   answeredUsersay,
   notUnderstandUsersay,
   defaultUsersay,
+  needConfirmUsersay,
 ) => {
   totalUsersay += 1;
   switch (messageStatus) {
@@ -65,6 +69,9 @@ const handleDataDashboard = (
     case STATUS_NOT_UNDERSTAND:
       notUnderstandUsersay += 1;
       break;
+    case STATUS_NEED_CONFIRM:
+      needConfirmUsersay += 1;
+      break;
     default:
       totalUsersay -= 1;
       break;
@@ -74,6 +81,7 @@ const handleDataDashboard = (
     answeredUsersay,
     notUnderstandUsersay,
     defaultUsersay,
+    needConfirmUsersay,
   };
   return dashboard;
 };

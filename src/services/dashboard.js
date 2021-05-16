@@ -2,8 +2,10 @@
 const moment = require('moment');
 const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
-
 const dashboardDao = require('../daos/dashboard');
+const intentDao = require('../daos/intent');
+const actionDao = require('../daos/action');
+const workflowDao = require('../daos/workflow');
 
 const findAllDashboard = async ({
   botId,
@@ -48,6 +50,8 @@ const findDashboardByCondition = async (botId, startDate, endDate) => {
       notUnderstandUsersay:
         currentValue.notUnderstandUsersay + el.notUnderstandUsersay,
       defaultUsersay: currentValue.defaultUsersay + el.defaultUsersay,
+      needConfirmUsersay:
+        currentValue.needConfirmUsersay + el.needConfirmUsersay,
     };
   });
   const rangeDate = Math.floor(
@@ -72,7 +76,10 @@ const findDashboardByCondition = async (botId, startDate, endDate) => {
           answeredUsersay: 0,
           notUnderstandUsersay: 0,
           defaultUsersay: 0,
-          createdAt: moment(endDate).format('DD-MM-YYYY'),
+          needConfirmUsersay: 0,
+          createdAt: moment(new Date(endDate))
+            .subtract(dateAgo, 'day')
+            .format('DD-MM-YYYY'),
         });
       }
     }
@@ -87,10 +94,34 @@ const findDashboardByCondition = async (botId, startDate, endDate) => {
         notUnderstandUsersay:
           newDashboard.notUnderstandUsersay / newDashboard.totalUsersay,
         defaultUsersay: newDashboard.defaultUsersay / newDashboard.totalUsersay,
+        needConfirmUsersay:
+          newDashboard.needConfirmUsersay / newDashboard.totalUsersay,
       },
     },
   };
   return response;
+};
+
+const getStatisticWorkingData = async (botId) => {
+  const intents = await intentDao.findIntentsByBot({
+    condition: { bot: botId },
+    fields: null,
+  });
+  const actions = await actionDao.findAllActionByCondition({
+    query: {
+      bot: botId,
+    },
+  });
+  const workflows = await workflowDao.findAllWorkflowByCondition({
+    query: {
+      bot: botId,
+    },
+  });
+  return {
+    totalIntent: intents.length,
+    totalAction: actions.data.length,
+    totalWorkflow: workflows.data.length,
+  };
 };
 
 const createDashboard = async ({ acronym, original, userId, botId }) => {
@@ -131,6 +162,7 @@ const deleteDashboard = async (id) => {
 module.exports = {
   findAllDashboard,
   findDashboardByCondition,
+  getStatisticWorkingData,
   createDashboard,
   updateDashboard,
   deleteDashboard,

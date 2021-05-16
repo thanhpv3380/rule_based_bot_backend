@@ -3,6 +3,9 @@ const moment = require('moment');
 const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
 const dashboardDao = require('../daos/dashboard');
+const intentDao = require('../daos/intent');
+const actionDao = require('../daos/action');
+const workflowDao = require('../daos/workflow');
 
 const findAllDashboard = async ({
   botId,
@@ -99,6 +102,28 @@ const findDashboardByCondition = async (botId, startDate, endDate) => {
   return response;
 };
 
+const getStatisticWorkingData = async (botId) => {
+  const intents = await intentDao.findIntentsByBot({
+    condition: { bot: botId },
+    fields: null,
+  });
+  const actions = await actionDao.findAllActionByCondition({
+    query: {
+      bot: botId,
+    },
+  });
+  const workflows = await workflowDao.findAllWorkflowByCondition({
+    query: {
+      bot: botId,
+    },
+  });
+  return {
+    totalIntent: intents.length,
+    totalAction: actions.data.length,
+    totalWorkflow: workflows.data.length,
+  };
+};
+
 const createDashboard = async ({ acronym, original, userId, botId }) => {
   const dashboardExist = await dashboardDao.findDashboard({
     acronym,
@@ -137,6 +162,7 @@ const deleteDashboard = async (id) => {
 module.exports = {
   findAllDashboard,
   findDashboardByCondition,
+  getStatisticWorkingData,
   createDashboard,
   updateDashboard,
   deleteDashboard,

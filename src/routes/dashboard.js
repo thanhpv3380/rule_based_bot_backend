@@ -9,5 +9,11 @@ router.get(
   getBotId,
   asyncMiddleware(dashboardController.filterDashboard),
 );
+router.get(
+  '/dashboards/statisticWorkingData',
+  auth,
+  getBotId,
+  asyncMiddleware(dashboardController.statisticWorkingData),
+);
 
 module.exports = router;

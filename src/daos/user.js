@@ -2,6 +2,20 @@ const {
   Types: { ObjectId },
 } = require('mongoose');
 const User = require('../models/user');
+const { findAll } = require('../utils/db');
+
+const findAllUser = async ({ key, searchFields, query }) => {
+  const { data, metadata } = await findAll({
+    model: User,
+    key,
+    searchFields,
+    query,
+  });
+  return {
+    data,
+    metadata,
+  };
+};
 
 const createUser = async ({ email, name, password }) => {
   const user = await User.create({ email, name, password });
@@ -36,6 +50,7 @@ const findByIdAndUpdate = async (userId, id) => {
 };
 
 module.exports = {
+  findAllUser,
   createUser,
   findUser,
   updateUser,

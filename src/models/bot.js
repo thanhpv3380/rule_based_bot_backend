@@ -9,12 +9,6 @@ const botSchema = new mongoose.Schema(
       type: ObjectId,
       ref: 'User',
     },
-    users: [
-      {
-        type: ObjectId,
-        ref: 'User',
-      },
-    ],
     botToken: String,
   },
   {

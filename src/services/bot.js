@@ -30,7 +30,6 @@ const findAllBot = async ({
   const { data, metadata } = await botDao.findAllBot({
     key,
     searchFields: newSearchFields,
-    query: { users: userId },
     offset,
     limit,
     fields: newFields,

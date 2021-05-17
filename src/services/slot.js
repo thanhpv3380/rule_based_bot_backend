@@ -18,7 +18,7 @@ const findAllSlot = async ({ botId, fields, sort }) => {
 
 const findSlotById = async (id) => {
   const slot = await slotDao.findSlot({ _id: id });
-  if (slot) {
+  if (!slot) {
     throw new CustomError(errorCodes.NOT_FOUND);
   }
   return slot;

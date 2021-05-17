@@ -27,6 +27,7 @@ const createNode = async (data) => {
     const newData = {
       node: (node && node.id) || null,
       type: (data && data.type) || 'START',
+      typePort: data.parent[0].typePort,
     };
     await nodeDao.pushNodeToChildren(parentId, newData);
   }

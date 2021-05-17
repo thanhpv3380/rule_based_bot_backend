@@ -2,12 +2,17 @@
 const { v4: uuidv4 } = require('uuid');
 const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
-const { GROUP_SINGLE, GROUP_SINGLE_NAME } = require('../constants/index');
+const {
+  GROUP_SINGLE,
+  GROUP_SINGLE_NAME,
+  ROLE_OWNER,
+} = require('../constants/index');
 const botDao = require('../daos/bot');
 const groupActionDao = require('../daos/groupAction');
 const groupIntentDao = require('../daos/groupIntent');
 const groupEntityDao = require('../daos/groupEntity');
 const groupWorkflowDao = require('../daos/groupWorkflow');
+const permissionDao = require('../daos/permission');
 
 const findAllBot = async ({
   userId,
@@ -66,6 +71,11 @@ const createBot = async (userId, data) => {
     name: GROUP_SINGLE_NAME,
     botId: bot.id,
     groupType: GROUP_SINGLE,
+  });
+  await permissionDao.createPermission({
+    role: ROLE_OWNER,
+    bot: bot.id,
+    user: userId,
   });
   return bot;
 };

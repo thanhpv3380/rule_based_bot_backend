@@ -17,6 +17,17 @@ const nodeSchema = new mongoose.Schema(
       type: ObjectId,
       ref: 'Condition',
     },
+    actionAskAgain: {
+      numberOfLoop: Number,
+      actionFail: {
+        type: ObjectId,
+        ref: 'Action',
+      },
+      actionAskAgain: {
+        type: ObjectId,
+        ref: 'Action',
+      },
+    },
     parent: [
       {
         node: {

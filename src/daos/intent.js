@@ -67,10 +67,11 @@ const findParameterById = async (intentId, parameterId) => {
     },
   ]);
   return (
-    (parameter[0].parameters && {
-      name: parameter[0].parameters.parameterName,
-      id: parameter[0].parameters._id,
-    }) ||
+    (parameter[0] &&
+      parameter[0].parameters && {
+        name: parameter[0].parameters.parameterName,
+        id: parameter[0].parameters._id,
+      }) ||
     null
   );
 };

@@ -135,6 +135,10 @@ const findNodeById = async (id) => {
   return workflow;
 };
 
+const deleteByCondition = async (condition) => {
+  await Node.remove(condition);
+};
+
 module.exports = {
   findNodeByCondition,
   createNode,
@@ -144,4 +148,5 @@ module.exports = {
   deleteNodeConnect,
   findNodeIntentStartFlow,
   findNodeById,
+  deleteByCondition,
 };

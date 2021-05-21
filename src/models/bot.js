@@ -5,6 +5,8 @@ const { ObjectId } = mongoose.Types;
 const botSchema = new mongoose.Schema(
   {
     name: String,
+    description: String,
+    imageUrl: String,
     createBy: {
       type: ObjectId,
       ref: 'User',

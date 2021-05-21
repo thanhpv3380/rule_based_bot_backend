@@ -79,10 +79,15 @@ const deleteGroupWorkflow = async (id) => {
   await GroupWorkflow.findByIdAndDelete(id);
 };
 
+const deleteByCondition = async (condition) => {
+  await GroupWorkflow.remove(condition);
+};
+
 module.exports = {
   findAllGroupWorkflowAndItem,
   findGroupWorkflowByCondition,
   createGroupWorkflow,
   updateGroupWorkflow,
   deleteGroupWorkflow,
+  deleteByCondition,
 };

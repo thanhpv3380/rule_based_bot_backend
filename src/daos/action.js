@@ -56,10 +56,15 @@ const deleteAction = async (id) => {
   await Action.findByIdAndDelete(id);
 };
 
+const deleteByCondition = async (condition) => {
+  await Action.remove(condition);
+};
+
 module.exports = {
   findAllActionByCondition,
   findActionByCondition,
   createAction,
   updateAction,
   deleteAction,
+  deleteByCondition,
 };

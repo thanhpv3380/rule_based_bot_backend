@@ -24,6 +24,7 @@ const findById = async (id) => {
       el.intent,
       el.parameter,
     );
+    console.log({ parameter });
     const data = {
       ...el,
       parameter,

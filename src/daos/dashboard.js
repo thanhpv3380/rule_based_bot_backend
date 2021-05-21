@@ -49,10 +49,15 @@ const deleteDashboard = async (id) => {
   await Dashboard.findByIdAndDelete(id);
 };
 
+const deleteByCondition = async (condition) => {
+  await Dashboard.remove(condition);
+};
+
 module.exports = {
   findAllDashboardByCondition,
   findDashboardByCondition,
   createDashboard,
   updateDashboard,
   deleteDashboard,
+  deleteByCondition,
 };

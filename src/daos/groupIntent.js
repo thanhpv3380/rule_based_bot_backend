@@ -76,10 +76,15 @@ const deleteGroupIntent = async (id) => {
   await GroupIntent.findByIdAndDelete(id);
 };
 
+const deleteByCondition = async (condition) => {
+  await GroupIntent.remove(condition);
+};
+
 module.exports = {
   findAllGroupIntentAndItem,
   findGroupIntentByCondition,
   createGroupIntent,
   updateGroupIntent,
   deleteGroupIntent,
+  deleteByCondition,
 };

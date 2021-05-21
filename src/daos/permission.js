@@ -38,9 +38,14 @@ const deletePermission = async (id) => {
   await Permission.findByIdAndDelete(id);
 };
 
+const deleteByCondition = async (condition) => {
+  await Permission.remove(condition);
+};
+
 module.exports = {
   findAllPermission,
   findPermission,
   createPermission,
   deletePermission,
+  deleteByCondition,
 };

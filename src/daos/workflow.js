@@ -134,6 +134,10 @@ const findWorkflowByPropertyIntent = async (botId, intentId) => {
   return workflow;
 };
 
+const deleteByCondition = async (condition) => {
+  await Workflow.remove(condition);
+};
+
 module.exports = {
   findAllWorkflowByCondition,
   findWorkflowByCondition,
@@ -142,4 +146,5 @@ module.exports = {
   createWorkflow,
   updateWorkflow,
   deleteWorkflow,
+  deleteByCondition,
 };

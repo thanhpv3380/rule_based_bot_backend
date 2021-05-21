@@ -62,10 +62,15 @@ const deleteEntity = async (id) => {
   await Entity.findByIdAndDelete(id);
 };
 
+const deleteByCondition = async (condition) => {
+  await Entity.remove(condition);
+};
+
 module.exports = {
   findAllEntityByCondition,
   findEntityByCondition,
   createEntity,
   updateEntity,
   deleteEntity,
+  deleteByCondition,
 };

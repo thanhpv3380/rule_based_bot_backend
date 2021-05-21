@@ -16,6 +16,17 @@ const getAllBot = async (req, res) => {
   return res.send({ status: 1, result: { bots, metadata } });
 };
 
+const getAllBotByRole = async (req, res) => {
+  const { sort } = req.query;
+  const { user } = req;
+  const { bots, metadata } = await botService.findAllBotByRole({
+    userId: user.id,
+    sort,
+  });
+
+  return res.send({ status: 1, result: { bots, metadata } });
+};
+
 const getBotById = async (req, res) => {
   const { id } = req.params;
   const bot = await botService.findBotById(id);
@@ -24,18 +35,16 @@ const getBotById = async (req, res) => {
 
 const createBot = async (req, res) => {
   const { user } = req;
-  const { name } = req.body;
-  const bot = await botService.createBot(user.id, { name });
+  const { name, description } = req.body;
+  const bot = await botService.createBot(user.id, { name, description });
   return res.send({ status: 1, result: { bot } });
 };
 
 const updateBot = async (req, res) => {
   const { id } = req.params;
-  const { name } = req.body;
+  const data = req.body;
   const { user } = req;
-  const bot = await botService.updateBot(id, user.id, {
-    name,
-  });
+  const bot = await botService.updateBot(id, user.id, data);
   return res.send({ status: 1, result: { bot } });
 };
 
@@ -57,14 +66,22 @@ const removeUserInBot = async (req, res) => {
   return res.send({ status: 1, result: { bot } });
 };
 
-const getBotByToken = async (res, req) => {
+const getBotByToken = async (req, res) => {
   const { accessToken } = req.params;
   const bot = await botService.findBotByToken(accessToken);
   return res.send({ status: 1, result: { data: bot } });
 };
 
+const getRoleInBot = async (req, res) => {
+  const { id } = req.params;
+  const { user } = req;
+  const role = await botService.findRoleInBot({ botId: id, userId: user._id });
+  return res.send({ status: 1, result: { role } });
+};
+
 module.exports = {
   getAllBot,
+  getAllBotByRole,
   getBotById,
   createBot,
   updateBot,
@@ -72,4 +89,5 @@ module.exports = {
   addUserInBot,
   removeUserInBot,
   getBotByToken,
+  getRoleInBot,
 };

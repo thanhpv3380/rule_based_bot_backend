@@ -35,10 +35,18 @@ const {
 } = require('../configs');
 
 let actionResponse = [];
-const parametersRequire = [];
+let parametersRequire = [];
 let parameters = [];
 let message;
 let bot;
+
+const resetValue = async () => {
+  actionResponse = [];
+  parametersRequire = [];
+  parameters = [];
+  message = null;
+  bot = null;
+};
 
 const handleMessage = async (sessionId, usersay, resultQueue, accessToken) => {
   const botCurrent = await botDao.findBot({ botToken: accessToken });
@@ -47,6 +55,8 @@ const handleMessage = async (sessionId, usersay, resultQueue, accessToken) => {
 
 const getAction = async (sessionId, usersay, resultQueue, botId) => {
   // await client.delAsync(sessionId);
+  // init
+  // await resetValue();
   bot = botId;
   message = { text: usersay };
   let data = await client.getAsync(sessionId);
@@ -61,6 +71,7 @@ const getAction = async (sessionId, usersay, resultQueue, botId) => {
         usersay,
         resultQueue,
       );
+      await resetValue();
       return response;
     }
     return handleUserSayInWorkflow(
@@ -139,8 +150,7 @@ const handleUsersaySend = async (sessionId, usersay, resultQueue, botId) => {
   if (workflow || workflow.children.length !== 0) {
     await checkChildNode(sessionId, workflow, resultQueue);
     const responses = [...actionResponse];
-    actionResponse = [];
-    parameters = [];
+    await resetValue();
     return responses;
   }
   return handleMappingOneOne(intent, resultQueue, sessionId);
@@ -182,7 +192,35 @@ const handleUserSayInWorkflow = async (
         }),
       ),
     );
-    // Todo return require send again or break flow
+    if (currentNode.actionAskAgain) {
+      if (data.numberOfLoop) {
+        if (data.numberOfLoop < currentNode.actionAskAgain) {
+          const newData = {
+            ...data,
+            numberOfLoop: data.numberOfLoop + 1,
+          };
+          await client.setexAsync(sessionId, 3600, JSON.stringify(newData));
+          const response = await handleResponse(
+            currentNode.actionAskAgain.actionAskAgain,
+          );
+          return response;
+        }
+        await client.delAsync(sessionId);
+        const response = await handleResponse(
+          currentNode.actionAskAgain.actionFail,
+        );
+        return response;
+      }
+      const newData = {
+        ...data,
+        numberOfLoop: 0,
+      };
+      await client.setexAsync(sessionId, 3600, JSON.stringify(newData));
+      const response = await handleResponse(
+        currentNode.actionAskAgain.actionAskAgain,
+      );
+      return response;
+    }
     return [
       {
         message: {
@@ -212,8 +250,7 @@ const handleUserSayInWorkflow = async (
   if (intentNode.children.length !== 0) {
     await checkChildNode(sessionId, intentNode, resultQueue);
     const responses = [...actionResponse];
-    actionResponse = [];
-    parameters = [];
+    await resetValue();
     return responses;
   }
   return handleMappingOneOne(intentNode.intent, resultQueue, sessionId);
@@ -247,7 +284,7 @@ const requireParamsIntent = async (
       numberOfLoop: 0,
       isMappingOneOne: true,
     };
-    await client.setAsync(sessionId, 3600, JSON.stringify(data));
+    await client.setexAsync(sessionId, 3600, JSON.stringify(data));
     const response = await handleResponse(
       parametersRequire[0].response.actionAskAgain,
       [parametersRequire[0]],
@@ -272,7 +309,6 @@ const requireParamsIntent = async (
         }),
       ),
     );
-    await client.delAsync(sessionId);
     return actionResponse.concat(response);
   }
   return null;
@@ -294,7 +330,7 @@ const checkChildNode = async (sessionId, currentNode, resultQueue) => {
           parameters,
           isMappingOneOne: false,
         };
-        await client.setAsync(sessionId, 3600, JSON.stringify(data));
+        await client.setexAsync(sessionId, 3600, JSON.stringify(data));
         return;
       case NODE_CONDITION:
         type = NODE_CONDITION;
@@ -451,7 +487,7 @@ const handleCheckRequireParamsAgain = async (
             message,
             type: 'User',
             botId: bot,
-            workflowId: currentNode.workflowId,
+            workflowId: data.workflowId,
             STATUS_NOT_UNDERSTAND,
           }),
         ),
@@ -460,7 +496,7 @@ const handleCheckRequireParamsAgain = async (
     }
     // nếu không quá số vòng lặp
     data.numberOfLoop += 1;
-    await client.setAsync(sessionId.toString(), 3600, JSON.stringify(data));
+    await client.setexAsync(sessionId.toString(), 3600, JSON.stringify(data));
     const response = await handleResponse(
       currentParameter.response.actionAskAgain,
       [currentParameter],
@@ -505,7 +541,7 @@ const handleCheckRequireParamsAgain = async (
         numberOfLoop: 0,
         isMappingOneOne: true,
       };
-      await client.setAsync(sessionId, 3600, JSON.stringify(newData));
+      await client.setexAsync(sessionId, 3600, JSON.stringify(newData));
       const response = await handleResponse(element.response.actionAskAgain, [
         element,
       ]);
@@ -525,7 +561,7 @@ const handleCheckRequireParamsAgain = async (
     return handleMappingOneOne(intent, resultQueue, sessionId);
   }
   const currentNode = await nodeDao.findNodeById(data.currentNodeId);
-  await client.setAsync(sessionId, 3600, JSON.stringify(data));
+  await client.setexAsync(sessionId, 3600, JSON.stringify(data));
   await checkChildNode(sessionId, currentNode, resultQueue);
 
   const responses = [...actionResponse];

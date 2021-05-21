@@ -128,6 +128,14 @@ const findNodeById = async (id) => {
       model: 'Action',
     },
     {
+      path: 'actionAskAgain.actionFail',
+      model: 'Action',
+    },
+    {
+      path: 'actionAskAgain.actionAskAgain',
+      model: 'Action',
+    },
+    {
       path: 'children.node',
       model: 'Node',
     },

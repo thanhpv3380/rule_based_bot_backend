@@ -15,7 +15,6 @@ const auth = async (req, res, next) => {
   if (['/auths/logout', '/auths/verify'].includes(req.path)) {
     req.accessToken = accessToken;
   }
-
   return next();
 };
 

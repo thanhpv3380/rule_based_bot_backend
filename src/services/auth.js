@@ -8,14 +8,10 @@ const userDao = require('../daos/user');
 const { generateRandomString } = require('../utils/random');
 const { JWT_SECRET_KEY, JWT_EXPIRES_TIME } = require('../configs');
 
-const generateAccessToken = async (userId) => {
-  const accessToken = await jwt.sign(
-    { userId },
-    'HoeRFImTOqMu1Pn95bp7Gsa7crDUbLpr',
-    {
-      expiresIn: JWT_EXPIRES_TIME,
-    },
-  );
+const generateAccessToken = async (email) => {
+  const accessToken = await jwt.sign({ email }, JWT_SECRET_KEY, {
+    expiresIn: JWT_EXPIRES_TIME,
+  });
   return accessToken;
 };
 
@@ -26,19 +22,15 @@ const login = async (email, password) => {
   const isCorrectPassword = await compareBcrypt(password, user.password);
   if (!isCorrectPassword) throw new CustomError(errorCodes.WRONG_PASSWORD);
 
-  const userId = user._id;
-  const accessToken = await generateAccessToken(userId);
+  const accessToken = await generateAccessToken(user.email);
   return { accessToken, user };
 };
 
 const verifyAccessToken = async (accessToken) => {
-  const data = await jwt.verify(
-    accessToken,
-    'HoeRFImTOqMu1Pn95bp7Gsa7crDUbLpr',
-  );
-  const { userId } = data;
+  const data = await jwt.verify(accessToken, JWT_SECRET_KEY);
+  const { email } = data;
 
-  const user = await userDao.findUser(userId);
+  const user = await userDao.findUserByCondition({ email });
   return user;
 };
 
@@ -66,6 +58,16 @@ const compareBcrypt = async (data, hashed) => {
   return isCorrect;
 };
 
+const createUser = async (data) => {
+  const user = await userDao.createUser(data);
+  return user;
+};
+
+const findByEmail = async (email) => {
+  const user = await userDao.findUserByCondition({ email });
+  return user;
+};
+
 const register = async ({ email, name, password }) => {
   const salt = generateSalt(10);
   password = password || generateRandomString(16);
@@ -75,4 +77,10 @@ const register = async ({ email, name, password }) => {
   return user;
 };
 
-module.exports = { login, register, verifyAccessToken };
+module.exports = {
+  login,
+  register,
+  verifyAccessToken,
+  createUser,
+  findByEmail,
+};

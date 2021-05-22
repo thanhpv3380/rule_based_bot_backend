@@ -1,10 +1,10 @@
 const authService = require('../../services/auth');
 const {
-  mqQueues: { USER_QUEUE },
+  mqQueues: { USER_EXCHANGE },
 } = require('../../configs');
 
 module.exports = (channel) => {
-  channel.assertExchange(USER_QUEUE, 'fanout', {
+  channel.assertExchange(USER_EXCHANGE, 'fanout', {
     durable: false,
   });
 
@@ -21,7 +21,7 @@ module.exports = (channel) => {
         ' [*] Waiting for messages in %s. To exit press CTRL+C',
         q.queue,
       );
-      channel.bindQueue(q.queue, USER_QUEUE, '');
+      channel.bindQueue(q.queue, USER_EXCHANGE, '');
 
       channel.consume(
         q.queue,

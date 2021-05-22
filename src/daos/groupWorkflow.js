@@ -1,7 +1,7 @@
 const {
   Types: { ObjectId },
 } = require('mongoose');
-const GroupWorkflow = require('../models/groupWorkflow');
+const GroupWorkflow = require('../models/groupWorkFlow');
 const { findByCondition } = require('../utils/db');
 
 const findAllGroupWorkflowAndItem = async ({ keyword, botId }) => {

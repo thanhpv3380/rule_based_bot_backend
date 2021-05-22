@@ -18,6 +18,6 @@ router.get(
   auth,
   asyncMiddleware(botController.removeUserInBot),
 );
-router.get('/ruleBot', asyncMiddleware(botController.getBotByToken));
+router.get('/verify-bot-token', asyncMiddleware(botController.getBotByToken));
 
 module.exports = router;

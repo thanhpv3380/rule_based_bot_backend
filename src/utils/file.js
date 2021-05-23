@@ -10,7 +10,7 @@ function mkDirByPathSync(targetDir, opts) {
   targetDir.split(sep).reduce((parentDir, childDir) => {
     const curDir = path.resolve(baseDir, parentDir, childDir);
     try {
-      fs.mkdirSync(curDir);
+      fs.mkdirSync(curDir, { recursive: true });
     } catch (err) {
       if (err.code !== 'EEXIST') {
         throw err;

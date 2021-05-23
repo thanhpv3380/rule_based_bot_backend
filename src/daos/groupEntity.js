@@ -79,10 +79,15 @@ const deleteGroupEntity = async (id) => {
   await GroupEntity.findByIdAndDelete(id);
 };
 
+const deleteByCondition = async (condition) => {
+  await GroupEntity.remove(condition);
+};
+
 module.exports = {
   findAllGroupEntityAndItem,
   findGroupEntityByCondition,
   createGroupEntity,
   updateGroupEntity,
   deleteGroupEntity,
+  deleteByCondition,
 };

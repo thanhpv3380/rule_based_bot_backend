@@ -9,6 +9,7 @@ router.get(
   getBotId,
   asyncMiddleware(permissionController.getAllPermissionByBot),
 );
+
 router.get(
   '/permissions/:id',
   auth,

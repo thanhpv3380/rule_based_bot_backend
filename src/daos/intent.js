@@ -61,19 +61,21 @@ const findParameterById = async (intentId, parameterId) => {
     { $unwind: '$parameters' },
     {
       $match: {
-        // _id: ObjectId(intentId),
+        _id: intentId,
         'parameters._id': parameterId,
       },
     },
   ]);
-  return (
-    (parameter[0] &&
-      parameter[0].parameters && {
+  if (parameter.length > 0) {
+    return (
+      (parameter[0].parameters && {
         name: parameter[0].parameters.parameterName,
         id: parameter[0].parameters._id,
       }) ||
-    null
-  );
+      null
+    );
+  }
+  return null;
 };
 
 const findParametersByList = async (data) => {
@@ -83,6 +85,10 @@ const findParametersByList = async (data) => {
   const parameters = [];
   intents.forEach((el) => parameters.push(...el.parameters));
   return parameters;
+};
+
+const deleteByCondition = async (condition) => {
+  await Intent.remove(condition);
 };
 
 module.exports = {
@@ -95,4 +101,5 @@ module.exports = {
   deleteIntent,
   deleteIntentByGroupId,
   findParametersByList,
+  deleteByCondition,
 };

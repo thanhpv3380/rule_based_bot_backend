@@ -55,10 +55,15 @@ const deleteSlot = async (slotId) => {
   await Slot.findByIdAndDelete(slotId);
 };
 
+const deleteByCondition = async (condition) => {
+  await Slot.remove(condition);
+};
+
 module.exports = {
   findAllSlot,
   findSlot,
   createSlot,
   updateSlot,
   deleteSlot,
+  deleteByCondition,
 };

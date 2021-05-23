@@ -79,10 +79,15 @@ const deleteGroupAction = async (id) => {
   await GroupAction.findByIdAndDelete(id);
 };
 
+const deleteByCondition = async (condition) => {
+  await GroupAction.remove(condition);
+};
+
 module.exports = {
   findAllGroupActionAndItem,
   findGroupActionByCondition,
   createGroupAction,
   updateGroupAction,
   deleteGroupAction,
+  deleteByCondition,
 };

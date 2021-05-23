@@ -59,10 +59,15 @@ const deleteDictionary = async (dictionaryId) => {
   await Dictionary.findByIdAndDelete(dictionaryId);
 };
 
+const deleteByCondition = async (condition) => {
+  await Dictionary.remove(condition);
+};
+
 module.exports = {
   findAllDictionary,
   findDictionary,
   createDictionary,
   updateDictionary,
   deleteDictionary,
+  deleteByCondition,
 };

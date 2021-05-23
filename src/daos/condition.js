@@ -56,6 +56,10 @@ const findById = async (id) => {
   return condition[0];
 };
 
+const deleteByCondition = async (condition) => {
+  await Condition.remove(condition);
+};
+
 module.exports = {
   findById,
   findAllConditionByCondition,
@@ -63,4 +67,5 @@ module.exports = {
   createCondition,
   updateCondition,
   deleteCondition,
+  deleteByCondition,
 };

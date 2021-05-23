@@ -17,6 +17,7 @@ const {
   SEND_QUEUE,
   OUTPUT_QUEUE,
   LOG_MESSAGE_QUEUE,
+  USER_EXCHANGE,
 } = process.env;
 
 const { A_WEEK } = require('../constants');
@@ -26,6 +27,7 @@ const mqQueues = {
   SEND_QUEUE,
   OUTPUT_QUEUE,
   LOG_MESSAGE_QUEUE,
+  USER_EXCHANGE,
 };
 
 module.exports = {

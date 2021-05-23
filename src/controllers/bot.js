@@ -1,12 +1,12 @@
 const botService = require('../services/bot');
 
 const getAllBot = async (req, res) => {
-  const { key, searchFields, limit, offset, fields, sort } = req.query;
+  const { key, search, limit, offset, fields, sort } = req.query;
   const { user } = req;
   const { bots, metadata } = await botService.findAllBot({
     userId: user.id,
     key,
-    searchFields,
+    searchFields: search,
     limit,
     offset,
     fields,
@@ -67,9 +67,9 @@ const removeUserInBot = async (req, res) => {
 };
 
 const getBotByToken = async (req, res) => {
-  const { accessToken } = req.params;
-  const bot = await botService.findBotByToken(accessToken);
-  return res.send({ status: 1, result: { data: bot } });
+  const { botToken } = req.params;
+  const bot = await botService.findBotByToken(botToken);
+  return res.send({ status: 1, result: bot });
 };
 
 const getRoleInBot = async (req, res) => {

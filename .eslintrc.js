@@ -22,5 +22,7 @@ module.exports = {
     'no-restricted-syntax': 0,
     'global-require': 0,
   },
-  globals: {},
+  globals: {
+    PRODUCER: true,
+  },
 };

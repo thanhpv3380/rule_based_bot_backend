@@ -1,6 +1,8 @@
 /* eslint-disable no-console */
 const outputConsumer = require('./outputConsumer');
 const logMessageConsumer = require('./logMessageConsumer');
+const userConummer = require('./userConsumer');
+const test = require('./testSendMessage');
 
 function consumer(connection) {
   connection.createChannel((err, channel) => {
@@ -12,8 +14,10 @@ function consumer(connection) {
       console.error('RabbitMQ Channel closed');
     });
 
-    outputConsumer(channel);
     logMessageConsumer(channel);
+    userConummer(channel);
+    test(channel);
+    outputConsumer(channel);
   });
 }
 

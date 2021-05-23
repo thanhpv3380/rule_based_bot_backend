@@ -7,13 +7,20 @@ const getAction = async (req, res) => {
   const { bot } = req;
   const { usersay } = req.query;
   console.time();
+
   const response = await chatbotService.getAction(
     `TEST${bot.id}`,
     usersay,
     null,
     bot.id,
   );
-  console.timeEnd();
+  // const response = await chatbotService.getAction(
+  //   '8a89c877-e01b-4452-9a4b-5586feba10ea',
+  //   usersay,
+  //   'output_queue',
+  //   bot.id,
+  // );
+  // console.timeEnd();
   res.send({ status: 1, result: response });
 };
 

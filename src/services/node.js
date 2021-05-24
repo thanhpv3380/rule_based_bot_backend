@@ -42,6 +42,10 @@ const updateNode = async (id, data) => {
 };
 
 const deleteNode = async (workflowId, nodeId) => {
+  const node = nodeDao.findNodeById(nodeId);
+  if (node.type === 'CONDITION') {
+    await conditionDao.deleteCondition(node.condition);
+  }
   await nodeDao.deleteNode(nodeId);
   await nodeDao.deleteNodeConnect(workflowId, nodeId);
 };

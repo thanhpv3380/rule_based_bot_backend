@@ -10,27 +10,32 @@ const messageLogSchema = new mongoose.Schema(
       type: ObjectId,
       ref: 'Bot',
     },
-    type: { type: String }, //BOT, USER
-    status: { type: String },
+    user: String,
     workflow: {
       type: ObjectId,
       ref: 'Workflow',
     },
-    message: {
-      text: String,
-      attachment: {
-        type: String, //IMAGE, AUDIO, VIDEO, FILE, CATEGORY
-        payload: {
-          url: String,
-          elements: [
-            {
-              label: String,
-              value: String,
+    messages: [
+      {
+        from: String, //BOT, USE
+        status: String, // trả lời được hay ko,...
+        message: {
+          text: String,
+          attachment: {
+            type: String, //IMAGE, AUDIO, VIDEO, FILE, CATEGORY
+            payload: {
+              url: String,
+              elements: [
+                {
+                  label: String,
+                  value: String,
+                },
+              ],
             },
-          ],
+          },
         },
       },
-    },
+    ],
   },
   {
     timestamps: true,

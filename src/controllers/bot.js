@@ -20,7 +20,7 @@ const getAllBotByRole = async (req, res) => {
   const { sort } = req.query;
   const { user } = req;
   const { bots, metadata } = await botService.findAllBotByRole({
-    userId: user.id,
+    userId: user._id,
     sort,
   });
 

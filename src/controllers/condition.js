@@ -20,8 +20,8 @@ const update = async (req, res) => {
     operator,
     conditions,
   };
-  // const condition = await conditionService.updateCondition(id, data);
-  return res.send({ status: 1, result: data });
+  const condition = await conditionService.updateCondition(id, data);
+  return res.send({ status: 1, result: condition });
 };
 
 const getConditionById = async (req, res) => {

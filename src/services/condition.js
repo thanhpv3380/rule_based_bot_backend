@@ -2,6 +2,7 @@ const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
 const conditionDao = require('../daos/condition');
 const intentDao = require('../daos/intent');
+const slotDao = require('../daos/slot');
 
 const createCondition = async (data) => {
   const condition = await conditionDao.createCondition(data);
@@ -20,10 +21,12 @@ const findById = async (id) => {
   }
   const conditionsResponse = [];
   for (const el of condition.conditions) {
-    const parameter = await intentDao.findParameterById(
-      el.intent,
-      el.parameter,
-    );
+    let parameter = null;
+    if (el.intent) {
+      parameter = await intentDao.findParameterById(el.intent, el.parameter);
+    } else {
+      parameter = await slotDao.findSlot({ _id: el.parameter });
+    }
     console.log({ parameter });
     const data = {
       ...el,

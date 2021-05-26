@@ -56,8 +56,9 @@ const findAllBotByRole = async ({ userId, sort }) => {
     fields: ['_id', 'bot', 'role'],
     populate: ['bot'],
   });
+  const listBot = data.map((el) => el.bot);
 
-  return { bots: data, metadata };
+  return { bots: listBot, metadata };
 };
 
 const findBotById = async (id) => {

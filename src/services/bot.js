@@ -24,7 +24,6 @@ const slotDao = require('../daos/slot');
 const workflowDao = require('../daos/workflow');
 
 const findAllBot = async ({
-  userId,
   key,
   searchFields,
   limit,

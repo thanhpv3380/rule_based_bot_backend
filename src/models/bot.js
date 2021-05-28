@@ -12,6 +12,15 @@ const botSchema = new mongoose.Schema(
       ref: 'User',
     },
     botToken: String,
+    permissions: [
+      {
+        user: {
+          type: ObjectId,
+          ref: 'User',
+        },
+        role: String,
+      },
+    ],
   },
   {
     timestamps: true,

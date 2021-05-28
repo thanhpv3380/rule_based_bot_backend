@@ -37,7 +37,6 @@ const createBot = async (data, userId) => {
   const bot = await Bot.create({
     ...data,
     createBy: userId,
-    users: [userId],
   });
   return bot;
 };
@@ -49,16 +48,12 @@ const updateBot = async (botId, data) => {
   return bot;
 };
 
-const deleteBot = async (botId) => {
-  await Bot.findByIdAndDelete(botId);
-};
-
-const addUserInBot = async (botId, userId) => {
+const addPermission = async (botId, data) => {
   const bot = await Bot.findByIdAndUpdate(
     botId,
     {
       $push: {
-        users: userId,
+        permissions: { ...data },
       },
     },
     {
@@ -68,12 +63,14 @@ const addUserInBot = async (botId, userId) => {
   return bot;
 };
 
-const removeUserInBot = async (botId, userId) => {
+const deletePermission = async (botId, userId) => {
   const bot = await Bot.findByIdAndUpdate(
     botId,
     {
       $pull: {
-        users: userId,
+        permissions: {
+          user: userId,
+        },
       },
     },
     {
@@ -81,6 +78,10 @@ const removeUserInBot = async (botId, userId) => {
     },
   );
   return bot;
+};
+
+const deleteBot = async (botId) => {
+  await Bot.findByIdAndDelete(botId);
 };
 
 module.exports = {
@@ -89,6 +90,6 @@ module.exports = {
   createBot,
   updateBot,
   deleteBot,
-  addUserInBot,
-  removeUserInBot,
+  addPermission,
+  deletePermission,
 };

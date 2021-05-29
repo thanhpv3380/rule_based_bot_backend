@@ -2,6 +2,7 @@
 const { v4: uuidv4 } = require('uuid');
 const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
+
 const {
   GROUP_SINGLE,
   GROUP_SINGLE_NAME,
@@ -12,7 +13,6 @@ const groupActionDao = require('../daos/groupAction');
 const groupIntentDao = require('../daos/groupIntent');
 const groupEntityDao = require('../daos/groupEntity');
 const groupWorkflowDao = require('../daos/groupWorkflow');
-const permissionDao = require('../daos/permission');
 const actionDao = require('../daos/action');
 const intentDao = require('../daos/intent');
 const conditionDao = require('../daos/condition');
@@ -23,53 +23,64 @@ const nodeDao = require('../daos/node');
 const slotDao = require('../daos/slot');
 const workflowDao = require('../daos/workflow');
 
-const findAllBot = async ({
-  userId,
-  key,
-  searchFields,
-  limit,
-  offset,
-  fields,
-  sort,
-}) => {
-  const newSearchFields = searchFields ? searchFields.split(',') : null;
-  const newFields = fields ? fields.split(',') : null;
-  const newSort = sort ? sort.split(',') : null;
-
-  const { data, metadata } = await botDao.findAllBot({
-    key,
-    searchFields: newSearchFields,
-    offset,
-    limit,
-    fields: newFields,
-    sort: newSort,
-    populate: ['createBy', 'users'],
-  });
-
-  return { bots: data, metadata };
-};
-
 const findAllBotByRole = async ({ userId, sort }) => {
-  const { data, metadata } = await permissionDao.findAllPermission({
-    query: { user: userId },
-    sort,
-    fields: ['_id', 'bot', 'role'],
-    populate: ['bot'],
+  const newSort = sort && sort.split(',');
+  const { data, metadata } = await botDao.findAllBot({
+    sort: newSort,
+    query: {
+      'permissions.user': userId,
+    },
+    populate: ['createBy', 'permissions.user'],
   });
 
   return { bots: data, metadata };
 };
 
-const findBotById = async (id) => {
-  const bot = await botDao.findBot({ _id: id }, null, ['createBy', 'users']);
+const findBotById = async ({ botId, userId }) => {
+  const bot = await botDao.findBot(
+    { _id: botId, 'permissions.user': userId },
+    null,
+    ['createBy', 'permissions.user'],
+  );
   if (!bot) {
     throw new CustomError(errorCodes.NOT_FOUND);
   }
   return bot;
 };
 
+const addPermission = async (id, data) => {
+  const botExist = await botDao.findBot({
+    _id: id,
+  });
+
+  if (!botExist) {
+    throw new CustomError(errorCodes.NOT_FOUND);
+  }
+
+  const bot = await botDao.addPermission(id, data);
+  return bot;
+};
+
+const deletePermission = async (id, userId) => {
+  const botExist = await botDao.findBot({
+    _id: id,
+  });
+
+  if (!botExist) {
+    throw new CustomError(errorCodes.NOT_FOUND);
+  }
+  const bot = await botDao.deletePermission(id, userId);
+  return bot;
+};
+
 const createBot = async (userId, data) => {
   data.botToken = uuidv4();
+  data.permissions = [
+    {
+      user: userId,
+      role: ROLE_OWNER,
+    },
+  ];
   const bot = await botDao.createBot(data, userId);
   await groupActionDao.createGroupAction({
     name: GROUP_SINGLE_NAME,
@@ -90,11 +101,6 @@ const createBot = async (userId, data) => {
     name: GROUP_SINGLE_NAME,
     botId: bot.id,
     groupType: GROUP_SINGLE,
-  });
-  await permissionDao.createPermission({
-    role: ROLE_OWNER,
-    bot: bot.id,
-    user: userId,
   });
   return bot;
 };
@@ -118,7 +124,6 @@ const deleteBot = async (id) => {
   await groupEntityDao.deleteByCondition(condition);
   await groupWorkflowDao.deleteByCondition(condition);
 
-  await permissionDao.deleteByCondition(condition);
   await actionDao.deleteByCondition(condition);
   await intentDao.deleteByCondition(condition);
   await conditionDao.deleteByCondition(condition);
@@ -132,16 +137,6 @@ const deleteBot = async (id) => {
   await botDao.deleteBot(id);
 };
 
-const addUserInBot = async (botId, userId) => {
-  const bot = await botDao.addUserInBot(botId, userId);
-  return bot;
-};
-
-const removeUserInBot = async (botId, userId) => {
-  const bot = await botDao.removeUserInBot(botId, userId);
-  return bot;
-};
-
 const findBotByToken = async (accessToken) => {
   const bot = await botDao.findBot(
     { botToken: accessToken },
@@ -152,22 +147,26 @@ const findBotByToken = async (accessToken) => {
 };
 
 const findRoleInBot = async ({ botId, userId }) => {
-  const permission = await permissionDao.findPermission(
-    { bot: botId, user: userId },
-    ['role'],
-  );
+  const bot = await botDao.findBot({ _id: botId }, ['permissions']);
+  if (!bot) {
+    throw new CustomError(errorCodes.NOT_FOUND);
+  }
+  const permission =
+    bot.permissions &&
+    bot.permissions.find((el) => {
+      return el.user.equals(userId);
+    });
   return (permission && permission.role) || null;
 };
 
 module.exports = {
-  findAllBot,
   findAllBotByRole,
   findBotById,
   createBot,
   updateBot,
   deleteBot,
-  addUserInBot,
-  removeUserInBot,
   findBotByToken,
   findRoleInBot,
+  addPermission,
+  deletePermission,
 };

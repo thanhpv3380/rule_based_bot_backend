@@ -59,30 +59,6 @@ const findDashboardByCondition = async (botId, startDate, endDate) => {
   );
   const dashboards = [];
   for (let dateAgo = rangeDate; dateAgo >= 0; dateAgo -= 1) {
-    // for (const dashboard of data) {
-    //   const currentDate = moment(new Date(endDate))
-    //     .subtract(dateAgo, 'day')
-    //     .format('DD-MM-YYYY');
-    //   if (currentDate === moment(dashboard.createdAt).format('DD-MM-YYYY')) {
-    //     dashboards.push({
-    //       ...dashboard,
-    //       createdAt: moment(dashboard.createdAt).format('DD-MM-YYYY'),
-    //     });
-    //     break;
-    //   } else {
-    //     dashboards.push({
-    //       ...dashboard,
-    //       totalUsersay: 0,
-    //       answeredUsersay: 0,
-    //       notUnderstandUsersay: 0,
-    //       defaultUsersay: 0,
-    //       needConfirmUsersay: 0,
-    //       createdAt: moment(new Date(endDate))
-    //         .subtract(dateAgo, 'day')
-    //         .format('DD-MM-YYYY'),
-    //     });
-    //   }
-    // }
     const currentDate = moment(new Date(endDate))
       .subtract(dateAgo, 'day')
       .format('DD-MM-YYYY');

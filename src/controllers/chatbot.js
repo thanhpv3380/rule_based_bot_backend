@@ -11,7 +11,6 @@ const getAction = async (req, res) => {
   const response = await chatbotService.getAction(
     `TEST${bot.id}`,
     usersay,
-    null,
     bot.id,
   );
   // const response = await chatbotService.getAction(

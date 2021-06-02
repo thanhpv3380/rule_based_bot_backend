@@ -1,6 +1,10 @@
+const {
+  Types: { ObjectId },
+} = require('mongoose');
 const moment = require('moment');
-const messageLogDao = require('../daos/messageLog');
+const messageDao = require('../daos/message');
 const dashboardDao = require('../daos/dashboard');
+const conversationDao = require('../daos/conversation');
 const {
   STATUS_DEFAULT,
   STATUS_ANSWERED,
@@ -10,16 +14,35 @@ const {
 } = require('../constants');
 
 const handleLogMessage = async (data) => {
-  const messageLog = await messageLogDao.createMessageLog(data);
+  const { bot, status, from, sessionId } = data;
+  let conversation = await conversationDao.findConversation({
+    sessionId,
+  });
+  if (conversation === null) {
+    // todo save conversation
+    conversation = await conversationDao.createConversation({
+      _id: new ObjectId(),
+      sessionId,
+      bot,
+      workflow: data.workflowId,
+    });
+  }
 
+  const message = await messageDao.createMessage({
+    message: data.message,
+    bot,
+    conversation: conversation._id,
+    from,
+    status,
+  });
+  if (from === 'USER') {
+    await saveOrUpdateDashboard(message);
+  }
+};
+
+const saveOrUpdateDashboard = async (message) => {
   const today = moment().startOf('day');
 
-  // const listMessageToday = await messageLogDao.findMessageLog({
-  //   createdAt: {
-  //     $gte: today.toDate(),
-  //     $lte: new Date(),
-  //   },
-  // });
   const dashboardToday = await dashboardDao.findDashboardByCondition({
     createdAt: {
       $gte: today.toDate(),
@@ -36,7 +59,7 @@ const handleLogMessage = async (data) => {
     } = dashboardToday;
 
     const newDashboard = handleDataDashboard(
-      messageLog.status,
+      message.status,
       totalUsersay,
       answeredUsersay,
       notUnderstandUsersay,
@@ -45,7 +68,7 @@ const handleLogMessage = async (data) => {
     );
     await dashboardDao.updateDashboard(dashboardToday._id, newDashboard);
   } else {
-    const newDashboard = handleDataDashboard(messageLog.status, 0, 0, 0, 0, 0);
+    const newDashboard = handleDataDashboard(message.status, 0, 0, 0, 0, 0);
     await dashboardDao.createDashboard(newDashboard);
   }
 };

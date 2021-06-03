@@ -69,7 +69,7 @@ const getRoleInBot = async (req, res) => {
 
 const getExportFile = async (req, res) => {
   const { id } = req.params;
-  const { bot, data } = await botService.getFileExportOfBot(id);
+  // const { bot, data } = await botService.getFileExportOfBot(id);
   // res.set('Content-Type', 'application/octet-stream');
   // res.set('Content-Disposition', `attachment; filename=${bot.name}`);
   // res.set('Content-Length', data.length);

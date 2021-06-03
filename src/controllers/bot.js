@@ -67,6 +67,15 @@ const getRoleInBot = async (req, res) => {
   return res.send({ status: 1, result: { role } });
 };
 
+const getExportFile = async (req, res) => {
+  const { id } = req.params;
+  const { bot, data } = await botService.getFileExportOfBot(id);
+  // res.set('Content-Type', 'application/octet-stream');
+  // res.set('Content-Disposition', `attachment; filename=${bot.name}`);
+  // res.set('Content-Length', data.length);
+  return res.send({ status: 1, result: '1213' });
+};
+
 module.exports = {
   getAllBotByRole,
   getBotById,
@@ -77,4 +86,5 @@ module.exports = {
   getRoleInBot,
   addPermission,
   deletePermission,
+  getExportFile,
 };

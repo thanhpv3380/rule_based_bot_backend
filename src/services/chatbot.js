@@ -1,6 +1,9 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable prefer-destructuring */
 /* eslint-disable no-plusplus */
+const {
+  Types: { ObjectId },
+} = require('mongoose');
 const axios = require('axios');
 const camelcaseKeys = require('camelcase-keys');
 const { client } = require('../utils/redis');
@@ -620,6 +623,7 @@ const findIntentById = async (id) => {
 const sendToQueue = async (data, sessionId, workflowId, status) => {
   const { PRODUCER } = global;
   // message of user
+  const conversationId = new ObjectId();
   await PRODUCER.sendToQueue(
     LOG_MESSAGE_QUEUE,
     Buffer.from(

@@ -67,8 +67,14 @@ const findConversationAndItem = async ({ id }) => {
   return conversation[0];
 };
 
+const createConversation = async (data) => {
+  const conversation = await Conversation.create(data);
+  return conversation;
+};
+
 module.exports = {
   findAllConversation,
   findConversation,
   findConversationAndItem,
+  createConversation,
 };

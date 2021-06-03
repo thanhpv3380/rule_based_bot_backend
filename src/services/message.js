@@ -2,6 +2,7 @@ const {
   Types: { ObjectId },
 } = require('mongoose');
 const moment = require('moment');
+const { client } = require('../utils/redis');
 const messageDao = require('../daos/message');
 const dashboardDao = require('../daos/dashboard');
 const conversationDao = require('../daos/conversation');
@@ -15,23 +16,30 @@ const {
 
 const handleLogMessage = async (data) => {
   const { bot, status, from, sessionId } = data;
+  const session = await client.getAsync(`LOG${sessionId}`);
+  let id = null;
   let conversation = await conversationDao.findConversation({
     sessionId,
   });
-  if (conversation === null) {
-    // todo save conversation
+  console.log(session, 'session');
+  if (!session && !conversation) {
+    id = new ObjectId();
+    await client.setAsync(`LOG${sessionId}`, id.toString());
     conversation = await conversationDao.createConversation({
-      _id: new ObjectId(),
+      _id: id,
       sessionId,
       bot,
       workflow: data.workflowId,
     });
+  } else {
+    id = session;
+    await client.delAsync(`LOG${sessionId}`);
   }
 
   const message = await messageDao.createMessage({
     message: data.message,
     bot,
-    conversation: conversation._id,
+    conversation: id,
     from,
     status,
   });

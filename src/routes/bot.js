@@ -19,5 +19,10 @@ router.get(
   asyncMiddleware(botController.removeUserInBot),
 );
 router.get('/verify-bot-token', asyncMiddleware(botController.getBotByToken));
+router.get(
+  '/bots/:id/export-file',
+  auth,
+  asyncMiddleware(botController.getExportFile),
+);
 
 module.exports = router;

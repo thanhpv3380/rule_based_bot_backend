@@ -41,7 +41,16 @@ const createWorkflow = async ({
     groupWorkflowId,
     botId,
   });
-
+  await nodeDao.createNode({
+    type: 'START',
+    children: [],
+    position: {
+      x: 80,
+      y: 60,
+    },
+    workflow: workflow._id,
+    parent: [],
+  });
   return workflow;
 };
 

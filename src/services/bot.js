@@ -159,6 +159,11 @@ const findRoleInBot = async ({ botId, userId }) => {
   return (permission && permission.role) || null;
 };
 
+const getFileExportOfBot = async (botId) => {
+  // const bot = await botDao.findBot({ _id: botId });
+  // return
+};
+
 module.exports = {
   findAllBotByRole,
   findBotById,
@@ -169,4 +174,5 @@ module.exports = {
   findRoleInBot,
   addPermission,
   deletePermission,
+  getFileExportOfBot,
 };

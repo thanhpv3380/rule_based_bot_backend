@@ -1,5 +1,7 @@
 /* eslint-disable radix */
 const { v4: uuidv4 } = require('uuid');
+const admz = require('adm-zip');
+const fs = require('fs');
 const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
 
@@ -161,7 +163,18 @@ const findRoleInBot = async ({ botId, userId }) => {
 
 const getFileExportOfBot = async (botId) => {
   // const bot = await botDao.findBot({ _id: botId });
-  // return
+  const zp = new admz();
+  const content = {
+    name: 'henry',
+  };
+  zp.addFile(
+    'bot.json',
+    Buffer.from(JSON.stringify(content), 'utf8'),
+    'entry comment goes here',
+  );
+  console.log(zp.readFile('bot.json'));
+  const data = zp.toBuffer();
+  return data;
 };
 
 module.exports = {

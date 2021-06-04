@@ -11,7 +11,6 @@ module.exports = (channel) => {
   channel.consume(LOG_MESSAGE_QUEUE, (message) => {
     channel.ack(message);
     const content = JSON.parse(message.content.toString('utf8'));
-    console.log(content, 'message log');
     // const {
     //   message: { text },
     //   sessionId,

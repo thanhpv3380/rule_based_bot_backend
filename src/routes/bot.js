@@ -23,5 +23,6 @@ router.get(
   '/bots/:id/export-file',
   asyncMiddleware(botController.getExportFile),
 );
+router.put('/bots/:id/import-file', asyncMiddleware(botController.importFile));
 
 module.exports = router;

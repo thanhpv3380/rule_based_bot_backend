@@ -2,7 +2,31 @@ const {
   Types: { ObjectId },
 } = require('mongoose');
 const Node = require('../models/node');
-const { findByCondition } = require('../utils/db');
+const { findByCondition, findAll } = require('../utils/db');
+
+const findAllNodeByCondition = async ({
+  key,
+  searchFields,
+  query,
+  offset,
+  limit,
+  fields,
+  sort,
+  populate,
+}) => {
+  const { data, metadata } = await findAll({
+    model: Node,
+    key,
+    searchFields,
+    query,
+    offset,
+    limit,
+    fields,
+    sort,
+    populate,
+  });
+  return { data, metadata };
+};
 
 const findNodeByCondition = async (condition) => {
   const node = await findByCondition(Node, condition);
@@ -148,6 +172,7 @@ const deleteByCondition = async (condition) => {
 };
 
 module.exports = {
+  findAllNodeByCondition,
   findNodeByCondition,
   createNode,
   updateNode,

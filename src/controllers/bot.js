@@ -28,7 +28,7 @@ const deletePermission = async (req, res) => {
 const getBotById = async (req, res) => {
   const { id: botId } = req.params;
   const { user } = req;
-  const bot = await botService.findBotById({ botId, userId: user._id });
+  const bot = await botService.findBotById(botId);
   return res.send({ status: 1, result: { bot } });
 };
 
@@ -69,12 +69,18 @@ const getRoleInBot = async (req, res) => {
 
 const getExportFile = async (req, res) => {
   const { id } = req.params;
-  const name = 'test';
-  const data = await botService.getFileExportOfBot(id);
+  const { data, name } = await botService.getFileExportOfBot(id);
   res.set('Content-Type', 'application/octet-stream');
-  res.set('Content-Disposition', `attachment; filename=${name}`);
+  res.set('Content-Disposition', `attachment; filename=${name}.zip`);
   res.set('Content-Length', data.length);
   res.send(data);
+};
+
+const importFile = async (req, res) => {
+  const { id } = req.params;
+  const file = req.files;
+  const data = await botService.importFile(id, file);
+  return res.send({ status: 1, result: data });
 };
 
 module.exports = {
@@ -88,4 +94,5 @@ module.exports = {
   addPermission,
   deletePermission,
   getExportFile,
+  importFile,
 };

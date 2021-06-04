@@ -1,7 +1,7 @@
+/* eslint-disable guard-for-in */
 /* eslint-disable radix */
 const { v4: uuidv4 } = require('uuid');
 const admz = require('adm-zip');
-const fs = require('fs');
 const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
 
@@ -25,6 +25,9 @@ const nodeDao = require('../daos/node');
 const slotDao = require('../daos/slot');
 const workflowDao = require('../daos/workflow');
 
+// eslint-disable-next-line new-cap
+const zp = new admz();
+
 const findAllBotByRole = async ({ userId, sort }) => {
   const newSort = sort && sort.split(',');
   const { data, metadata } = await botDao.findAllBot({
@@ -38,12 +41,8 @@ const findAllBotByRole = async ({ userId, sort }) => {
   return { bots: data, metadata };
 };
 
-const findBotById = async ({ botId, userId }) => {
-  const bot = await botDao.findBot(
-    { _id: botId, 'permissions.user': userId },
-    null,
-    ['createBy', 'permissions.user'],
-  );
+const findBotById = async (id) => {
+  const bot = await botDao.findBot({ _id: id }, null, ['createBy', 'users']);
   if (!bot) {
     throw new CustomError(errorCodes.NOT_FOUND);
   }
@@ -162,19 +161,112 @@ const findRoleInBot = async ({ botId, userId }) => {
 };
 
 const getFileExportOfBot = async (botId) => {
-  // const bot = await botDao.findBot({ _id: botId });
-  const zp = new admz();
-  const content = {
-    name: 'henry',
-  };
+  const bot = await botDao.findBot({ _id: botId });
   zp.addFile(
     'bot.json',
-    Buffer.from(JSON.stringify(content), 'utf8'),
+    Buffer.from(JSON.stringify(bot), 'utf8'),
     'entry comment goes here',
   );
-  console.log(zp.readFile('bot.json'));
+  const { data: intents } = await intentDao.findAllIntentByCondition({
+    bot: botId,
+  });
+  for (const el in intents) {
+    zp.addFile(
+      `intents/${el.name}.json`,
+      Buffer.from(JSON.stringify(el), 'utf8'),
+      'entry comment goes here',
+    );
+  }
+  const { data: entities } = await entityDao.findAllEntityByCondition({
+    bot: botId,
+  });
+  for (const el in entities) {
+    zp.addFile(
+      `entities/${el.name}.json`,
+      Buffer.from(JSON.stringify(el), 'utf8'),
+      'entry comment goes here',
+    );
+  }
+  const { data: actions } = await actionDao.findAllActionByCondition({
+    bot: botId,
+  });
+  for (const el in actions) {
+    zp.addFile(
+      `actions/${el.name}.json`,
+      Buffer.from(JSON.stringify(el), 'utf8'),
+      'entry comment goes here',
+    );
+  }
+  const { data: conditions } = await actionDao.findAllActionByCondition({
+    bot: botId,
+  });
+  for (const el in conditions) {
+    zp.addFile(
+      `conditions/${el.name}.json`,
+      Buffer.from(JSON.stringify(el), 'utf8'),
+      'entry comment goes here',
+    );
+  }
+  const { data: workflows } = await workflowDao.findAllWorkflowByCondition({
+    bot: botId,
+  });
+  for (const el in workflows) {
+    zp.addFile(
+      `workflows/${el.name}.json`,
+      Buffer.from(JSON.stringify(el), 'utf8'),
+      'entry comment goes here',
+    );
+  }
+  const { data: nodes } = await nodeDao.findAllNodeByCondition({ bot: botId });
+  zp.addFile(
+    `nodes/nodes.json`,
+    Buffer.from(JSON.stringify(nodes), 'utf8'),
+    'entry comment goes here',
+  );
+
+  const groupActions = await groupActionDao.findAllGroupActionByCondition({
+    bot: botId,
+  });
+  zp.addFile(
+    `actions/groupActions.json`,
+    Buffer.from(JSON.stringify(groupActions), 'utf8'),
+    'entry comment goes here',
+  );
+  const groupIntents = await groupIntentDao.findAllGroupIntentByCondition({
+    bot: botId,
+  });
+  zp.addFile(
+    `intents/groupIntents.json`,
+    Buffer.from(JSON.stringify(groupIntents), 'utf8'),
+    'entry comment goes here',
+  );
+  const groupEntities = await groupEntityDao.findAllGroupEntityByCondition({
+    bot: botId,
+  });
+  zp.addFile(
+    `entities/groupEntities.json`,
+    Buffer.from(JSON.stringify(groupEntities), 'utf8'),
+    'entry comment goes here',
+  );
+  const groupWorkFlows = await groupWorkflowDao.findGroupWorkflowByCondition({
+    bot: botId,
+  });
+  zp.addFile(
+    `workflows/groupWorkFlows.json`,
+    Buffer.from(JSON.stringify(groupWorkFlows), 'utf8'),
+    'entry comment goes here',
+  );
+
   const data = zp.toBuffer();
-  return data;
+  return {
+    data,
+    name: bot.name,
+  };
+};
+
+const importFile = async (botId, file) => {
+  zp.readFile(file);
+  return 'test';
 };
 
 module.exports = {
@@ -188,4 +280,5 @@ module.exports = {
   addPermission,
   deletePermission,
   getFileExportOfBot,
+  importFile,
 };

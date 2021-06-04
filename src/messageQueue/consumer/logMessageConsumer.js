@@ -1,17 +1,16 @@
 /* eslint-disable no-console */
-const messageService = require('../../services/messageLog');
+const messageService = require('../../services/message');
 const {
   mqQueues: { LOG_MESSAGE_QUEUE },
 } = require('../../configs');
 
-module.exports = (channel) => {
+module.exports = async (channel) => {
   channel.assertQueue(LOG_MESSAGE_QUEUE, { durable: false });
   channel.prefetch(1);
 
-  channel.consume(LOG_MESSAGE_QUEUE, (message) => {
+  await channel.consume(LOG_MESSAGE_QUEUE, async (message) => {
     channel.ack(message);
     const content = JSON.parse(message.content.toString('utf8'));
-    console.log(content, 'message log');
     // const {
     //   message: { text },
     //   sessionId,
@@ -19,7 +18,7 @@ module.exports = (channel) => {
     //   accessToken,
     // } = content;
     try {
-      messageService.handleLogMessage(content);
+      await messageService.handleLogMessage(content);
     } catch (error) {
       console.log(error);
     }

@@ -33,18 +33,18 @@ router.delete(
   getBotId,
   asyncMiddleware(workflowController.deleteWorkflow),
 );
-// router.put(
-//   '/workflows/addNode/:id',
-//   auth,
-//   getBotId,
-//   workflowController.addNode,
-// );
+router.put(
+  '/workflows/addNode/:id',
+  auth,
+  getBotId,
+  workflowController.addNode,
+);
 
-// router.put(
-//   '/workflows/removeNode/:id',
-//   auth,
-//   getBotId,
-//   workflowController.removeNode,
-// );
+router.put(
+  '/workflows/removeNode/:id',
+  auth,
+  getBotId,
+  workflowController.removeNode,
+);
 
 module.exports = router;

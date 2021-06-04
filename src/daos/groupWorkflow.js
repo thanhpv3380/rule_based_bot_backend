@@ -2,7 +2,31 @@ const {
   Types: { ObjectId },
 } = require('mongoose');
 const GroupWorkflow = require('../models/groupWorkFlow');
-const { findByCondition } = require('../utils/db');
+const { findByCondition, findAll } = require('../utils/db');
+
+const findAllGroupWorkflowByCondition = async ({
+  key,
+  searchFields,
+  query,
+  offset,
+  limit,
+  fields,
+  sort,
+  populate,
+}) => {
+  const { data, metadata } = await findAll({
+    model: GroupWorkflow,
+    key,
+    searchFields,
+    query,
+    offset,
+    limit,
+    fields,
+    sort,
+    populate,
+  });
+  return { data, metadata };
+};
 
 const findAllGroupWorkflowAndItem = async ({ keyword, botId }) => {
   const groupWorkflows = await GroupWorkflow.aggregate([
@@ -84,6 +108,7 @@ const deleteByCondition = async (condition) => {
 };
 
 module.exports = {
+  findAllGroupWorkflowByCondition,
   findAllGroupWorkflowAndItem,
   findGroupWorkflowByCondition,
   createGroupWorkflow,

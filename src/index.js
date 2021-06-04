@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const morgan = require('morgan');
 const helmet = require('helmet');
+const fileupload = require('express-fileupload');
 
 const camelCaseReq = require('./middlewares/camelCaseReq');
 const omitReq = require('./middlewares/omitReq');
@@ -28,6 +29,7 @@ app.use(camelCaseReq);
 app.use(omitReq);
 app.use(snakeCaseRes());
 app.use(express.static(path.join(__dirname, '..', 'public')));
+app.use(fileupload());
 
 require('./routes')(app);
 require('./messageQueue/index');

@@ -38,16 +38,4 @@ module.exports = (channel) => {
       );
     },
   );
-
-  //   channel.assertExchange(USER_QUEUE, 'fanout', { durable: false });
-  //   channel.prefetch(1);
-  //   channel.assertQueue('');
-  //   channel.consume(USER_QUEUE, async (message) => {
-  //     channel.ack(message);
-  //     const content = JSON.parse(message.content.toString('utf8'));
-  //     console.log(content, 'create user');
-  //     if (content.type === 'CREATE_USER') {
-  //       await authService.createUser(content.user);
-  //     }
-  //   });
 };

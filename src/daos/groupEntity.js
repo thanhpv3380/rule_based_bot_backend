@@ -2,7 +2,31 @@ const {
   Types: { ObjectId },
 } = require('mongoose');
 const GroupEntity = require('../models/groupEntity');
-const { findByCondition } = require('../utils/db');
+const { findByCondition, findAll } = require('../utils/db');
+
+const findAllGroupEntityByCondition = async ({
+  key,
+  searchFields,
+  query,
+  offset,
+  limit,
+  fields,
+  sort,
+  populate,
+}) => {
+  const { data, metadata } = await findAll({
+    model: GroupEntity,
+    key,
+    searchFields,
+    query,
+    offset,
+    limit,
+    fields,
+    sort,
+    populate,
+  });
+  return { data, metadata };
+};
 
 const findAllGroupEntityAndItem = async ({ keyword, botId }) => {
   const groupEntities = await GroupEntity.aggregate([
@@ -84,6 +108,7 @@ const deleteByCondition = async (condition) => {
 };
 
 module.exports = {
+  findAllGroupEntityByCondition,
   findAllGroupEntityAndItem,
   findGroupEntityByCondition,
   createGroupEntity,

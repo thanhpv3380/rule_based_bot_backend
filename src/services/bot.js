@@ -41,8 +41,12 @@ const findAllBotByRole = async ({ userId, sort }) => {
   return { bots: data, metadata };
 };
 
-const findBotById = async (id) => {
-  const bot = await botDao.findBot({ _id: id }, null, ['createBy', 'users']);
+const findBotById = async ({ botId, userId }) => {
+  const bot = await botDao.findBot(
+    { _id: botId, 'permissions.user': userId },
+    null,
+    ['createBy', 'permissions.user'],
+  );
   if (!bot) {
     throw new CustomError(errorCodes.NOT_FOUND);
   }

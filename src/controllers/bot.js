@@ -28,7 +28,7 @@ const deletePermission = async (req, res) => {
 const getBotById = async (req, res) => {
   const { id: botId } = req.params;
   const { user } = req;
-  const bot = await botService.findBotById(botId);
+  const bot = await botService.findBotById({ botId, userId: user._id });
   return res.send({ status: 1, result: { bot } });
 };
 

@@ -54,7 +54,7 @@ const deleteBot = async (req, res) => {
 };
 
 const getBotByToken = async (req, res) => {
-  const { botToken } = req.params;
+  const { botToken } = req.query;
   const bot = await botService.findBotByToken(botToken);
   return res.send({ status: 1, result: bot });
 };

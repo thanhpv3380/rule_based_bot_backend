@@ -1,5 +1,8 @@
 /* eslint-disable guard-for-in */
 /* eslint-disable radix */
+const {
+  Types: { ObjectId },
+} = require('mongoose');
 const { v4: uuidv4 } = require('uuid');
 const admz = require('adm-zip');
 const CustomError = require('../errors/CustomError');
@@ -174,7 +177,7 @@ const getFileExportOfBot = async (botId) => {
   const { data: intents } = await intentDao.findAllIntentByCondition({
     bot: botId,
   });
-  for (const el in intents) {
+  for (const el of intents) {
     zp.addFile(
       `intents/${el.name}.json`,
       Buffer.from(JSON.stringify(el), 'utf8'),
@@ -184,7 +187,7 @@ const getFileExportOfBot = async (botId) => {
   const { data: entities } = await entityDao.findAllEntityByCondition({
     bot: botId,
   });
-  for (const el in entities) {
+  for (const el of entities) {
     zp.addFile(
       `entities/${el.name}.json`,
       Buffer.from(JSON.stringify(el), 'utf8'),
@@ -194,7 +197,7 @@ const getFileExportOfBot = async (botId) => {
   const { data: actions } = await actionDao.findAllActionByCondition({
     bot: botId,
   });
-  for (const el in actions) {
+  for (const el of actions) {
     zp.addFile(
       `actions/${el.name}.json`,
       Buffer.from(JSON.stringify(el), 'utf8'),
@@ -204,7 +207,7 @@ const getFileExportOfBot = async (botId) => {
   const { data: conditions } = await actionDao.findAllActionByCondition({
     bot: botId,
   });
-  for (const el in conditions) {
+  for (const el of conditions) {
     zp.addFile(
       `conditions/${el.name}.json`,
       Buffer.from(JSON.stringify(el), 'utf8'),
@@ -214,7 +217,7 @@ const getFileExportOfBot = async (botId) => {
   const { data: workflows } = await workflowDao.findAllWorkflowByCondition({
     bot: botId,
   });
-  for (const el in workflows) {
+  for (const el of workflows) {
     zp.addFile(
       `workflows/${el.name}.json`,
       Buffer.from(JSON.stringify(el), 'utf8'),
@@ -228,7 +231,9 @@ const getFileExportOfBot = async (botId) => {
     'entry comment goes here',
   );
 
-  const groupActions = await groupActionDao.findAllGroupActionByCondition({
+  const {
+    data: groupActions,
+  } = await groupActionDao.findAllGroupActionByCondition({
     bot: botId,
   });
   zp.addFile(
@@ -236,7 +241,9 @@ const getFileExportOfBot = async (botId) => {
     Buffer.from(JSON.stringify(groupActions), 'utf8'),
     'entry comment goes here',
   );
-  const groupIntents = await groupIntentDao.findAllGroupIntentByCondition({
+  const {
+    data: groupIntents,
+  } = await groupIntentDao.findAllGroupIntentByCondition({
     bot: botId,
   });
   zp.addFile(
@@ -244,7 +251,9 @@ const getFileExportOfBot = async (botId) => {
     Buffer.from(JSON.stringify(groupIntents), 'utf8'),
     'entry comment goes here',
   );
-  const groupEntities = await groupEntityDao.findAllGroupEntityByCondition({
+  const {
+    data: groupEntities,
+  } = await groupEntityDao.findAllGroupEntityByCondition({
     bot: botId,
   });
   zp.addFile(
@@ -252,11 +261,13 @@ const getFileExportOfBot = async (botId) => {
     Buffer.from(JSON.stringify(groupEntities), 'utf8'),
     'entry comment goes here',
   );
-  const groupWorkFlows = await groupWorkflowDao.findGroupWorkflowByCondition({
+  const {
+    data: groupWorkFlows,
+  } = await groupWorkflowDao.findAllGroupWorkflowByCondition({
     bot: botId,
   });
   zp.addFile(
-    `workflows/groupWorkFlows.json`,
+    `workflows/groupWorkflows.json`,
     Buffer.from(JSON.stringify(groupWorkFlows), 'utf8'),
     'entry comment goes here',
   );
@@ -269,8 +280,322 @@ const getFileExportOfBot = async (botId) => {
 };
 
 const importFile = async (botId, file) => {
-  zp.readFile(file);
-  return 'test';
+  await deleteOldData(botId);
+  const {
+    bot,
+    intents,
+    actions,
+    entities,
+    conditions,
+    workflows,
+    groupWorkflows,
+    groupIntents,
+    nodes,
+    groupEntities,
+    groupActions,
+  } = getDataFromFileImport(file.file.data);
+  bot._id = botId;
+  for (const elGroup of groupIntents) {
+    const idGroup = new ObjectId();
+    for (const el of intents) {
+      if (el.groupIntent === elGroup._id) {
+        el.groupIntent = idGroup;
+      }
+    }
+    elGroup.bot = botId;
+    elGroup._id = idGroup;
+  }
+
+  for (const elIntent of intents) {
+    const intentId = new ObjectId();
+    for (const elCondition of conditions) {
+      if (elCondition.conditions) {
+        for (const e of elCondition.conditions) {
+          if (e.intent === elIntent._id) {
+            e.intent = intentId;
+          }
+        }
+      }
+    }
+    for (const elNode of nodes) {
+      if (elNode.intent === elIntent._id) {
+        elNode.intent = intentId;
+      }
+    }
+    elIntent.bot = botId;
+    elIntent._id = intentId;
+  }
+
+  for (const elGroup of groupActions) {
+    const idGroup = new ObjectId();
+    for (const el of actions) {
+      if (el.groupAction === elGroup._id) {
+        el.groupAction = idGroup;
+      }
+    }
+    elGroup.bot = botId;
+    elGroup._id = idGroup;
+  }
+
+  for (const elAction of actions) {
+    const actionId = new ObjectId();
+    for (const elNode of nodes) {
+      if (elNode.action === elAction._id) {
+        elNode.action = actionId;
+      }
+      if (
+        elNode.actionAskAgain &&
+        elNode.actionAskAgain.actionAskAgain === elAction._id
+      ) {
+        elNode.actionAskAgain.actionAskAgain = actionId;
+      }
+      if (
+        elNode.actionFail &&
+        elNode.actionAskAgain.actionFail === elAction._id
+      ) {
+        elNode.actionAskAgain.actionFail = actionId;
+      }
+    }
+    for (const elIntent of intents) {
+      if (elIntent.mappingAction && elIntent.mappingAction === elAction._id) {
+        elIntent.mappingAction = actionId;
+      }
+      if (elIntent.parameters) {
+        for (const parameter of elIntent.parameters) {
+          // Todo có thể lỗi
+          if (
+            parameter.response &&
+            parameter.response.actionAskAgain === elAction._id
+          ) {
+            parameter.response.actionAskAgain = actionId;
+          }
+          if (
+            parameter.response &&
+            parameter.response.actionBreak === elAction._id
+          ) {
+            parameter.response.actionBreak = actionId;
+          }
+        }
+      }
+    }
+    elAction.bot = botId;
+    elAction._id = actionId;
+  }
+
+  for (const elGroup of groupEntities) {
+    const idGroup = new ObjectId();
+    for (const el of entities) {
+      if (el.groupEntity === elGroup._id) {
+        el.groupEntity = idGroup;
+      }
+    }
+    elGroup.bot = botId;
+    elGroup._id = idGroup;
+  }
+
+  for (const elEntity of entities) {
+    const entityId = new ObjectId();
+    for (const elIntent of intents) {
+      if (elIntent.parameters) {
+        for (const parameter of elIntent.parameters) {
+          if (parameter.entity === elEntity._id) {
+            parameter.entity = entityId;
+          }
+        }
+      }
+    }
+    elEntity.bot = botId;
+    elEntity._id = entityId;
+  }
+
+  for (const elCondition of conditions) {
+    const conditionId = new ObjectId();
+    for (const elNode of nodes) {
+      if (elNode.condition === elCondition._id) {
+        elNode.condition = conditionId;
+      }
+    }
+    elCondition.bot = botId;
+    elCondition._id = conditionId;
+  }
+
+  for (const node of nodes) {
+    const nodeId = new ObjectId();
+    for (const mapNode of nodes) {
+      if (mapNode.children) {
+        for (const nodeChildren of mapNode.children) {
+          if (nodeChildren.node === node._id) {
+            nodeChildren.node = nodeId;
+          }
+        }
+      }
+      if (mapNode.parent) {
+        for (const nodeParent of mapNode.parent) {
+          if (nodeParent.node === node._id) {
+            nodeParent.node = nodeId;
+          }
+        }
+      }
+    }
+    node.bot = botId;
+    node._id = nodeId;
+  }
+
+  for (const elGroup of groupWorkflows) {
+    const idGroup = new ObjectId();
+    for (const el of workflows) {
+      if (el.groupWorkflow === elGroup._id) {
+        el.groupWorkflow = idGroup;
+      }
+    }
+    elGroup.bot = botId;
+    elGroup._id = idGroup;
+  }
+
+  for (const elWorkflow of workflows) {
+    const workflowId = new ObjectId();
+    for (const elNode of nodes) {
+      if (elNode.workflow === elWorkflow._id) {
+        elNode.workflow = workflowId;
+      }
+    }
+    elWorkflow.bot = botId;
+    elWorkflow._id = workflowId;
+  }
+  await saveData({
+    bot,
+    intents,
+    actions,
+    entities,
+    conditions,
+    workflows,
+    groupWorkflows,
+    groupIntents,
+    nodes,
+    groupEntities,
+    groupActions,
+  });
+};
+
+const deleteOldData = async (botId) => {
+  const condition = { bot: botId };
+  await groupActionDao.deleteByCondition(condition);
+  await groupIntentDao.deleteByCondition(condition);
+  await groupEntityDao.deleteByCondition(condition);
+  await groupWorkflowDao.deleteByCondition(condition);
+
+  await actionDao.deleteByCondition(condition);
+  await intentDao.deleteByCondition(condition);
+  await conditionDao.deleteByCondition(condition);
+  await dictionaryDao.deleteByCondition(condition);
+  await dashboardDao.deleteByCondition(condition);
+  await entityDao.deleteByCondition(condition);
+  await nodeDao.deleteByCondition(condition);
+  await slotDao.deleteByCondition(condition);
+  await workflowDao.deleteByCondition(condition);
+};
+
+const saveData = async ({
+  bot,
+  intents,
+  actions,
+  entities,
+  conditions,
+  workflows,
+  groupWorkflows,
+  groupIntents,
+  nodes,
+  groupEntities,
+  groupActions,
+}) => {
+  await botDao.updateBot(bot._id, bot);
+  for (const el of groupIntents) {
+    await groupIntentDao.createGroupIntent(el);
+  }
+  for (const el of groupActions) {
+    await groupActionDao.createGroupAction(el);
+  }
+  for (const el of groupEntities) {
+    await groupEntityDao.createGroupEntity(el);
+  }
+  for (const el of groupWorkflows) {
+    await groupWorkflowDao.createGroupWorkflow(el);
+  }
+  for (const el of intents) {
+    await intentDao.createIntent(el);
+  }
+  for (const el of actions) {
+    await actionDao.createAction(el);
+  }
+  for (const el of entities) {
+    await entityDao.createEntity(el);
+  }
+  for (const el of conditions) {
+    await conditionDao.createCondition(el);
+  }
+  for (const el of nodes) {
+    await nodeDao.createNode(el);
+  }
+  for (const el of workflows) {
+    await workflowDao.createWorkflow(el);
+  }
+};
+
+const getDataFromFileImport = (data) => {
+  // eslint-disable-next-line new-cap
+  const zip = new admz(data);
+  const intents = [];
+  const actions = [];
+  const entities = [];
+  const conditions = [];
+  const workflows = [];
+  let groupWorkflows = [];
+  let groupIntents = [];
+  let nodes = [];
+  let groupEntities = [];
+  let groupActions = [];
+  let bot = {};
+  zip.getEntries().forEach((el) => {
+    const name = el.entryName;
+    if (name.includes('undefined.json')) {
+      // continue loop
+    } else if (name === 'intents/groupIntents.json') {
+      groupIntents = JSON.parse(el.getData());
+    } else if (name.includes('intents/')) {
+      intents.push(JSON.parse(el.getData()));
+    } else if (name === 'actions/groupActions.json') {
+      groupActions = JSON.parse(el.getData());
+    } else if (name === 'entities/groupEntities.json') {
+      groupEntities = JSON.parse(el.getData());
+    } else if (name === 'workflows/groupWorkflows.json') {
+      groupWorkflows = JSON.parse(el.getData());
+    } else if (name.includes('actions/')) {
+      actions.push(JSON.parse(el.getData()));
+    } else if (name.includes('entities/')) {
+      entities.push(JSON.parse(el.getData()));
+    } else if (name.includes('conditions/')) {
+      conditions.push(JSON.parse(el.getData()));
+    } else if (name.includes('workflows/')) {
+      workflows.push(JSON.parse(el.getData()));
+    } else if (name.includes('nodes/')) {
+      nodes = JSON.parse(el.getData());
+    } else if (name.includes('bot.json')) {
+      bot = JSON.parse(el.getData());
+    }
+  });
+  return {
+    bot,
+    intents,
+    actions,
+    entities,
+    conditions,
+    workflows,
+    groupWorkflows,
+    groupIntents,
+    nodes,
+    groupEntities,
+    groupActions,
+  };
 };
 
 module.exports = {

@@ -102,6 +102,7 @@ const findIntentByBotId = async (botId) => {
 
 const deleteIntentById = async (id) => {
   await intentDao.deleteIntent(id);
+  await intentES.deleteIntentById(id);
 };
 
 const removeUsersayOfIntent = async (id, pattern) => {

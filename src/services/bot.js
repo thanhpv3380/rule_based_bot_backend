@@ -27,6 +27,7 @@ const entityDao = require('../daos/entity');
 const nodeDao = require('../daos/node');
 const slotDao = require('../daos/slot');
 const workflowDao = require('../daos/workflow');
+const intentES = require('../elasticsearch/intent');
 
 // eslint-disable-next-line new-cap
 const zp = new admz();
@@ -204,7 +205,7 @@ const getFileExportOfBot = async (botId) => {
       'entry comment goes here',
     );
   }
-  const { data: conditions } = await actionDao.findAllActionByCondition({
+  const { data: conditions } = await conditionDao.findAllConditionByCondition({
     bot: botId,
   });
   for (const el of conditions) {
@@ -280,6 +281,9 @@ const getFileExportOfBot = async (botId) => {
 };
 
 const importFile = async (botId, file) => {
+  if (!file) {
+    throw new CustomError(errorCodes.ITEM_NOT_EXIST);
+  }
   await deleteOldData(botId);
   const {
     bot,
@@ -298,11 +302,11 @@ const importFile = async (botId, file) => {
   for (const elGroup of groupIntents) {
     const idGroup = new ObjectId();
     for (const el of intents) {
-      if (el.groupIntent === elGroup._id) {
+      if (el.groupIntent === elGroup._id || !el.groupIntent) {
         el.groupIntent = idGroup;
       }
     }
-    elGroup.bot = botId;
+    elGroup.bot = ObjectId(botId);
     elGroup._id = idGroup;
   }
 
@@ -322,18 +326,18 @@ const importFile = async (botId, file) => {
         elNode.intent = intentId;
       }
     }
-    elIntent.bot = botId;
+    elIntent.bot = ObjectId(botId);
     elIntent._id = intentId;
   }
 
   for (const elGroup of groupActions) {
     const idGroup = new ObjectId();
     for (const el of actions) {
-      if (el.groupAction === elGroup._id) {
+      if (el.groupAction === elGroup._id || !el.groupAction) {
         el.groupAction = idGroup;
       }
     }
-    elGroup.bot = botId;
+    elGroup.bot = ObjectId(botId);
     elGroup._id = idGroup;
   }
 
@@ -378,14 +382,14 @@ const importFile = async (botId, file) => {
         }
       }
     }
-    elAction.bot = botId;
+    elAction.bot = ObjectId(botId);
     elAction._id = actionId;
   }
 
   for (const elGroup of groupEntities) {
     const idGroup = new ObjectId();
     for (const el of entities) {
-      if (el.groupEntity === elGroup._id) {
+      if (el.groupEntity === elGroup._id || !el.groupEntity) {
         el.groupEntity = idGroup;
       }
     }
@@ -404,7 +408,7 @@ const importFile = async (botId, file) => {
         }
       }
     }
-    elEntity.bot = botId;
+    elEntity.bot = ObjectId(botId);
     elEntity._id = entityId;
   }
 
@@ -415,7 +419,7 @@ const importFile = async (botId, file) => {
         elNode.condition = conditionId;
       }
     }
-    elCondition.bot = botId;
+    elCondition.bot = ObjectId(botId);
     elCondition._id = conditionId;
   }
 
@@ -437,18 +441,18 @@ const importFile = async (botId, file) => {
         }
       }
     }
-    node.bot = botId;
+    node.bot = ObjectId(botId);
     node._id = nodeId;
   }
 
   for (const elGroup of groupWorkflows) {
     const idGroup = new ObjectId();
     for (const el of workflows) {
-      if (el.groupWorkflow === elGroup._id) {
+      if (el.groupWorkflow === elGroup._id || !el.groupWorkflow) {
         el.groupWorkflow = idGroup;
       }
     }
-    elGroup.bot = botId;
+    elGroup.bot = ObjectId(botId);
     elGroup._id = idGroup;
   }
 
@@ -459,7 +463,7 @@ const importFile = async (botId, file) => {
         elNode.workflow = workflowId;
       }
     }
-    elWorkflow.bot = botId;
+    elWorkflow.bot = ObjectId(botId);
     elWorkflow._id = workflowId;
   }
   await saveData({
@@ -483,9 +487,9 @@ const deleteOldData = async (botId) => {
   await groupIntentDao.deleteByCondition(condition);
   await groupEntityDao.deleteByCondition(condition);
   await groupWorkflowDao.deleteByCondition(condition);
-
   await actionDao.deleteByCondition(condition);
   await intentDao.deleteByCondition(condition);
+  await intentES.deleteIntentByCondition(condition);
   await conditionDao.deleteByCondition(condition);
   await dictionaryDao.deleteByCondition(condition);
   await dashboardDao.deleteByCondition(condition);
@@ -496,7 +500,6 @@ const deleteOldData = async (botId) => {
 };
 
 const saveData = async ({
-  bot,
   intents,
   actions,
   entities,
@@ -508,36 +511,107 @@ const saveData = async ({
   groupEntities,
   groupActions,
 }) => {
-  await botDao.updateBot(bot._id, bot);
   for (const el of groupIntents) {
-    await groupIntentDao.createGroupIntent(el);
+    await groupIntentDao.createGroupIntent({
+      _id: el._id,
+      name: el.name,
+      botId: el.bot,
+      groupType: el.groupType,
+    });
   }
   for (const el of groupActions) {
-    await groupActionDao.createGroupAction(el);
+    await groupActionDao.createGroupAction({
+      _id: el._id,
+      name: el.name,
+      botId: el.bot,
+      groupType: el.groupType,
+    });
   }
   for (const el of groupEntities) {
-    await groupEntityDao.createGroupEntity(el);
+    await groupEntityDao.createGroupEntity({
+      _id: el._id,
+      name: el.name,
+      botId: el.bot,
+      groupType: el.groupType,
+    });
   }
   for (const el of groupWorkflows) {
-    await groupWorkflowDao.createGroupWorkflow(el);
+    await groupWorkflowDao.createGroupWorkflow({
+      _id: el._id,
+      name: el.name,
+      botId: el.bot,
+      groupType: el.groupType,
+    });
   }
   for (const el of intents) {
-    await intentDao.createIntent(el);
+    const intent = await intentDao.createIntent({
+      _id: el._id,
+      bot: el.bot,
+      groupIntent: el.groupIntent,
+      isMappingAction: el.isMappingAction,
+      mappingAction: el.mappingAction,
+      name: el.name,
+      parameters: el.parameters,
+      patterns: el.patterns,
+    });
+    await intentES.createIntent(intent);
   }
   for (const el of actions) {
-    await actionDao.createAction(el);
+    await actionDao.createAction({
+      _id: el._id,
+      actions: el.actions,
+      botId: el.bot,
+      groupActionId: el.groupAction,
+      name: el.name,
+    });
   }
   for (const el of entities) {
-    await entityDao.createEntity(el);
+    await entityDao.createEntity({
+      _id: el._id,
+      botId: el.bot,
+      groupEntityId: el.groupEntity,
+      name: el.name,
+      pattern: el.pattern,
+      patterns: el.patterns,
+      synonyms: el.synonyms,
+      type: el.type,
+    });
   }
   for (const el of conditions) {
-    await conditionDao.createCondition(el);
+    await conditionDao.createCondition({
+      _id: el._id,
+      operator: el.operator,
+      conditions: el.conditions,
+      bot: el.bot,
+      createBy: el.createBy,
+    });
   }
   for (const el of nodes) {
-    await nodeDao.createNode(el);
+    await nodeDao.createNode({
+      _id: el._id,
+      bot: el.bot,
+      children: el.children,
+      parent: el.parent,
+      position: el.position,
+      type: el.type,
+      workflow: el.workflow,
+      intent: el.intent,
+      condition: el.condition,
+      action: el.action,
+      actionAskAgain: el.actionAskAgain,
+    });
   }
   for (const el of workflows) {
-    await workflowDao.createWorkflow(el);
+    await workflowDao.createWorkflow({
+      _id: el._id,
+      bot: el.bot,
+      groupWorkflow: el.groupWorkflow,
+      name: el.name,
+      offsetX: el.offsetX,
+      offsetY: el.offsetY,
+      zoom: el.zoom,
+      createBy: el.createBy,
+    });
   }
 };
 

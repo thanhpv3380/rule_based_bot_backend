@@ -80,6 +80,7 @@ const findNodeIntentStartFlow = async (botId, intentId) => {
     'parent.type': 'START',
     type: 'INTENT',
     intent: intentId,
+    bot: botId,
   }).populate([
     {
       path: 'intent',

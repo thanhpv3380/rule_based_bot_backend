@@ -75,10 +75,21 @@ const findIntentByCondition = async (usersay, botId, intents) => {
   return data;
 };
 
-const deleteIntent = async (id) => {
+const deleteIntentById = async (id) => {
   await client.delete({
     index: 'intents',
     id,
+  });
+};
+
+const deleteIntentByCondition = async (condition) => {
+  await client.deleteByQuery({
+    index: 'intents',
+    body: {
+      query: {
+        match: condition,
+      },
+    },
   });
 };
 
@@ -86,6 +97,7 @@ module.exports = {
   createIntent,
   updateIntent,
   findIntent,
-  deleteIntent,
+  deleteIntentById,
   findIntentByCondition,
+  deleteIntentByCondition,
 };

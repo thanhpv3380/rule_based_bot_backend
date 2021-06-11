@@ -1,3 +1,6 @@
+const {
+  Types: { ObjectId },
+} = require('mongoose');
 const Action = require('../models/action');
 const { findAll, findByCondition } = require('../utils/db');
 
@@ -31,6 +34,7 @@ const findActionByCondition = async (condition, fields, populate) => {
 };
 
 const createAction = async ({
+  _id,
   name,
   actions,
   userId,
@@ -38,6 +42,7 @@ const createAction = async ({
   botId,
 }) => {
   const action = await Action.create({
+    _id: _id || new ObjectId(),
     name,
     actions,
     createBy: userId,

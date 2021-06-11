@@ -83,8 +83,9 @@ const findGroupActionByCondition = async (condition, fields, populate) => {
   return groupAction;
 };
 
-const createGroupAction = async ({ name, botId, groupType }) => {
+const createGroupAction = async ({ _id, name, botId, groupType }) => {
   const groupAction = await GroupAction.create({
+    _id: _id || new ObjectId(),
     name,
     bot: botId,
     groupType,

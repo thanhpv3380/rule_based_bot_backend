@@ -80,8 +80,9 @@ const findGroupIntentByCondition = async (condition, fields, populate) => {
   return groupIntent;
 };
 
-const createGroupIntent = async ({ name, botId, groupType }) => {
+const createGroupIntent = async ({ _id, name, botId, groupType }) => {
   const groupIntent = await GroupIntent.create({
+    _id: _id || new ObjectId(),
     name,
     bot: botId,
     groupType,

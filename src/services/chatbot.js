@@ -4,6 +4,8 @@
 const axios = require('axios');
 const camelcaseKeys = require('camelcase-keys');
 const { client } = require('../utils/redis');
+const CustomError = require('../errors/CustomError');
+const errorCodes = require('../errors/code');
 const intentES = require('../elasticsearch/intent');
 const nodeDao = require('../daos/node');
 const conditionService = require('./condition');
@@ -102,16 +104,17 @@ const handleUsersaySend = async (sessionId, usersay, botId) => {
   const result = hits.hits.find((el) => el._score === hits.max_score);
 
   // find intent is start workflow
-  const workflows = await nodeDao.findNodeIntentStartFlow(
-    result.bot,
-    result._id,
-  );
+  const workflows = await nodeDao.findNodeIntentStartFlow(botId, result._id);
 
   let intent = {};
   let workflow = null;
   if (workflows.length !== 0) {
     workflow = workflows[Math.floor(Math.random() * (workflows.length - 1))];
-    intent = workflow.intent;
+    if (workflow.intent) {
+      intent = workflow.intent;
+    } else {
+      intent = await findIntentById(result._id);
+    }
   } else {
     intent = await findIntentById(result._id);
   }
@@ -288,36 +291,39 @@ const checkChildNode = async (sessionId, currentNode) => {
         const action = await actionDao.findActionByCondition({
           _id: el.node.action,
         });
-        const response = await handleResponse(action);
-        await sendToQueue(
-          response,
-          sessionId,
-          currentNode.workflow,
-          STATUS_ANSWERED,
-        );
-        actionResponse = actionResponse.concat(response);
-        const currentChildNode = await nodeDao.findNodeById(el.node._id);
-        await checkChildNode(sessionId, currentChildNode);
+        if (action) {
+          const response = await handleResponse(action);
+          await sendToQueue(
+            response,
+            sessionId,
+            currentNode.workflow,
+            STATUS_ANSWERED,
+          );
+          actionResponse = actionResponse.concat(response);
+          const currentChildNode = await nodeDao.findNodeById(el.node._id);
+          await checkChildNode(sessionId, currentChildNode);
+        }
         return;
       default:
         break;
     }
   }
   if (type === NODE_CONDITION) {
-    PRODUCER.sendToQueue(
-      LOG_MESSAGE_QUEUE,
-      Buffer.from(
-        JSON.stringify({
-          sessionId,
-          message,
-          type: 'USER',
-          botId: bot,
-          workflowId: currentNode.workflow,
-          status: STATUS_DEFAULT,
-        }),
-      ),
+    const response = [
+      {
+        message: {
+          text: 'Xin lỗi tôi không hiểu ý bạn',
+        },
+      },
+    ];
+    actionResponse = actionResponse.concat(response);
+    await sendToQueue(
+      response,
+      sessionId,
+      currentNode.workflow,
+      STATUS_DEFAULT,
     );
-    // TODO handle action default
+    await client.delAsync(sessionId);
   }
 };
 
@@ -326,7 +332,13 @@ const comparePosition = (x1, x2) => {
 };
 
 const handleCondition = async (child) => {
-  const condition = await conditionService.findById(child.node.condition);
+  let condition = null;
+  try {
+    condition = await conditionService.findById(child.node.condition);
+  } catch (err) {
+    condition = null;
+  }
+
   const results = [];
   if (!condition) {
     return false;

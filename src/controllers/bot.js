@@ -83,99 +83,6 @@ const importFile = async (req, res) => {
   return res.send({ status: 1, result: data });
 };
 
-const testCaseEntity = (req, res) => {
-  // console.log('test case');
-  const test = 100000;
-  let S = '';
-  while (S.length < test - 6) {
-    S += 'a';
-  }
-  S += 'Hà Nội';
-  const Ws = ['Hồ Chí Minh', 'Thái Bình', 'Yên Bái', 'Hà Giang', 'Lào Cai'];
-  // console.log(Ws);
-  // Ws.push('Hà Nội');
-  // let regex = '/|';
-  // for (let i = 0; i < test / 5; i += 1) {
-  //   if (i === test / 5 - 1) {
-  //     break;
-  //   }
-  //   for (const w of Ws) {
-  //     regex = `${regex + w}|`;
-  //   }
-  // }
-  // regex += `Hà Nội|/`;
-  // console.time();
-  // S.match(regex);
-  // console.timeEnd();
-  // console.log(regex);
-  const wTest = 'Hà Nội';
-  let mTest = 0;
-  let iTest = 0;
-  const TTest = [];
-  TTest.length = S.length;
-  TTest[0] = -1;
-  console.time();
-  let check = false;
-  for (let j = 0; j < test / 5; j += 1) {
-    if (j === test / 5 - 1) {
-      break;
-    }
-    for (const w of Ws) {
-      let m = 0;
-      let i = 0;
-      const T = [];
-      T.length = S.length;
-      T[0] = -1;
-      while (m + i < S.length) {
-        if (w[i] === S[m + i]) {
-          i += 1;
-          if (i === w.length) {
-            check = true;
-            break;
-          }
-        } else if (T[i] > -1) {
-          i = T[i];
-          m = m + i - T[i];
-        } else {
-          i = 0;
-          m += 1;
-        }
-      }
-      if (check) {
-        break;
-      }
-    }
-  }
-  while (mTest + iTest < S.length) {
-    if (wTest[iTest] === S[mTest + iTest]) {
-      iTest += 1;
-      if (iTest === wTest.length) {
-        check = true;
-        console.timeEnd();
-        break;
-      }
-    } else if (TTest[iTest] > -1) {
-      iTest = TTest[iTest];
-      mTest = mTest + iTest - TTest[iTest];
-    } else {
-      iTest = 0;
-      mTest += 1;
-    }
-  }
-  // console.log('so khớp');
-  // console.time();
-  // for (const w of Ws) {
-  //   const result1 = S.indexOf(w);
-  //   if (result1 >= 0) {
-  //     S.slice(result1, w.length);
-  //     break;
-  //   }
-  // }
-  // console.log('index of');
-  // console.timeEnd();
-  return res.send({ status: 1 });
-};
-
 module.exports = {
   getAllBotByRole,
   getBotById,
@@ -188,5 +95,4 @@ module.exports = {
   deletePermission,
   getExportFile,
   importFile,
-  testCaseEntity,
 };

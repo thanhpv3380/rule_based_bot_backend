@@ -4,8 +4,8 @@
 const axios = require('axios');
 const camelcaseKeys = require('camelcase-keys');
 const { client } = require('../utils/redis');
-const CustomError = require('../errors/CustomError');
-const errorCodes = require('../errors/code');
+// const CustomError = require('../errors/CustomError');
+// const errorCodes = require('../errors/code');
 const intentES = require('../elasticsearch/intent');
 const nodeDao = require('../daos/node');
 const conditionService = require('./condition');
@@ -88,8 +88,15 @@ const getAction = async (sessionId, usersay, botId) => {
 };
 
 const handleUsersaySend = async (sessionId, usersay, botId) => {
-  const { hits } = await intentES.findIntent(usersay, botId);
-  if (hits.hits.length === 0) {
+  let hits = null;
+  try {
+    const data = await intentES.findIntent(usersay, botId);
+    hits = data.hits;
+  } catch (err) {
+    console.log(err);
+    hits = null;
+  }
+  if (!hits || hits.hits.length === 0) {
     const response = [
       {
         message: {
@@ -151,11 +158,17 @@ const handleUserSayInWorkflow = async (sessionId, usersay, data, botId) => {
   const listIntentId = currentNode.children.map((el) =>
     el.node.intent.toString(),
   );
-  const { hits } = await intentES.findIntentByCondition(
-    usersay,
-    botId,
-    listIntentId,
-  );
+  let hits = null;
+  try {
+    const resultES = await intentES.findIntentByCondition(
+      usersay,
+      botId,
+      listIntentId,
+    );
+    hits = resultES.hits;
+  } catch (err) {
+    hits = null;
+  }
   // todo status response
   if (hits.hits.length === 0) {
     let response = [];
@@ -261,7 +274,6 @@ const requireParamsIntent = async (currentNode, intent, usersay, sessionId) => {
 };
 
 const checkChildNode = async (sessionId, currentNode) => {
-  const { PRODUCER } = global;
   if (!currentNode || currentNode.children.length === 0) {
     await client.delAsync(sessionId);
     return;

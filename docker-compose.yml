@@ -6,9 +6,14 @@ services:
     ports:
       - '9200:9200'
     environment:
-      - discovery.type=single-node
-      - ELASTIC_USERNAME=admin
-      - ELASTIC_PASSWORD=1
+      discovery.type: single-node
+      ELASTIC_USERNAME: 'elastic'
+      ELASTIC_PASSWORD: '1'
+      http.cors.enabled: 'true'
+      http.cors.allow-origin: '*'
+      xpack.security.enabled: 'true'
+    networks:
+      - elk
     ulimits:
       memlock:
         soft: -1
@@ -18,6 +23,8 @@ services:
     image: kibana:7.10.1
     ports:
       - '5601:5601'
+    networks:
+      - elk
   redis:
     container_name: 'redis'
     image: 'docker.io/bitnami/redis:6.2-debian-10'
@@ -35,3 +42,7 @@ services:
     ports:
       - 5672:5672
       - 15672:15672
+
+networks:
+  elk:
+    driver: bridge

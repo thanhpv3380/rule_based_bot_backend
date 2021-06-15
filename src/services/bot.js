@@ -208,13 +208,11 @@ const getFileExportOfBot = async (botId) => {
   const { data: conditions } = await conditionDao.findAllConditionByCondition({
     bot: botId,
   });
-  for (const el of conditions) {
-    zp.addFile(
-      `conditions/${el.name}.json`,
-      Buffer.from(JSON.stringify(el), 'utf8'),
-      'entry comment goes here',
-    );
-  }
+  zp.addFile(
+    `conditions/conditions.json`,
+    Buffer.from(JSON.stringify(conditions), 'utf8'),
+    'entry comment goes here',
+  );
   const { data: workflows } = await workflowDao.findAllWorkflowByCondition({
     bot: botId,
   });
@@ -284,7 +282,6 @@ const importFile = async (botId, file) => {
   if (!file) {
     throw new CustomError(errorCodes.ITEM_NOT_EXIST);
   }
-  await deleteOldData(botId);
   const {
     bot,
     intents,
@@ -466,6 +463,7 @@ const importFile = async (botId, file) => {
     elWorkflow.bot = ObjectId(botId);
     elWorkflow._id = workflowId;
   }
+  await deleteOldData(botId);
   await saveData({
     bot,
     intents,
@@ -621,8 +619,8 @@ const getDataFromFileImport = (data) => {
   const intents = [];
   const actions = [];
   const entities = [];
-  const conditions = [];
   const workflows = [];
+  let conditions = [];
   let groupWorkflows = [];
   let groupIntents = [];
   let nodes = [];
@@ -648,7 +646,7 @@ const getDataFromFileImport = (data) => {
     } else if (name.includes('entities/')) {
       entities.push(JSON.parse(el.getData()));
     } else if (name.includes('conditions/')) {
-      conditions.push(JSON.parse(el.getData()));
+      conditions = JSON.parse(el.getData());
     } else if (name.includes('workflows/')) {
       workflows.push(JSON.parse(el.getData()));
     } else if (name.includes('nodes/')) {

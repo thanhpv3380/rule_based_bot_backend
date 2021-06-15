@@ -28,4 +28,6 @@ router.get(
 );
 router.put('/bots/:id/import-file', asyncMiddleware(botController.importFile));
 
+router.get('/testcase', asyncMiddleware(botController.testCaseEntity));
+
 module.exports = router;

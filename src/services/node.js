@@ -16,6 +16,7 @@ const createNode = async (data) => {
     const dataCondition = {
       operator: 'and',
       conditions: [],
+      bot: data.bot,
     };
     const condition = await conditionDao.createCondition(dataCondition);
     data.condition = condition._id;
@@ -42,7 +43,7 @@ const updateNode = async (id, data) => {
 };
 
 const deleteNode = async (workflowId, nodeId) => {
-  const node = nodeDao.findNodeById(nodeId);
+  const node = await nodeDao.findNodeById(nodeId);
   if (node.type === 'CONDITION') {
     await conditionDao.deleteCondition(node.condition);
   }

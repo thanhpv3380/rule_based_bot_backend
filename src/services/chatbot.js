@@ -577,9 +577,9 @@ const handleResponse = async (action) => {
       case ACTION_OPTION:
         responses.push({
           message: {
-            text: '<text>',
+            text: '',
             attachment: {
-              type: item.type,
+              type: ACTION_OPTION,
               payload: {
                 elements: item.options.map((el) => {
                   return {

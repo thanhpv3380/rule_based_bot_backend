@@ -579,7 +579,7 @@ const handleResponse = async (action) => {
           message: {
             text: '<text>',
             attachment: {
-              type: item.type,
+              type: ACTION_OPTION,
               payload: {
                 elements: item.options.map((el) => {
                   return {

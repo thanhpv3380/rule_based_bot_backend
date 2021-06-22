@@ -41,9 +41,12 @@ async function uploadFile(req, res, next) {
     } else if (err) {
       return next(err);
     }
-
-    const link = `${DOMAIN_NAME}/${req.file.path.slice(7)}`;
-    return res.send({ status: 1, result: { link } });
+    try {
+      const link = `${DOMAIN_NAME}/${req.file.path.slice(7)}`;
+      return res.send({ status: 1, result: { link } });
+    } catch (error) {
+      return next(error);
+    }
   });
 }
 

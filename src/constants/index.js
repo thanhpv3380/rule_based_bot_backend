@@ -1,4 +1,10 @@
 module.exports = {
+  DESTINATION: 'public',
+  IMAGES_FOLDER: 'images',
+  AUDIO_FOLDER: 'audios',
+  VIDEO_FOLDER: 'videos',
+  OTHER_FOLDER: 'others',
+
   A_WEEK: 7 * 86400 * 1000,
   DEFAULT: 1,
   GROUP: 2,

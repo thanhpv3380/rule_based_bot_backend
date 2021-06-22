@@ -9,7 +9,7 @@ const messageSchema = new mongoose.Schema(
       type: ObjectId,
       ref: 'Conversation',
     },
-    from: String, //BOT, USE
+    from: String, //BOT, USER
     bot: {
       type: ObjectId,
       ref: 'Bot',

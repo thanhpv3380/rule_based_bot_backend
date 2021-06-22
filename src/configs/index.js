@@ -18,9 +18,12 @@ const {
   OUTPUT_QUEUE,
   LOG_MESSAGE_QUEUE,
   USER_EXCHANGE,
+  FILE_SIZE_LIMITED,
 } = process.env;
 
 const { A_WEEK } = require('../constants');
+
+const MB = 1024 * 1024;
 
 const mqQueues = {
   RECEIVE_QUEUE,
@@ -31,6 +34,7 @@ const mqQueues = {
 };
 
 module.exports = {
+  FILE_SIZE_LIMITED: parseInt(FILE_SIZE_LIMITED || 1, 10) * MB,
   PORT: PORT || 3000,
   MONGO_URI_LOCAL: `mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/${MONGO_DATABASE}?authSource=admin`,
   MONGO_URI_CLOUD: `mongodb+srv://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_HOST}/${MONGO_DATABASE}?retryWrites=true&w=majority`,

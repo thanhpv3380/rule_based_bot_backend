@@ -16,13 +16,16 @@ const actionSchema = new mongoose.Schema(
           url: String,
           description: String,
         },
-        gallery: [
-          {
-            typeMedia: String, //IMAGE, VIDEO
-            url: String,
-            description: String,
-          },
-        ],
+        gallery: {
+          description: String,
+          images: [
+            {
+              typeMedia: String, //IMAGE, VIDEO
+              url: String,
+              description: String,
+            },
+          ],
+        },
         options: {
           optionsChild: [
             {

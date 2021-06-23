@@ -616,7 +616,7 @@ const handleResponse = async (action) => {
             attachment: {
               type: ACTION_OPTION,
               payload: {
-                elements: item.options.map((el) => {
+                elements: item.options.optionsChild.map((el) => {
                   return {
                     label: el.name,
                     value: el.value,

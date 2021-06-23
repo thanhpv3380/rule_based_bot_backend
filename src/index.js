@@ -32,7 +32,7 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use(fileupload());
 
 require('./routes')(app);
-require('./messageQueue/index');
+// require('./messageQueue/index');
 
 app.use(errorHandler);
 

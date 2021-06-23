@@ -77,20 +77,8 @@ const findWorkflowByCondition = async (condition, fields, populate) => {
   return workflow;
 };
 
-const createWorkflow = async ({
-  name,
-  Workflows,
-  userId,
-  groupWorkflowId,
-  botId,
-}) => {
-  const workflow = await Workflow.create({
-    name,
-    Workflows,
-    createBy: userId,
-    groupWorkflow: groupWorkflowId,
-    bot: botId,
-  });
+const createWorkflow = async (data) => {
+  const workflow = await Workflow.create(data);
   return workflow;
 };
 

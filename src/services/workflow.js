@@ -20,13 +20,7 @@ const findWorkflowById = async (id) => {
   return workflow;
 };
 
-const createWorkflow = async ({
-  name,
-  nodes,
-  userId,
-  groupWorkflowId,
-  botId,
-}) => {
+const createWorkflow = async ({ name, userId, groupWorkflowId, botId }) => {
   const workflowExist = await workflowDao.findWorkflowByCondition({
     name,
     bot: botId,
@@ -36,10 +30,12 @@ const createWorkflow = async ({
   }
   const workflow = await workflowDao.createWorkflow({
     name,
-    nodes,
-    userId,
-    groupWorkflowId,
-    botId,
+    createBy: userId,
+    groupWorkflow: groupWorkflowId,
+    bot: botId,
+    zoom: 100,
+    offsetX: 0,
+    offsetY: 0,
   });
   await nodeDao.createNode({
     type: 'START',

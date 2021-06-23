@@ -83,8 +83,9 @@ const findGroupWorkflowByCondition = async (condition, fields, populate) => {
   return groupWorkflow;
 };
 
-const createGroupWorkflow = async ({ name, botId, groupType }) => {
+const createGroupWorkflow = async ({ _id, name, botId, groupType }) => {
   const groupWorkflow = await GroupWorkflow.create({
+    _id: _id || new ObjectId(),
     name,
     bot: botId,
     groupType,

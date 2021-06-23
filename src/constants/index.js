@@ -10,6 +10,20 @@ module.exports = {
   GROUP: 2,
   GROUP_SINGLE: 3,
   GROUP_SINGLE_NAME: 'Not in Group',
+  GROUP_SYSTEM_INTENT: 'System group intent',
+  GROUP_SYSTEM_ACTION: 'System group action',
+  GROUP_SYSTEM_ENTITY: 'System group entity',
+
+  DEFAULT_REPLY: 'Xin lỗi tôi không hiểu ý bạn',
+
+  INTENT_SYSTEM: 'Bắt đầu',
+  ACTION_SYSTEM: 'Bắt đầu',
+
+  PATTERN_SYSTEM: ['Bắt đầu'],
+  ACTION_SYSTEM_TEXT: 'Im lặng',
+
+  ENTITY_NAME_NONE: 'none',
+  PATTERN_ENTITY_NONE: /^[a-zA-Z1-9àáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$/,
 
   RECEIVE_QUEUE: 'request-rule-bot',
   SEND_QUEUE: 'live-chat',

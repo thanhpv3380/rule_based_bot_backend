@@ -77,7 +77,7 @@ const saveOrUpdateDashboard = async (message) => {
     await dashboardDao.updateDashboard(dashboardToday._id, newDashboard);
   } else {
     const newDashboard = handleDataDashboard(message.status, 0, 0, 0, 0, 0);
-    await dashboardDao.createDashboard(newDashboard);
+    await dashboardDao.createDashboard({ ...newDashboard, bot: message.bot });
   }
 };
 

@@ -1,3 +1,6 @@
+const {
+  Types: { ObjectId },
+} = require('mongoose');
 const Entity = require('../models/entity');
 const { findAll, findByCondition } = require('../utils/db');
 
@@ -31,6 +34,7 @@ const findEntityByCondition = async (condition, fields, populate) => {
 };
 
 const createEntity = async ({
+  _id,
   name,
   type,
   pattern,
@@ -41,6 +45,7 @@ const createEntity = async ({
   botId,
 }) => {
   const entity = await Entity.create({
+    _id: _id || new ObjectId(),
     name,
     type,
     pattern,

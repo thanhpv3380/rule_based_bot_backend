@@ -19,7 +19,7 @@ const findAllActionByBotId = async ({ botId, fields, sort }) => {
 
 const createIntent = async ({ data }) => {
   const intentExist = await intentDao.findIntentByCondition({
-    condition: { name: data.name },
+    condition: { name: data.name, bot: data.bot },
   });
   if (intentExist) {
     throw new CustomError(errorCodes.ITEM_NAME_EXIST);
@@ -102,6 +102,7 @@ const findIntentByBotId = async (botId) => {
 
 const deleteIntentById = async (id) => {
   await intentDao.deleteIntent(id);
+  await intentES.deleteIntentById(id);
 };
 
 const removeUsersayOfIntent = async (id, pattern) => {

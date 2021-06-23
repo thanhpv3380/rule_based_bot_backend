@@ -83,8 +83,9 @@ const findGroupEntityByCondition = async (condition, fields, populate) => {
   return groupEntity;
 };
 
-const createGroupEntity = async ({ name, botId, groupType }) => {
+const createGroupEntity = async ({ _id, name, botId, groupType }) => {
   const groupEntity = await GroupEntity.create({
+    _id: _id || new ObjectId(),
     name,
     bot: botId,
     groupType,

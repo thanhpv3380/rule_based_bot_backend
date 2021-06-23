@@ -11,6 +11,17 @@ const errorCodes = require('../errors/code');
 const {
   GROUP_SINGLE,
   GROUP_SINGLE_NAME,
+  DEFAULT,
+  GROUP_SYSTEM_ACTION,
+  GROUP_SYSTEM_ENTITY,
+  GROUP_SYSTEM_INTENT,
+  INTENT_SYSTEM,
+  ACTION_SYSTEM,
+  PATTERN_SYSTEM,
+  ACTION_SYSTEM_TEXT,
+  ACTION_TEXT,
+  ENTITY_NAME_NONE,
+  PATTERN_ENTITY_NONE,
   ROLE_OWNER,
 } = require('../constants/index');
 const botDao = require('../daos/bot');
@@ -27,6 +38,7 @@ const entityDao = require('../daos/entity');
 const nodeDao = require('../daos/node');
 const slotDao = require('../daos/slot');
 const workflowDao = require('../daos/workflow');
+const intentES = require('../elasticsearch/intent');
 
 // eslint-disable-next-line new-cap
 const zp = new admz();
@@ -110,6 +122,57 @@ const createBot = async (userId, data) => {
     botId: bot.id,
     groupType: GROUP_SINGLE,
   });
+  // system group
+  const groupSystemIntentId = new ObjectId();
+  const groupSystemEntityId = new ObjectId();
+  const groupSystemActionId = new ObjectId();
+  await groupIntentDao.createGroupIntent({
+    _id: groupSystemIntentId,
+    name: GROUP_SYSTEM_INTENT,
+    botId: bot.id,
+    groupType: DEFAULT,
+  });
+  await groupEntityDao.createGroupEntity({
+    _id: groupSystemEntityId,
+    name: GROUP_SYSTEM_ENTITY,
+    botId: bot.id,
+    groupType: DEFAULT,
+  });
+  await groupActionDao.createGroupAction({
+    _id: groupSystemActionId,
+    name: GROUP_SYSTEM_ACTION,
+    botId: bot.id,
+    groupType: DEFAULT,
+  });
+  await intentDao.createIntent({
+    name: INTENT_SYSTEM,
+    groupIntent: groupSystemIntentId,
+    mappingAction: groupSystemActionId,
+    isMappingAction: true,
+    patterns: PATTERN_SYSTEM,
+    botId: bot.id,
+  });
+
+  await entityDao.createEntity({
+    groupEntityId: groupSystemEntityId,
+    name: ENTITY_NAME_NONE,
+    pattern: PATTERN_ENTITY_NONE,
+    type: 2,
+    botId: bot.id,
+  });
+
+  await actionDao.createAction({
+    name: ACTION_SYSTEM,
+    groupAction: groupSystemActionId,
+    actions: [
+      {
+        type: ACTION_TEXT,
+        Text: ACTION_SYSTEM_TEXT,
+      },
+    ],
+    botId: bot.id,
+  });
+
   return bot;
 };
 
@@ -175,7 +238,9 @@ const getFileExportOfBot = async (botId) => {
     'entry comment goes here',
   );
   const { data: intents } = await intentDao.findAllIntentByCondition({
-    bot: botId,
+    query: {
+      bot: botId,
+    },
   });
   for (const el of intents) {
     zp.addFile(
@@ -185,7 +250,9 @@ const getFileExportOfBot = async (botId) => {
     );
   }
   const { data: entities } = await entityDao.findAllEntityByCondition({
-    bot: botId,
+    query: {
+      bot: botId,
+    },
   });
   for (const el of entities) {
     zp.addFile(
@@ -195,7 +262,9 @@ const getFileExportOfBot = async (botId) => {
     );
   }
   const { data: actions } = await actionDao.findAllActionByCondition({
-    bot: botId,
+    query: {
+      bot: botId,
+    },
   });
   for (const el of actions) {
     zp.addFile(
@@ -204,18 +273,20 @@ const getFileExportOfBot = async (botId) => {
       'entry comment goes here',
     );
   }
-  const { data: conditions } = await actionDao.findAllActionByCondition({
-    bot: botId,
+  const { data: conditions } = await conditionDao.findAllConditionByCondition({
+    query: {
+      bot: botId,
+    },
   });
-  for (const el of conditions) {
-    zp.addFile(
-      `conditions/${el.name}.json`,
-      Buffer.from(JSON.stringify(el), 'utf8'),
-      'entry comment goes here',
-    );
-  }
+  zp.addFile(
+    `conditions/conditions.json`,
+    Buffer.from(JSON.stringify(conditions), 'utf8'),
+    'entry comment goes here',
+  );
   const { data: workflows } = await workflowDao.findAllWorkflowByCondition({
-    bot: botId,
+    query: {
+      bot: botId,
+    },
   });
   for (const el of workflows) {
     zp.addFile(
@@ -234,7 +305,9 @@ const getFileExportOfBot = async (botId) => {
   const {
     data: groupActions,
   } = await groupActionDao.findAllGroupActionByCondition({
-    bot: botId,
+    query: {
+      bot: botId,
+    },
   });
   zp.addFile(
     `actions/groupActions.json`,
@@ -244,7 +317,9 @@ const getFileExportOfBot = async (botId) => {
   const {
     data: groupIntents,
   } = await groupIntentDao.findAllGroupIntentByCondition({
-    bot: botId,
+    query: {
+      bot: botId,
+    },
   });
   zp.addFile(
     `intents/groupIntents.json`,
@@ -254,7 +329,9 @@ const getFileExportOfBot = async (botId) => {
   const {
     data: groupEntities,
   } = await groupEntityDao.findAllGroupEntityByCondition({
-    bot: botId,
+    query: {
+      bot: botId,
+    },
   });
   zp.addFile(
     `entities/groupEntities.json`,
@@ -264,7 +341,9 @@ const getFileExportOfBot = async (botId) => {
   const {
     data: groupWorkFlows,
   } = await groupWorkflowDao.findAllGroupWorkflowByCondition({
-    bot: botId,
+    query: {
+      bot: botId,
+    },
   });
   zp.addFile(
     `workflows/groupWorkflows.json`,
@@ -280,7 +359,9 @@ const getFileExportOfBot = async (botId) => {
 };
 
 const importFile = async (botId, file) => {
-  await deleteOldData(botId);
+  if (!file) {
+    throw new CustomError(errorCodes.ITEM_NOT_EXIST);
+  }
   const {
     bot,
     intents,
@@ -298,11 +379,11 @@ const importFile = async (botId, file) => {
   for (const elGroup of groupIntents) {
     const idGroup = new ObjectId();
     for (const el of intents) {
-      if (el.groupIntent === elGroup._id) {
+      if (el.groupIntent === elGroup._id || !el.groupIntent) {
         el.groupIntent = idGroup;
       }
     }
-    elGroup.bot = botId;
+    elGroup.bot = ObjectId(botId);
     elGroup._id = idGroup;
   }
 
@@ -322,18 +403,18 @@ const importFile = async (botId, file) => {
         elNode.intent = intentId;
       }
     }
-    elIntent.bot = botId;
+    elIntent.bot = ObjectId(botId);
     elIntent._id = intentId;
   }
 
   for (const elGroup of groupActions) {
     const idGroup = new ObjectId();
     for (const el of actions) {
-      if (el.groupAction === elGroup._id) {
+      if (el.groupAction === elGroup._id || !el.groupAction) {
         el.groupAction = idGroup;
       }
     }
-    elGroup.bot = botId;
+    elGroup.bot = ObjectId(botId);
     elGroup._id = idGroup;
   }
 
@@ -378,14 +459,14 @@ const importFile = async (botId, file) => {
         }
       }
     }
-    elAction.bot = botId;
+    elAction.bot = ObjectId(botId);
     elAction._id = actionId;
   }
 
   for (const elGroup of groupEntities) {
     const idGroup = new ObjectId();
     for (const el of entities) {
-      if (el.groupEntity === elGroup._id) {
+      if (el.groupEntity === elGroup._id || !el.groupEntity) {
         el.groupEntity = idGroup;
       }
     }
@@ -404,7 +485,7 @@ const importFile = async (botId, file) => {
         }
       }
     }
-    elEntity.bot = botId;
+    elEntity.bot = ObjectId(botId);
     elEntity._id = entityId;
   }
 
@@ -415,7 +496,7 @@ const importFile = async (botId, file) => {
         elNode.condition = conditionId;
       }
     }
-    elCondition.bot = botId;
+    elCondition.bot = ObjectId(botId);
     elCondition._id = conditionId;
   }
 
@@ -437,18 +518,18 @@ const importFile = async (botId, file) => {
         }
       }
     }
-    node.bot = botId;
+    node.bot = ObjectId(botId);
     node._id = nodeId;
   }
 
   for (const elGroup of groupWorkflows) {
     const idGroup = new ObjectId();
     for (const el of workflows) {
-      if (el.groupWorkflow === elGroup._id) {
+      if (el.groupWorkflow === elGroup._id || !el.groupWorkflow) {
         el.groupWorkflow = idGroup;
       }
     }
-    elGroup.bot = botId;
+    elGroup.bot = ObjectId(botId);
     elGroup._id = idGroup;
   }
 
@@ -459,9 +540,10 @@ const importFile = async (botId, file) => {
         elNode.workflow = workflowId;
       }
     }
-    elWorkflow.bot = botId;
+    elWorkflow.bot = ObjectId(botId);
     elWorkflow._id = workflowId;
   }
+  await deleteOldData(botId);
   await saveData({
     bot,
     intents,
@@ -483,9 +565,9 @@ const deleteOldData = async (botId) => {
   await groupIntentDao.deleteByCondition(condition);
   await groupEntityDao.deleteByCondition(condition);
   await groupWorkflowDao.deleteByCondition(condition);
-
   await actionDao.deleteByCondition(condition);
   await intentDao.deleteByCondition(condition);
+  await intentES.deleteIntentByCondition(condition);
   await conditionDao.deleteByCondition(condition);
   await dictionaryDao.deleteByCondition(condition);
   await dashboardDao.deleteByCondition(condition);
@@ -496,7 +578,6 @@ const deleteOldData = async (botId) => {
 };
 
 const saveData = async ({
-  bot,
   intents,
   actions,
   entities,
@@ -508,36 +589,107 @@ const saveData = async ({
   groupEntities,
   groupActions,
 }) => {
-  await botDao.updateBot(bot._id, bot);
   for (const el of groupIntents) {
-    await groupIntentDao.createGroupIntent(el);
+    await groupIntentDao.createGroupIntent({
+      _id: el._id,
+      name: el.name,
+      botId: el.bot,
+      groupType: el.groupType,
+    });
   }
   for (const el of groupActions) {
-    await groupActionDao.createGroupAction(el);
+    await groupActionDao.createGroupAction({
+      _id: el._id,
+      name: el.name,
+      botId: el.bot,
+      groupType: el.groupType,
+    });
   }
   for (const el of groupEntities) {
-    await groupEntityDao.createGroupEntity(el);
+    await groupEntityDao.createGroupEntity({
+      _id: el._id,
+      name: el.name,
+      botId: el.bot,
+      groupType: el.groupType,
+    });
   }
   for (const el of groupWorkflows) {
-    await groupWorkflowDao.createGroupWorkflow(el);
+    await groupWorkflowDao.createGroupWorkflow({
+      _id: el._id,
+      name: el.name,
+      botId: el.bot,
+      groupType: el.groupType,
+    });
   }
   for (const el of intents) {
-    await intentDao.createIntent(el);
+    const intent = await intentDao.createIntent({
+      _id: el._id,
+      bot: el.bot,
+      groupIntent: el.groupIntent,
+      isMappingAction: el.isMappingAction,
+      mappingAction: el.mappingAction,
+      name: el.name,
+      parameters: el.parameters,
+      patterns: el.patterns,
+    });
+    await intentES.createIntent(intent);
   }
   for (const el of actions) {
-    await actionDao.createAction(el);
+    await actionDao.createAction({
+      _id: el._id,
+      actions: el.actions,
+      botId: el.bot,
+      groupActionId: el.groupAction,
+      name: el.name,
+    });
   }
   for (const el of entities) {
-    await entityDao.createEntity(el);
+    await entityDao.createEntity({
+      _id: el._id,
+      botId: el.bot,
+      groupEntityId: el.groupEntity,
+      name: el.name,
+      pattern: el.pattern,
+      patterns: el.patterns,
+      synonyms: el.synonyms,
+      type: el.type,
+    });
   }
   for (const el of conditions) {
-    await conditionDao.createCondition(el);
+    await conditionDao.createCondition({
+      _id: el._id,
+      operator: el.operator,
+      conditions: el.conditions,
+      bot: el.bot,
+      createBy: el.createBy,
+    });
   }
   for (const el of nodes) {
-    await nodeDao.createNode(el);
+    await nodeDao.createNode({
+      _id: el._id,
+      bot: el.bot,
+      children: el.children,
+      parent: el.parent,
+      position: el.position,
+      type: el.type,
+      workflow: el.workflow,
+      intent: el.intent,
+      condition: el.condition,
+      action: el.action,
+      actionAskAgain: el.actionAskAgain,
+    });
   }
   for (const el of workflows) {
-    await workflowDao.createWorkflow(el);
+    await workflowDao.createWorkflow({
+      _id: el._id,
+      bot: el.bot,
+      groupWorkflow: el.groupWorkflow,
+      name: el.name,
+      offsetX: el.offsetX,
+      offsetY: el.offsetY,
+      zoom: el.zoom,
+      createBy: el.createBy,
+    });
   }
 };
 
@@ -547,8 +699,8 @@ const getDataFromFileImport = (data) => {
   const intents = [];
   const actions = [];
   const entities = [];
-  const conditions = [];
   const workflows = [];
+  let conditions = [];
   let groupWorkflows = [];
   let groupIntents = [];
   let nodes = [];
@@ -574,7 +726,7 @@ const getDataFromFileImport = (data) => {
     } else if (name.includes('entities/')) {
       entities.push(JSON.parse(el.getData()));
     } else if (name.includes('conditions/')) {
-      conditions.push(JSON.parse(el.getData()));
+      conditions = JSON.parse(el.getData());
     } else if (name.includes('workflows/')) {
       workflows.push(JSON.parse(el.getData()));
     } else if (name.includes('nodes/')) {

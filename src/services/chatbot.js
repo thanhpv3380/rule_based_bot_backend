@@ -4,11 +4,14 @@
 const axios = require('axios');
 const camelcaseKeys = require('camelcase-keys');
 const { client } = require('../utils/redis');
+// const CustomError = require('../errors/CustomError');
+// const errorCodes = require('../errors/code');
 const intentES = require('../elasticsearch/intent');
 const nodeDao = require('../daos/node');
 const conditionService = require('./condition');
 const actionDao = require('../daos/action');
 const intentDao = require('../daos/intent');
+const groupActionDao = require('../daos/groupAction');
 const botDao = require('../daos/bot');
 const {
   NODE_INTENT,
@@ -29,6 +32,7 @@ const {
   // STATUS_SILENCE,
   STATUS_NOT_UNDERSTAND,
   STATUS_NEED_CONFIRM,
+  DEFAULT_REPLY,
 } = require('../constants');
 const {
   mqQueues: { LOG_MESSAGE_QUEUE },
@@ -86,15 +90,31 @@ const getAction = async (sessionId, usersay, botId) => {
 };
 
 const handleUsersaySend = async (sessionId, usersay, botId) => {
-  const { hits } = await intentES.findIntent(usersay, botId);
-  if (hits.hits.length === 0) {
-    const response = [
-      {
-        message: {
-          text: 'Xin lỗi tôi không hiểu ý bạn',
+  let hits = null;
+  try {
+    const data = await intentES.findIntent(usersay, botId);
+    hits = data.hits;
+  } catch (err) {
+    console.log(err);
+    hits = null;
+  }
+  if (!hits || hits.hits.length === 0) {
+    const groupActionSystem = await groupActionDao.findGroupSystemActionAndItem(
+      bot,
+    );
+    let response = [];
+    if (groupActionSystem && groupActionSystem.children) {
+      response = handleResponse(groupActionSystem.children);
+    } else {
+      response = [
+        {
+          message: {
+            text: DEFAULT_REPLY,
+          },
         },
-      },
-    ];
+      ];
+    }
+
     await sendToQueue(response, sessionId, null, STATUS_NOT_UNDERSTAND);
     await client.delAsync(sessionId);
     return response;
@@ -102,16 +122,17 @@ const handleUsersaySend = async (sessionId, usersay, botId) => {
   const result = hits.hits.find((el) => el._score === hits.max_score);
 
   // find intent is start workflow
-  const workflows = await nodeDao.findNodeIntentStartFlow(
-    result.bot,
-    result._id,
-  );
+  const workflows = await nodeDao.findNodeIntentStartFlow(botId, result._id);
 
   let intent = {};
   let workflow = null;
   if (workflows.length !== 0) {
     workflow = workflows[Math.floor(Math.random() * (workflows.length - 1))];
-    intent = workflow.intent;
+    if (workflow.intent) {
+      intent = workflow.intent;
+    } else {
+      intent = await findIntentById(result._id);
+    }
   } else {
     intent = await findIntentById(result._id);
   }
@@ -148,17 +169,26 @@ const handleUserSayInWorkflow = async (sessionId, usersay, data, botId) => {
   const listIntentId = currentNode.children.map((el) =>
     el.node.intent.toString(),
   );
-  const { hits } = await intentES.findIntentByCondition(
-    usersay,
-    botId,
-    listIntentId,
-  );
+  let hits = null;
+  try {
+    const resultES = await intentES.findIntentByCondition(
+      usersay,
+      botId,
+      listIntentId,
+    );
+    hits = resultES.hits;
+  } catch (err) {
+    hits = null;
+  }
   // todo status response
   if (hits.hits.length === 0) {
     let response = [];
-    if (currentNode.actionAskAgain.actionAskAgain) {
+    if (
+      currentNode.actionAskAgain &&
+      currentNode.actionAskAgain.actionAskAgain
+    ) {
       if (data.numberOfLoop) {
-        if (data.numberOfLoop < currentNode.actionAskAgain) {
+        if (data.numberOfLoop < currentNode.actionAskAgain.numberOfLoop) {
           const newData = {
             ...data,
             numberOfLoop: data.numberOfLoop + 1,
@@ -185,13 +215,21 @@ const handleUserSayInWorkflow = async (sessionId, usersay, data, botId) => {
         );
       }
     } else {
-      response = [
-        {
-          message: {
-            text: 'Xin lỗi tôi không hiểu ý bạn',
+      const groupActionSystem = await groupActionDao.findGroupSystemActionAndItem(
+        bot,
+      );
+      if (groupActionSystem && groupActionSystem.children) {
+        response = handleResponse(groupActionSystem.children);
+      } else {
+        response = [
+          {
+            message: {
+              text: DEFAULT_REPLY,
+            },
           },
-        },
-      ];
+        ];
+      }
+
       await client.delAsync(sessionId);
     }
     await sendToQueue(response, sessionId, workflowId, STATUS_NOT_UNDERSTAND);
@@ -232,7 +270,7 @@ const requireParamsIntent = async (currentNode, intent, usersay, sessionId) => {
       parametersRequire.push(el);
     } else {
       // nếu parameter tìm thấy
-      el.value = parameter[0];
+      el.value = parameter;
       parameters.push(el);
     }
   }
@@ -258,7 +296,6 @@ const requireParamsIntent = async (currentNode, intent, usersay, sessionId) => {
 };
 
 const checkChildNode = async (sessionId, currentNode) => {
-  const { PRODUCER } = global;
   if (!currentNode || currentNode.children.length === 0) {
     await client.delAsync(sessionId);
     return;
@@ -288,36 +325,48 @@ const checkChildNode = async (sessionId, currentNode) => {
         const action = await actionDao.findActionByCondition({
           _id: el.node.action,
         });
-        const response = await handleResponse(action);
-        await sendToQueue(
-          response,
-          sessionId,
-          currentNode.workflow,
-          STATUS_ANSWERED,
-        );
-        actionResponse = actionResponse.concat(response);
-        const currentChildNode = await nodeDao.findNodeById(el.node._id);
-        await checkChildNode(sessionId, currentChildNode);
+        if (action) {
+          const response = await handleResponse(action);
+          await sendToQueue(
+            response,
+            sessionId,
+            currentNode.workflow,
+            STATUS_ANSWERED,
+          );
+          actionResponse = actionResponse.concat(response);
+          const currentChildNode = await nodeDao.findNodeById(el.node._id);
+          await checkChildNode(sessionId, currentChildNode);
+        }
         return;
       default:
         break;
     }
   }
   if (type === NODE_CONDITION) {
-    PRODUCER.sendToQueue(
-      LOG_MESSAGE_QUEUE,
-      Buffer.from(
-        JSON.stringify({
-          sessionId,
-          message,
-          type: 'USER',
-          botId: bot,
-          workflowId: currentNode.workflow,
-          status: STATUS_DEFAULT,
-        }),
-      ),
+    const groupActionSystem = await groupActionDao.findGroupSystemActionAndItem(
+      bot,
     );
-    // TODO handle action default
+    let response = [];
+    if (groupActionSystem && groupActionSystem.children) {
+      response = handleResponse(groupActionSystem.children);
+    } else {
+      response = [
+        {
+          message: {
+            text: DEFAULT_REPLY,
+          },
+        },
+      ];
+    }
+
+    actionResponse = actionResponse.concat(response);
+    await sendToQueue(
+      response,
+      sessionId,
+      currentNode.workflow,
+      STATUS_DEFAULT,
+    );
+    await client.delAsync(sessionId);
   }
 };
 
@@ -326,7 +375,13 @@ const comparePosition = (x1, x2) => {
 };
 
 const handleCondition = async (child) => {
-  const condition = await conditionService.findById(child.node.condition);
+  let condition = null;
+  try {
+    condition = await conditionService.findById(child.node.condition);
+  } catch (err) {
+    condition = null;
+  }
+
   const results = [];
   if (!condition) {
     return false;
@@ -380,7 +435,7 @@ const handleCheckRequireParamsAgain = async (sessionId, data, usersay) => {
   const currentParameter = await { ...data.parametersRequire[0] };
   const param = getParameter(currentParameter.entity, usersay);
   const newParameterRequire = [...data.parametersRequire];
-  if (param === null) {
+  if (!param) {
     let response = [];
     let status = null;
     // nếu parameter vẫn không tìm thấy
@@ -391,6 +446,7 @@ const handleCheckRequireParamsAgain = async (sessionId, data, usersay) => {
         [],
       );
       status = STATUS_NOT_UNDERSTAND;
+      await client.delAsync(sessionId);
     } else {
       // nếu không quá số vòng lặp
       response = await handleResponse(currentParameter.response.actionAskAgain);
@@ -403,7 +459,7 @@ const handleCheckRequireParamsAgain = async (sessionId, data, usersay) => {
   }
 
   // nếu tìm thấy parameter trong lần hỏi tiếp theo
-  currentParameter.value = param[0];
+  currentParameter.value = param;
   data.parameters.push(currentParameter);
   newParameterRequire.splice(0, 1);
   const listIndex = [];
@@ -411,7 +467,7 @@ const handleCheckRequireParamsAgain = async (sessionId, data, usersay) => {
   for (let i = 0; i < newParameterRequire.length; i++) {
     const element = newParameterRequire[i];
     const newParameter = getParameter(element.entity, usersay);
-    if (newParameter === null && element.required) {
+    if (!newParameter && element.required) {
       // nếu parameter sau đó không tìm thấy
       const newData = {
         ...data,
@@ -457,16 +513,16 @@ const handleCheckRequireParamsAgain = async (sessionId, data, usersay) => {
 };
 
 const getParameter = (entity, usersay) => {
-  let param;
+  let param = null;
   switch (entity.type) {
     case 1:
       param = entity.synonyms.find(
-        (el) => el.input.findIndex((item) => usersay.indexOf(item) >= 0) > 0,
+        (el) => el.input.findIndex((item) => usersay.indexOf(item) >= 0) >= 0,
       );
-      return (param && param.output) || param;
+      return (param && param.output) || null;
     case 2:
       param = usersay.match(entity.pattern);
-      return param;
+      return (param && param[0]) || param;
     default:
       return null;
   }
@@ -474,8 +530,11 @@ const getParameter = (entity, usersay) => {
 
 // no use for actionAskAgain
 const handleResponse = async (action) => {
-  // const actionJson = [];
   const responses = [];
+  if (!action) {
+    return responses;
+  }
+
   for (const item of action.actions) {
     switch (item.typeAction) {
       case ACTION_TEXT:
@@ -553,11 +612,11 @@ const handleResponse = async (action) => {
       case ACTION_OPTION:
         responses.push({
           message: {
-            text: '<text>',
+            text: item.options.description,
             attachment: {
-              type: item.type,
+              type: ACTION_OPTION,
               payload: {
-                elements: item.options.map((el) => {
+                elements: item.options.optionsChild.map((el) => {
                   return {
                     label: el.name,
                     value: el.value,
@@ -569,24 +628,25 @@ const handleResponse = async (action) => {
         });
         break;
       default:
+        responses.push({
+          message: {
+            text: (item.gallery[0] && item.gallery[0].description) || 'text',
+            attachment: item.gallery.map((el) => {
+              return {
+                type: 'image',
+                payload: {
+                  url: el.url,
+                },
+              };
+            }),
+          },
+        });
         break;
     }
   }
 
   return responses;
 };
-
-// const sendMessageLog = (
-//   sessionId,
-//   messageText,
-//   type,
-//   botId,
-//   workflowId,
-//   status,
-// ) => {
-//   const { PRODUCER } = global;
-
-// };
 
 const findIntentById = async (id) => {
   const intent = await intentDao.findIntentByCondition({
@@ -633,7 +693,9 @@ const sendToQueue = async (data, sessionId, workflowId, status) => {
       }),
     ),
   );
+
   for (const el of data) {
+    console.log(el.message);
     if (content) {
       // send chat with user
       await PRODUCER.sendToQueue(

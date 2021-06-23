@@ -45,7 +45,7 @@ const createEntity = async ({
     pattern,
     synonyms,
     patterns,
-    userId,
+    createBy: userId,
     groupEntityId,
     botId,
   });

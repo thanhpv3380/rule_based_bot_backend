@@ -24,13 +24,12 @@ const actionSchema = new mongoose.Schema(
           },
         ],
         options: {
-          optionChild: [
+          optionsChild: [
             {
               name: String,
               value: String,
             },
           ],
-
           description: String,
         },
         api: {

@@ -23,13 +23,16 @@ const actionSchema = new mongoose.Schema(
             description: String,
           },
         ],
-        options: [
-          {
-            name: String,
-            value: String,
-            description: String,
-          },
-        ],
+        options: {
+          optionChild: [
+            {
+              name: String,
+              value: String,
+            },
+          ],
+
+          description: String,
+        },
         api: {
           method: String, // GET, POST
           url: String,

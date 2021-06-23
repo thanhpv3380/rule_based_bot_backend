@@ -73,6 +73,34 @@ const findAllGroupActionAndItem = async ({ keyword, botId }) => {
   return groupActions;
 };
 
+const findGroupSystemActionAndItem = async (botId) => {
+  const groupActions = await GroupAction.aggregate([
+    {
+      $match: {
+        bot: ObjectId(botId),
+        groupType: 1,
+      },
+    },
+    {
+      $lookup: {
+        from: 'actions',
+        let: { id: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $eq: ['$groupAction', '$$id'],
+              },
+            },
+          },
+        ],
+        as: 'children',
+      },
+    },
+  ]);
+  return groupActions;
+};
+
 const findGroupActionByCondition = async (condition, fields, populate) => {
   const groupAction = await findByCondition(
     GroupAction,
@@ -110,6 +138,7 @@ const deleteByCondition = async (condition) => {
 
 module.exports = {
   findAllGroupActionByCondition,
+  findGroupSystemActionAndItem,
   findAllGroupActionAndItem,
   findGroupActionByCondition,
   createGroupAction,

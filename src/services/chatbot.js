@@ -612,7 +612,7 @@ const handleResponse = async (action) => {
       case ACTION_OPTION:
         responses.push({
           message: {
-            text: '',
+            text: item.options.description,
             attachment: {
               type: ACTION_OPTION,
               payload: {
@@ -628,6 +628,19 @@ const handleResponse = async (action) => {
         });
         break;
       default:
+        responses.push({
+          message: {
+            text: (item.gallery[0] && item.gallery[0].description) || 'text',
+            attachment: item.gallery.map((el) => {
+              return {
+                type: 'image',
+                payload: {
+                  url: el.url,
+                },
+              };
+            }),
+          },
+        });
         break;
     }
   }

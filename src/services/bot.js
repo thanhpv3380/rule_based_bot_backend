@@ -238,7 +238,9 @@ const getFileExportOfBot = async (botId) => {
     'entry comment goes here',
   );
   const { data: intents } = await intentDao.findAllIntentByCondition({
-    bot: botId,
+    query: {
+      bot: botId,
+    },
   });
   for (const el of intents) {
     zp.addFile(
@@ -248,7 +250,9 @@ const getFileExportOfBot = async (botId) => {
     );
   }
   const { data: entities } = await entityDao.findAllEntityByCondition({
-    bot: botId,
+    query: {
+      bot: botId,
+    },
   });
   for (const el of entities) {
     zp.addFile(
@@ -258,7 +262,9 @@ const getFileExportOfBot = async (botId) => {
     );
   }
   const { data: actions } = await actionDao.findAllActionByCondition({
-    bot: botId,
+    query: {
+      bot: botId,
+    },
   });
   for (const el of actions) {
     zp.addFile(
@@ -268,7 +274,9 @@ const getFileExportOfBot = async (botId) => {
     );
   }
   const { data: conditions } = await conditionDao.findAllConditionByCondition({
-    bot: botId,
+    query: {
+      bot: botId,
+    },
   });
   zp.addFile(
     `conditions/conditions.json`,
@@ -276,7 +284,9 @@ const getFileExportOfBot = async (botId) => {
     'entry comment goes here',
   );
   const { data: workflows } = await workflowDao.findAllWorkflowByCondition({
-    bot: botId,
+    query: {
+      bot: botId,
+    },
   });
   for (const el of workflows) {
     zp.addFile(
@@ -295,7 +305,9 @@ const getFileExportOfBot = async (botId) => {
   const {
     data: groupActions,
   } = await groupActionDao.findAllGroupActionByCondition({
-    bot: botId,
+    query: {
+      bot: botId,
+    },
   });
   zp.addFile(
     `actions/groupActions.json`,
@@ -305,7 +317,9 @@ const getFileExportOfBot = async (botId) => {
   const {
     data: groupIntents,
   } = await groupIntentDao.findAllGroupIntentByCondition({
-    bot: botId,
+    query: {
+      bot: botId,
+    },
   });
   zp.addFile(
     `intents/groupIntents.json`,
@@ -315,7 +329,9 @@ const getFileExportOfBot = async (botId) => {
   const {
     data: groupEntities,
   } = await groupEntityDao.findAllGroupEntityByCondition({
-    bot: botId,
+    query: {
+      bot: botId,
+    },
   });
   zp.addFile(
     `entities/groupEntities.json`,
@@ -325,7 +341,9 @@ const getFileExportOfBot = async (botId) => {
   const {
     data: groupWorkFlows,
   } = await groupWorkflowDao.findAllGroupWorkflowByCondition({
-    bot: botId,
+    query: {
+      bot: botId,
+    },
   });
   zp.addFile(
     `workflows/groupWorkflows.json`,

@@ -540,12 +540,7 @@ const handleResponse = async (action) => {
       case ACTION_TEXT:
         // eslint-disable-next-line no-loop-func
         const text = item.text.map((el) => {
-          for (let index = 0; index < parameters.length; index++) {
-            const element = parameters[index];
-            const replace = `{${element.parameterName}}`;
-            el = el.replace(replace, element.value);
-          }
-          return el;
+          return repaceValueParameter(el);
         });
         responses.push({
           message: {
@@ -556,7 +551,7 @@ const handleResponse = async (action) => {
       case ACTION_MEDIA:
         responses.push({
           message: {
-            text: item.media.description,
+            text: repaceValueParameter(item.media.description),
             attachment: {
               type: item.media.typeMedia,
               payload: {
@@ -612,7 +607,7 @@ const handleResponse = async (action) => {
       case ACTION_OPTION:
         responses.push({
           message: {
-            text: item.options.description,
+            text: repaceValueParameter(item.options.description || 'text'),
             attachment: {
               type: ACTION_OPTION,
               payload: {
@@ -646,6 +641,15 @@ const handleResponse = async (action) => {
   }
 
   return responses;
+};
+
+const repaceValueParameter = (text) => {
+  for (let index = 0; index < parameters.length; index++) {
+    const element = parameters[index];
+    const replace = `{${element.parameterName}}`;
+    text = text.replace(replace, element.value);
+  }
+  return text;
 };
 
 const findIntentById = async (id) => {

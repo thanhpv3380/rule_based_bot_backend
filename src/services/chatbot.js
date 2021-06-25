@@ -185,8 +185,7 @@ const handleUserSayInWorkflow = async (sessionId, usersay, data, botId) => {
     let response = [];
     if (
       currentNode.actionAskAgain &&
-      currentNode.actionAskAgain.actionAskAgain &&
-      currentNode.actionAskAgain.actionFail
+      currentNode.actionAskAgain.actionAskAgain
     ) {
       if (data.numberOfLoop) {
         if (data.numberOfLoop < currentNode.actionAskAgain.numberOfLoop) {

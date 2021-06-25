@@ -163,7 +163,7 @@ const createBot = async (userId, data) => {
 
   await actionDao.createAction({
     name: ACTION_SYSTEM,
-    groupAction: groupSystemActionId,
+    groupActionId: groupSystemActionId,
     actions: [
       {
         type: ACTION_TEXT,

@@ -144,7 +144,7 @@ const createBot = async (userId, data) => {
     botId: bot.id,
     groupType: DEFAULT,
   });
-  await intentDao.createIntent({
+  const intent = await intentDao.createIntent({
     name: INTENT_SYSTEM,
     groupIntent: groupSystemIntentId,
     mappingAction: groupSystemActionId,
@@ -152,6 +152,8 @@ const createBot = async (userId, data) => {
     patterns: PATTERN_SYSTEM,
     botId: bot.id,
   });
+
+  await intentES.createIntent(intent);
 
   await entityDao.createEntity({
     groupEntityId: groupSystemEntityId,

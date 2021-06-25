@@ -1,6 +1,7 @@
 const CustomError = require('../errors/CustomError');
 const errorCodes = require('../errors/code');
 const intentDao = require('../daos/intent');
+const nodeDao = require('../daos/node');
 const intentES = require('../elasticsearch/intent');
 
 const findAllActionByBotId = async ({ botId, fields, sort }) => {
@@ -101,6 +102,10 @@ const findIntentByBotId = async (botId) => {
 };
 
 const deleteIntentById = async (id) => {
+  const node = await nodeDao.findNodeByCondition({ intent: id });
+  if (node) {
+    throw CustomError(errorCodes.ITEM_EXIST_IN_WORKFLOW);
+  }
   await intentDao.deleteIntent(id);
   await intentES.deleteIntentById(id);
 };

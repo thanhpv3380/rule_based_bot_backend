@@ -611,12 +611,15 @@ const handleResponse = async (action) => {
             attachment: {
               type: ACTION_OPTION,
               payload: {
-                elements: item.options.optionsChild.map((el) => {
-                  return {
-                    label: el.name,
-                    value: el.value,
-                  };
-                }),
+                elements:
+                  (item.options.optionsChild &&
+                    item.options.optionsChild.map((el) => {
+                      return {
+                        label: el.name,
+                        value: el.value,
+                      };
+                    })) ||
+                  [],
               },
             },
           },

@@ -36,53 +36,34 @@ const findAllDashboard = async ({
 
 const findDashboardByCondition = async (botId, startDate, endDate) => {
   const { data } = await dashboardDao.findAllDashboardByCondition({
-    bot: botId,
-    createdAt: {
-      $gte: startDate,
-      $lte: endDate,
+    query: {
+      bot: botId,
+      createdAt: {
+        $gte: startDate,
+        $lte: endDate,
+      },
     },
     sort: ['createdAt_asc'],
   });
-  const newDashboard = data.reduce((currentValue, el) => {
-    return {
-      totalUsersay: currentValue.totalUsersay + el.totalUsersay,
-      answeredUsersay: currentValue.answeredUsersay + el.answeredUsersay,
-      notUnderstandUsersay:
-        currentValue.notUnderstandUsersay + el.notUnderstandUsersay,
-      defaultUsersay: currentValue.defaultUsersay + el.defaultUsersay,
-      needConfirmUsersay:
-        currentValue.needConfirmUsersay + el.needConfirmUsersay,
-    };
-  });
+  const newDashboard =
+    data.length !== 0
+      ? data.reduce((currentValue, el) => {
+          return {
+            totalUsersay: currentValue.totalUsersay + el.totalUsersay,
+            answeredUsersay: currentValue.answeredUsersay + el.answeredUsersay,
+            notUnderstandUsersay:
+              currentValue.notUnderstandUsersay + el.notUnderstandUsersay,
+            defaultUsersay: currentValue.defaultUsersay + el.defaultUsersay,
+            needConfirmUsersay:
+              currentValue.needConfirmUsersay + el.needConfirmUsersay,
+          };
+        })
+      : null;
   const rangeDate = Math.floor(
     (new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24),
   );
   const dashboards = [];
   for (let dateAgo = rangeDate; dateAgo >= 0; dateAgo -= 1) {
-    // for (const dashboard of data) {
-    //   const currentDate = moment(new Date(endDate))
-    //     .subtract(dateAgo, 'day')
-    //     .format('DD-MM-YYYY');
-    //   if (currentDate === moment(dashboard.createdAt).format('DD-MM-YYYY')) {
-    //     dashboards.push({
-    //       ...dashboard,
-    //       createdAt: moment(dashboard.createdAt).format('DD-MM-YYYY'),
-    //     });
-    //     break;
-    //   } else {
-    //     dashboards.push({
-    //       ...dashboard,
-    //       totalUsersay: 0,
-    //       answeredUsersay: 0,
-    //       notUnderstandUsersay: 0,
-    //       defaultUsersay: 0,
-    //       needConfirmUsersay: 0,
-    //       createdAt: moment(new Date(endDate))
-    //         .subtract(dateAgo, 'day')
-    //         .format('DD-MM-YYYY'),
-    //     });
-    //   }
-    // }
     const currentDate = moment(new Date(endDate))
       .subtract(dateAgo, 'day')
       .format('DD-MM-YYYY');
@@ -108,21 +89,39 @@ const findDashboardByCondition = async (botId, startDate, endDate) => {
       });
     }
   }
-  const response = {
-    dashboards,
-    statistics: {
-      ...newDashboard,
-      percent: {
-        answeredUsersay:
-          newDashboard.answeredUsersay / newDashboard.totalUsersay,
-        notUnderstandUsersay:
-          newDashboard.notUnderstandUsersay / newDashboard.totalUsersay,
-        defaultUsersay: newDashboard.defaultUsersay / newDashboard.totalUsersay,
-        needConfirmUsersay:
-          newDashboard.needConfirmUsersay / newDashboard.totalUsersay,
-      },
-    },
-  };
+  const response = newDashboard
+    ? {
+        dashboards,
+        statistics: {
+          ...newDashboard,
+          percent: {
+            answeredUsersay:
+              newDashboard.answeredUsersay / newDashboard.totalUsersay,
+            notUnderstandUsersay:
+              newDashboard.notUnderstandUsersay / newDashboard.totalUsersay,
+            defaultUsersay:
+              newDashboard.defaultUsersay / newDashboard.totalUsersay,
+            needConfirmUsersay:
+              newDashboard.needConfirmUsersay / newDashboard.totalUsersay,
+          },
+        },
+      }
+    : {
+        dashboards,
+        statistics: {
+          totalUsersay: 0,
+          answeredUsersay: 0,
+          notUnderstandUsersay: 0,
+          defaultUsersay: 0,
+          needConfirmUsersay: 0,
+          percent: {
+            answeredUsersay: 0,
+            notUnderstandUsersay: 0,
+            defaultUsersay: 0,
+            needConfirmUsersay: 0,
+          },
+        },
+      };
   return response;
 };
 

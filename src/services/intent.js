@@ -104,7 +104,7 @@ const findIntentByBotId = async (botId) => {
 const deleteIntentById = async (id) => {
   const node = await nodeDao.findNodeByCondition({ intent: id });
   if (node) {
-    throw CustomError(errorCodes.ITEM_EXIST_IN_WORKFLOW);
+    throw new CustomError(errorCodes.ITEM_EXIST_IN_WORKFLOW);
   }
   await intentDao.deleteIntent(id);
   await intentES.deleteIntentById(id);

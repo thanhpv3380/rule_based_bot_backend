@@ -39,6 +39,7 @@ const nodeDao = require('../daos/node');
 const slotDao = require('../daos/slot');
 const workflowDao = require('../daos/workflow');
 const intentES = require('../elasticsearch/intent');
+const node = require('../models/node');
 
 // eslint-disable-next-line new-cap
 const zp = new admz();
@@ -150,7 +151,7 @@ const createBot = async (userId, data) => {
     mappingAction: groupSystemActionId,
     isMappingAction: true,
     patterns: PATTERN_SYSTEM,
-    botId: bot.id,
+    bot: bot.id,
   });
 
   await intentES.createIntent(intent);
@@ -168,8 +169,8 @@ const createBot = async (userId, data) => {
     groupActionId: groupSystemActionId,
     actions: [
       {
-        type: ACTION_TEXT,
-        Text: ACTION_SYSTEM_TEXT,
+        typeAction: ACTION_TEXT,
+        Text: [ACTION_SYSTEM_TEXT],
       },
     ],
     botId: bot.id,
@@ -280,11 +281,14 @@ const getFileExportOfBot = async (botId) => {
       bot: botId,
     },
   });
-  zp.addFile(
-    `conditions/conditions.json`,
-    Buffer.from(JSON.stringify(conditions), 'utf8'),
-    'entry comment goes here',
-  );
+  if (conditions.length !== 0) {
+    zp.addFile(
+      `conditions/conditions.json`,
+      Buffer.from(JSON.stringify(conditions), 'utf8'),
+      'entry comment goes here',
+    );
+  }
+
   const { data: workflows } = await workflowDao.findAllWorkflowByCondition({
     query: {
       bot: botId,
@@ -297,12 +301,18 @@ const getFileExportOfBot = async (botId) => {
       'entry comment goes here',
     );
   }
-  const { data: nodes } = await nodeDao.findAllNodeByCondition({ bot: botId });
-  zp.addFile(
-    `nodes/nodes.json`,
-    Buffer.from(JSON.stringify(nodes), 'utf8'),
-    'entry comment goes here',
-  );
+  const { data: nodes } = await nodeDao.findAllNodeByCondition({
+    query: {
+      bot: botId,
+    },
+  });
+  if (nodes && node.length !== 0) {
+    zp.addFile(
+      `nodes/nodes.json`,
+      Buffer.from(JSON.stringify(nodes), 'utf8'),
+      'entry comment goes here',
+    );
+  }
 
   const {
     data: groupActions,

@@ -72,7 +72,7 @@ const updateAction = async ({ id, name, actions, groupActionId, botId }) => {
 const deleteAction = async (id) => {
   const node = await nodeDao.findNodeByCondition({ action: id });
   if (node) {
-    throw CustomError(errorCodes.ITEM_EXIST_IN_WORKFLOW);
+    throw new CustomError(errorCodes.ITEM_EXIST_IN_WORKFLOW);
   }
   await actionDao.deleteAction(id);
 };

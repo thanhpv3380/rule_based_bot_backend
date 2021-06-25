@@ -185,7 +185,8 @@ const handleUserSayInWorkflow = async (sessionId, usersay, data, botId) => {
     let response = [];
     if (
       currentNode.actionAskAgain &&
-      currentNode.actionAskAgain.actionAskAgain
+      currentNode.actionAskAgain.actionAskAgain &&
+      currentNode.actionAskAgain.actionFail
     ) {
       if (data.numberOfLoop) {
         if (data.numberOfLoop < currentNode.actionAskAgain.numberOfLoop) {
@@ -204,7 +205,7 @@ const handleUserSayInWorkflow = async (sessionId, usersay, data, botId) => {
             currentNode.actionAskAgain.actionFail,
           );
         }
-      } else {
+      } else if (currentNode.actionAskAgain.numberOfLoop > 0) {
         const newData = {
           ...data,
           numberOfLoop: 0,
@@ -213,6 +214,9 @@ const handleUserSayInWorkflow = async (sessionId, usersay, data, botId) => {
         response = await handleResponse(
           currentNode.actionAskAgain.actionAskAgain,
         );
+      } else {
+        await client.delAsync(sessionId);
+        response = await handleResponse(currentNode.actionAskAgain.actionFail);
       }
     } else {
       const groupActionSystem = await groupActionDao.findGroupSystemActionAndItem(

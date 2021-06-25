@@ -103,8 +103,8 @@ const handleUsersaySend = async (sessionId, usersay, botId) => {
       bot,
     );
     let response = [];
-    if (groupActionSystem && groupActionSystem.children) {
-      response = handleResponse(groupActionSystem.children);
+    if (groupActionSystem[0] && groupActionSystem[0].children[0]) {
+      response = await handleResponse(groupActionSystem[0].children[0]);
     } else {
       response = [
         {
@@ -221,8 +221,8 @@ const handleUserSayInWorkflow = async (sessionId, usersay, data, botId) => {
       const groupActionSystem = await groupActionDao.findGroupSystemActionAndItem(
         bot,
       );
-      if (groupActionSystem && groupActionSystem.children) {
-        response = handleResponse(groupActionSystem.children);
+      if (groupActionSystem[0] && groupActionSystem[0].children[0]) {
+        response = handleResponse(groupActionSystem[0].children[0]);
       } else {
         response = [
           {
@@ -350,8 +350,8 @@ const checkChildNode = async (sessionId, currentNode) => {
       bot,
     );
     let response = [];
-    if (groupActionSystem && groupActionSystem.children) {
-      response = handleResponse(groupActionSystem.children);
+    if (groupActionSystem[0] && groupActionSystem[0].children[0]) {
+      response = handleResponse(groupActionSystem[0].children[0]);
     } else {
       response = [
         {
@@ -629,19 +629,21 @@ const handleResponse = async (action) => {
         });
         break;
       default:
-        responses.push({
-          message: {
-            text: (item.gallery[0] && item.gallery[0].description) || 'text',
-            attachment: item.gallery.map((el) => {
-              return {
-                type: 'image',
-                payload: {
-                  url: el.url,
-                },
-              };
-            }),
-          },
-        });
+        // responses.push({
+        //   message: {
+        //     text: (item.gallery[0] && item.gallery[0].description) || 'text',
+        //     attachment:
+        //       item.gallery &&
+        //       item.gallery.map((el) => {
+        //         return {
+        //           type: 'image',
+        //           payload: {
+        //             url: el.url,
+        //           },
+        //         };
+        //       }),
+        //   },
+        // });
         break;
     }
   }
@@ -697,7 +699,7 @@ const sendToQueue = async (data, sessionId, workflowId, status) => {
         sessionId,
         message,
         from: 'USER',
-        botId: bot,
+        bot,
         workflowId,
         status,
       }),

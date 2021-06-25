@@ -74,7 +74,10 @@ const saveOrUpdateDashboard = async (message) => {
       defaultUsersay,
       needConfirmUsersay,
     );
-    await dashboardDao.updateDashboard(dashboardToday._id, newDashboard);
+    await dashboardDao.updateDashboard(dashboardToday._id, {
+      ...newDashboard,
+      bot: message.bot,
+    });
   } else {
     const newDashboard = handleDataDashboard(message.status, 0, 0, 0, 0, 0);
     await dashboardDao.createDashboard({ ...newDashboard, bot: message.bot });

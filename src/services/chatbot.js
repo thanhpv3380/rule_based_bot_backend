@@ -525,7 +525,7 @@ const getParameter = (entity, usersay) => {
       );
       return (param && param.output) || null;
     case 2:
-      param = usersay.match(entity.pattern);
+      param = usersay.match(new RegExp(entity.pattern));
       return (param && param[0]) || param;
     default:
       return null;

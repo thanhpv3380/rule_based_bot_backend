@@ -9,7 +9,7 @@ const conversationDao = require('../daos/conversation');
 const {
   STATUS_DEFAULT,
   STATUS_ANSWERED,
-  // STATUS_SILENCE,
+  STATUS_SILENCE,
   STATUS_NOT_UNDERSTAND,
   STATUS_NEED_CONFIRM,
 } = require('../constants');
@@ -64,6 +64,7 @@ const saveOrUpdateDashboard = async (message) => {
       notUnderstandUsersay,
       defaultUsersay,
       needConfirmUsersay,
+      silenceUsersay,
     } = dashboardToday;
 
     const newDashboard = handleDataDashboard(
@@ -73,13 +74,14 @@ const saveOrUpdateDashboard = async (message) => {
       notUnderstandUsersay,
       defaultUsersay,
       needConfirmUsersay,
+      silenceUsersay,
     );
     await dashboardDao.updateDashboard(dashboardToday._id, {
       ...newDashboard,
       bot: message.bot,
     });
   } else {
-    const newDashboard = handleDataDashboard(message.status, 0, 0, 0, 0, 0);
+    const newDashboard = handleDataDashboard(message.status, 0, 0, 0, 0, 0, 0);
     await dashboardDao.createDashboard({ ...newDashboard, bot: message.bot });
   }
 };
@@ -91,8 +93,10 @@ const handleDataDashboard = (
   notUnderstandUsersay,
   defaultUsersay,
   needConfirmUsersay,
+  silenceUsersay,
 ) => {
   totalUsersay += 1;
+  silenceUsersay = silenceUsersay || 0;
   switch (messageStatus) {
     case STATUS_DEFAULT:
       defaultUsersay += 1;
@@ -106,6 +110,9 @@ const handleDataDashboard = (
     case STATUS_NEED_CONFIRM:
       needConfirmUsersay += 1;
       break;
+    case STATUS_SILENCE:
+      silenceUsersay += 1;
+      break;
     default:
       totalUsersay -= 1;
       break;
@@ -116,6 +123,7 @@ const handleDataDashboard = (
     notUnderstandUsersay,
     defaultUsersay,
     needConfirmUsersay,
+    silenceUsersay,
   };
   return dashboard;
 };

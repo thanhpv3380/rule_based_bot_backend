@@ -14,6 +14,7 @@ const dashboardSchema = new mongoose.Schema(
     notUnderstandUsersay: Number,
     defaultUsersay: Number,
     needConfirmUsersay: Number,
+    silenceUsersay: Number,
   },
   {
     timestamps: true,

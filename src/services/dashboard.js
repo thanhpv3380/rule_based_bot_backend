@@ -56,6 +56,8 @@ const findDashboardByCondition = async (botId, startDate, endDate) => {
             defaultUsersay: currentValue.defaultUsersay + el.defaultUsersay,
             needConfirmUsersay:
               currentValue.needConfirmUsersay + el.needConfirmUsersay,
+            silenceUsersay:
+              currentValue.silenceUsersay || 0 + el.silenceUsersay || 0,
           };
         })
       : null;
@@ -73,6 +75,7 @@ const findDashboardByCondition = async (botId, startDate, endDate) => {
     if (dashboard) {
       dashboards.push({
         ...dashboard,
+        silenceUsersay: dashboard.silenceUsersay || 0,
         createdAt: moment(dashboard.createdAt).format('DD-MM-YYYY'),
       });
     } else {
@@ -83,6 +86,7 @@ const findDashboardByCondition = async (botId, startDate, endDate) => {
         notUnderstandUsersay: 0,
         defaultUsersay: 0,
         needConfirmUsersay: 0,
+        silenceUsersay: 0,
         createdAt: moment(new Date(endDate))
           .subtract(dateAgo, 'day')
           .format('DD-MM-YYYY'),
@@ -103,6 +107,8 @@ const findDashboardByCondition = async (botId, startDate, endDate) => {
               newDashboard.defaultUsersay / newDashboard.totalUsersay,
             needConfirmUsersay:
               newDashboard.needConfirmUsersay / newDashboard.totalUsersay,
+            silenceUsersay:
+              newDashboard.silenceUsersay / newDashboard.totalUsersay,
           },
         },
       }
@@ -114,11 +120,13 @@ const findDashboardByCondition = async (botId, startDate, endDate) => {
           notUnderstandUsersay: 0,
           defaultUsersay: 0,
           needConfirmUsersay: 0,
+          silenceUsersay: 0,
           percent: {
             answeredUsersay: 0,
             notUnderstandUsersay: 0,
             defaultUsersay: 0,
             needConfirmUsersay: 0,
+            silenceUsersay: 0,
           },
         },
       };

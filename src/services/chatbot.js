@@ -33,6 +33,7 @@ const {
   STATUS_NOT_UNDERSTAND,
   STATUS_NEED_CONFIRM,
   DEFAULT_REPLY,
+  STATUS_SILENCE,
 } = require('../constants');
 const {
   mqQueues: { LOG_MESSAGE_QUEUE },
@@ -115,7 +116,7 @@ const handleUsersaySend = async (sessionId, usersay, botId) => {
       ];
     }
 
-    await sendToQueue(response, sessionId, null, STATUS_NOT_UNDERSTAND);
+    await sendToQueue(response, sessionId, null, STATUS_DEFAULT);
     await client.delAsync(sessionId);
     return response;
   }
@@ -235,7 +236,7 @@ const handleUserSayInWorkflow = async (sessionId, usersay, data, botId) => {
 
       await client.delAsync(sessionId);
     }
-    await sendToQueue(response, sessionId, workflowId, STATUS_NOT_UNDERSTAND);
+    await sendToQueue(response, sessionId, workflowId, STATUS_DEFAULT);
     return response;
   }
   const result = hits.hits.find((el) => el._score === hits.max_score);
@@ -422,13 +423,14 @@ const handleCondition = async (child) => {
 };
 
 const handleMappingOneOne = async (intent, sessionId, workflowId) => {
-  const { mappingAction } = intent;
+  const { mappingAction, isMappingAction } = intent;
   let response = [];
-  if (mappingAction) {
+  if (isMappingAction && mappingAction) {
     response = await handleResponse(mappingAction);
+    await sendToQueue(response, sessionId, workflowId, STATUS_ANSWERED);
+  } else {
+    await sendToQueue(response, sessionId, workflowId, STATUS_SILENCE);
   }
-  // todo default reply mapping one one
-  await sendToQueue(response, sessionId, workflowId, STATUS_DEFAULT);
   await client.delAsync(sessionId);
   return response;
 };

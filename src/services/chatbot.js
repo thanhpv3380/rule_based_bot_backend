@@ -13,6 +13,7 @@ const actionDao = require('../daos/action');
 const intentDao = require('../daos/intent');
 const groupActionDao = require('../daos/groupAction');
 const botDao = require('../daos/bot');
+const slotDao = require('../daos/slot');
 const {
   NODE_INTENT,
   NODE_ACTION,
@@ -583,13 +584,16 @@ const handleResponse = async (action) => {
           headers: headerObj,
           body,
         });
-        const parameter = item.api.parameters.map((el) => {
+        console.log(data, 'data');
+        const parameter = [];
+        for (const el of item.api.parameters) {
+          const slot = await slotDao.findSlot({ _id: el.slot });
           const values = el.value.split('.');
           // _.mapKeys(values, (v, k) => _.camelCase(k));
           let value = { ...data.data };
 
           for (const ele of values) {
-            value = camelcaseKeys(value, { deep: false });
+            // value = camelcaseKeys(value, { deep: false });
             const indexStart = ele.indexOf('[');
             if (indexStart >= 0) {
               const indexEnd = ele.indexOf(']');
@@ -601,11 +605,11 @@ const handleResponse = async (action) => {
               value = value[ele];
             }
           }
-          return {
+          parameter.push({
             value,
-            parameter: el.name,
-          };
-        });
+            parameterName: slot.name,
+          });
+        }
         parameters = parameters.concat(parameter);
 
         break;
